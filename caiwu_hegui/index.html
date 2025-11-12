@@ -386,218 +386,83 @@
                         </div>
                     </div>
 
-                    <!-- TAB切换按钮 -->
-                    <div class="tab-buttons">
-                        <button class="tab-button active" onclick="switchInventoryTab('data')">
-                            📊 当前库存数据
-                        </button>
-                        <button class="tab-button" onclick="switchInventoryTab('process')">
-                            📈 状态变化流程
-                        </button>
-                    </div>
-
-                    <!-- TAB 1: 当前库存数据 -->
-                    <div id="inventory-data-tab" class="tab-content-area active">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>SKU</th>
-                                    <th>工厂</th>
-                                    <th>采购单号</th>
-                                    <th>接货单号</th>
-                                    <th>入库数量</th>
-                                    <th>消耗</th>
-                                    <th>结算数</th>
-                                    <th>退货数</th>
-                                    <th>真实结算数</th>
-                                    <th>接收仓库</th>
-                                    <th>操作</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>LC001-1-L</td>
-                                    <td>460工厂</td>
-                                    <td>PO-1235</td>
-                                    <td>JH251027000264018</td>
-                                    <td>10,000</td>
-                                    <td>6,000</td>
-                                    <td>10,000</td>
-                                    <td>0</td>
-                                    <td>10,000</td>
-                                    <td>新时颖主仓</td>
-                                    <td>
-                                        <button class="btn btn-primary"
-                                            style="padding: 4px 8px; font-size: 12px;">查看</button>
-                                        <button class="btn btn-primary"
-                                            style="padding: 4px 8px; font-size: 12px;">编辑</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>LC001-1-XL</td>
-                                    <td>460工厂</td>
-                                    <td>PO-1235</td>
-                                    <td>JH251027000264018</td>
-                                    <td>10,000</td>
-                                    <td>3,000</td>
-                                    <td>10,000</td>
-                                    <td>0</td>
-                                    <td>10,000</td>
-                                    <td>新时颖主仓</td>
-                                    <td>
-                                        <button class="btn btn-primary"
-                                            style="padding: 4px 8px; font-size: 12px;">查看</button>
-                                        <button class="btn btn-primary"
-                                            style="padding: 4px 8px; font-size: 12px;">编辑</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>LC002-M</td>
-                                    <td>460工厂</td>
-                                    <td>PO-1342</td>
-                                    <td>JH252027000264020</td>
-                                    <td>8,000</td>
-                                    <td>2,500</td>
-                                    <td>8,000</td>
-                                    <td>100</td>
-                                    <td>7,900</td>
-                                    <td>新时颖主仓</td>
-                                    <td>
-                                        <button class="btn btn-primary"
-                                            style="padding: 4px 8px; font-size: 12px;">查看</button>
-                                        <button class="btn btn-primary"
-                                            style="padding: 4px 8px; font-size: 12px;">编辑</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <!-- 结束TAB 1 -->
-
-                    <!-- TAB 2: 状态变化流程 -->
-                    <div id="inventory-process-tab" class="tab-content-area">
-                        <div
-                            style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; line-height: 1.8;">
-                            <h4 style="color: #2c3e50; margin-bottom: 15px;">📌 业务流程概述（关联库存ID：1，SKU: LC001-1-L）</h4>
-                            <ul style="margin: 10px 0; padding-left: 25px;">
-                                <li style="margin-bottom: 8px;"><strong>步骤1：</strong>采购入库 10,000 件</li>
-                                <li style="margin-bottom: 8px;"><strong>步骤2：</strong>销售出库 6,000 件</li>
-                                <li style="margin-bottom: 8px;"><strong>步骤3：</strong>工厂未结算前，退货 1,000 件（✅ 允许）</li>
-                                <li style="margin-bottom: 8px;"><strong>步骤4：</strong>工厂端结算 10,000 件</li>
-                                <li style="margin-bottom: 8px;"><strong>步骤5：</strong>工厂结算后尝试退货（❌ 拒绝）</li>
-                                <li style="margin-bottom: 8px;"><strong>步骤6：</strong>尝试超量消耗（验证规则）</li>
-                            </ul>
-                        </div>
-
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>步骤</th>
-                                    <th>业务操作</th>
-                                    <th>入库数量</th>
-                                    <th>消耗</th>
-                                    <th>结算数</th>
-                                    <th>退货数</th>
-                                    <th>真实结算数</th>
-                                    <th>说明</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr style="background: #f8f9fa;">
-                                    <td><strong>初始状态</strong></td>
-                                    <td>-</td>
-                                    <td>0</td>
-                                    <td>0</td>
-                                    <td>0</td>
-                                    <td>0</td>
-                                    <td>0</td>
-                                    <td>库存池为空</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="status status-active">步骤1</span></td>
-                                    <td>采购入库</td>
-                                    <td style="color: #27ae60; font-weight: bold;">10,000</td>
-                                    <td>0</td>
-                                    <td>0</td>
-                                    <td>0</td>
-                                    <td>0</td>
-                                    <td>采购单PO-1235入库10,000件，增加"入库数量"</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="status status-active">步骤2</span></td>
-                                    <td>销售出库</td>
-                                    <td>10,000</td>
-                                    <td style="color: #e67e22; font-weight: bold;">6,000</td>
-                                    <td>0</td>
-                                    <td>0</td>
-                                    <td>0</td>
-                                    <td>订单FBA192RDMZPS出库6,000件，增加"消耗"</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="status status-active">步骤3</span></td>
-                                    <td>工厂未结算前退货</td>
-                                    <td>10,000</td>
-                                    <td>6,000</td>
-                                    <td>0</td>
-                                    <td style="color: #27ae60; font-weight: bold;">1,000</td>
-                                    <td>0</td>
-                                    <td style="color: #27ae60;">✅ 成功：退货单TH-20250901-001退货1,000件，工厂未结算前允许退货，增加"退货数"</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="status status-warning">步骤4</span></td>
-                                    <td>工厂结算</td>
-                                    <td>10,000</td>
-                                    <td>6,000</td>
-                                    <td style="color: #3498db; font-weight: bold;">10,000</td>
-                                    <td>1,000</td>
-                                    <td style="color: #3498db; font-weight: bold;">9,000</td>
-                                    <td>工厂结算10,000件，增加"结算数"，真实结算数=结算数-退货数=10,000-1,000=9,000</td>
-                                </tr>
-                                <tr style="background: #ffebee;">
-                                    <td><span class="status status-error">步骤5</span></td>
-                                    <td>结算后尝试退货（拒绝）</td>
-                                    <td>10,000</td>
-                                    <td>6,000</td>
-                                    <td>10,000</td>
-                                    <td>1,000</td>
-                                    <td>9,000</td>
-                                    <td style="color: #e74c3c;">❌ 失败：尝试退货500件被拒绝，原因：工厂已结算，不允许再退货</td>
-                                </tr>
-                                <tr style="background: #ffebee;">
-                                    <td><span class="status status-error">步骤6</span></td>
-                                    <td>超量消耗（拒绝）</td>
-                                    <td>10,000</td>
-                                    <td>6,000</td>
-                                    <td>10,000</td>
-                                    <td>1,000</td>
-                                    <td>9,000</td>
-                                    <td style="color: #e74c3c;">❌
-                                        失败：尝试出库5,000件被拒绝，剩余可用库存3,000件（入库数量-消耗-退货数=10,000-6,000-1,000=3,000），不能超过可用库存
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                        <div
-                            style="margin-top: 30px; background: #fff9e6; padding: 20px; border-radius: 8px; border-left: 4px solid #f39c12;">
-                            <h4 style="color: #2c3e50; margin-bottom: 15px;">💡 关键说明</h4>
-                            <ul style="margin: 0; padding-left: 25px; line-height: 2;">
-                                <li><strong>入库数量：</strong>一经录入不可更改，保持历史记录完整性</li>
-                                <li><strong>消耗：</strong>仅记录销售出库，用于计算可用库存和成本结转</li>
-                                <li><strong>结算数：</strong>与工厂约定的结算数量，用于财务应付账款核算</li>
-                                <li><strong>退货数：</strong>因质量等问题退回工厂的数量，冲减应付账款</li>
-                                <li><strong>真实结算数：</strong>实际与工厂结算的数量 = 结算数 - 退货数</li>
-                                <li style="color: #e74c3c;"><strong>⚠️
-                                        退货限制：</strong>只有在工厂未结算前才允许退货，一旦工厂结算完成（结算数>0），则不允许再进行退货操作</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <!-- 结束TAB 2 -->
-
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>SKU</th>
+                                <th>工厂</th>
+                                <th>采购单号</th>
+                                <th>接货单号</th>
+                                <th>入库数量</th>
+                                <th>消耗</th>
+                                <th>结算数</th>
+                                <th>退货数</th>
+                                <th>真实结算数</th>
+                                <th>接收仓库</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>LC001-1-L</td>
+                                <td>460工厂</td>
+                                <td>PO-1235</td>
+                                <td>JH251027000264018</td>
+                                <td>10,000</td>
+                                <td>6,000</td>
+                                <td>10,000</td>
+                                <td>0</td>
+                                <td>10,000</td>
+                                <td>新时颖主仓</td>
+                                <td>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">编辑</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>LC001-1-XL</td>
+                                <td>460工厂</td>
+                                <td>PO-1235</td>
+                                <td>JH251027000264018</td>
+                                <td>10,000</td>
+                                <td>3,000</td>
+                                <td>10,000</td>
+                                <td>0</td>
+                                <td>10,000</td>
+                                <td>新时颖主仓</td>
+                                <td>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">编辑</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>LC002-M</td>
+                                <td>460工厂</td>
+                                <td>PO-1342</td>
+                                <td>JH252027000264020</td>
+                                <td>8,000</td>
+                                <td>2,500</td>
+                                <td>8,000</td>
+                                <td>100</td>
+                                <td>7,900</td>
+                                <td>新时颖主仓</td>
+                                <td>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">编辑</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
                 <!-- 库存池变更记录 -->
@@ -1704,30 +1569,6 @@
                 'invoice': '发票池管理'
             };
             document.getElementById('page-title').textContent = titles[sectionName] || '财务合规系统';
-        }
-
-        function switchInventoryTab(tabName) {
-            // 隐藏所有TAB内容
-            const tabContents = document.querySelectorAll('.tab-content-area');
-            tabContents.forEach(content => {
-                content.classList.remove('active');
-            });
-
-            // 移除所有TAB按钮的active状态
-            const tabButtons = document.querySelectorAll('.tab-button');
-            tabButtons.forEach(button => {
-                button.classList.remove('active');
-            });
-
-            // 显示选中的TAB内容
-            if (tabName === 'data') {
-                document.getElementById('inventory-data-tab').classList.add('active');
-            } else if (tabName === 'process') {
-                document.getElementById('inventory-process-tab').classList.add('active');
-            }
-
-            // 设置当前TAB按钮为active
-            event.currentTarget.classList.add('active');
         }
 
         function showCostDetail(factory, sku) {
