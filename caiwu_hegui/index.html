@@ -486,10 +486,10 @@
                             <ul style="margin: 10px 0; padding-left: 25px;">
                                 <li style="margin-bottom: 8px;"><strong>步骤1：</strong>采购入库 10,000 件</li>
                                 <li style="margin-bottom: 8px;"><strong>步骤2：</strong>销售出库 6,000 件</li>
-                                <li style="margin-bottom: 8px;"><strong>步骤3：</strong>工厂端结算 10,000 件</li>
-                                <li style="margin-bottom: 8px;"><strong>步骤4：</strong>退货 1,000 件</li>
-                                <li style="margin-bottom: 8px;"><strong>步骤5：</strong>尝试超量消耗（验证规则）</li>
-                                <li style="margin-bottom: 8px;"><strong>步骤6：</strong>尝试退货 3,000 件（验证规则）</li>
+                                <li style="margin-bottom: 8px;"><strong>步骤3：</strong>工厂未结算前，退货 1,000 件（✅ 允许）</li>
+                                <li style="margin-bottom: 8px;"><strong>步骤4：</strong>工厂端结算 10,000 件</li>
+                                <li style="margin-bottom: 8px;"><strong>步骤5：</strong>工厂结算后尝试退货（❌ 拒绝）</li>
+                                <li style="margin-bottom: 8px;"><strong>步骤6：</strong>尝试超量消耗（验证规则）</li>
                             </ul>
                         </div>
 
@@ -538,46 +538,45 @@
                                     <td>订单FBA192RDMZPS出库6,000件，增加"消耗"</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="status status-warning">步骤3</span></td>
+                                    <td><span class="status status-active">步骤3</span></td>
+                                    <td>工厂未结算前退货</td>
+                                    <td>10,000</td>
+                                    <td>6,000</td>
+                                    <td>0</td>
+                                    <td style="color: #27ae60; font-weight: bold;">1,000</td>
+                                    <td>0</td>
+                                    <td style="color: #27ae60;">✅ 成功：退货单TH-20250901-001退货1,000件，工厂未结算前允许退货，增加"退货数"</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="status status-warning">步骤4</span></td>
                                     <td>工厂结算</td>
                                     <td>10,000</td>
                                     <td>6,000</td>
                                     <td style="color: #3498db; font-weight: bold;">10,000</td>
-                                    <td>0</td>
-                                    <td style="color: #3498db; font-weight: bold;">10,000</td>
-                                    <td>工厂结算10,000件，增加"结算数"，真实结算数=结算数-退货数</td>
+                                    <td>1,000</td>
+                                    <td style="color: #3498db; font-weight: bold;">9,000</td>
+                                    <td>工厂结算10,000件，增加"结算数"，真实结算数=结算数-退货数=10,000-1,000=9,000</td>
                                 </tr>
-                                <tr>
-                                    <td><span class="status status-pending">步骤4</span></td>
-                                    <td>采购退货</td>
-                                    <td>10,000</td>
-                                    <td>7,000</td>
-                                    <td>10,000</td>
-                                    <td style="color: #e74c3c; font-weight: bold;">1,000</td>
-                                    <td style="color: #27ae60; font-weight: bold;">9,000</td>
-                                    <td>退货单TH-20250901-001退货1,000件，增加"退货数"，真实结算数=10,000-1,000=9,000</td>
-                                </tr>
-                                <tr>
+                                <tr style="background: #ffebee;">
                                     <td><span class="status status-error">步骤5</span></td>
+                                    <td>结算后尝试退货（拒绝）</td>
+                                    <td>10,000</td>
+                                    <td>6,000</td>
+                                    <td>10,000</td>
+                                    <td>1,000</td>
+                                    <td>9,000</td>
+                                    <td style="color: #e74c3c;">❌ 失败：尝试退货500件被拒绝，原因：工厂已结算，不允许再退货</td>
+                                </tr>
+                                <tr style="background: #ffebee;">
+                                    <td><span class="status status-error">步骤6</span></td>
                                     <td>超量消耗（拒绝）</td>
                                     <td>10,000</td>
-                                    <td>7,000</td>
+                                    <td>6,000</td>
                                     <td>10,000</td>
                                     <td>1,000</td>
                                     <td>9,000</td>
-                                    <td style="color: #e74c3c;">
-                                        尝试出库3,000件被拒绝：剩余可用库存2,000件，不能超过可用库存（真实结算数-消耗=9,000-7,000=2,000）</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="status status-error">步骤6</span></td>
-                                    <td>超量退货（拒绝）</td>
-                                    <td>10,000</td>
-                                    <td>7,000</td>
-                                    <td>10,000</td>
-                                    <td>1,000</td>
-                                    <td>9,000</td>
-                                    <td style="color: #e74c3c;">
-                                        尝试退货3,000件被拒绝：剩余可用库存2,000件，不能超过可用库存（真实结算数-消耗=9,000-7,000=2,000）
+                                    <td style="color: #e74c3c;">❌
+                                        失败：尝试出库5,000件被拒绝，剩余可用库存3,000件（入库数量-消耗-退货数=10,000-6,000-1,000=3,000），不能超过可用库存
                                     </td>
                                 </tr>
                             </tbody>
@@ -592,6 +591,8 @@
                                 <li><strong>结算数：</strong>与工厂约定的结算数量，用于财务应付账款核算</li>
                                 <li><strong>退货数：</strong>因质量等问题退回工厂的数量，冲减应付账款</li>
                                 <li><strong>真实结算数：</strong>实际与工厂结算的数量 = 结算数 - 退货数</li>
+                                <li style="color: #e74c3c;"><strong>⚠️
+                                        退货限制：</strong>只有在工厂未结算前才允许退货，一旦工厂结算完成（结算数>0），则不允许再进行退货操作</li>
                             </ul>
                         </div>
                     </div>
@@ -658,6 +659,21 @@
                             </tr>
                             <tr>
                                 <td>3</td>
+                                <td><span class="status status-active">采购退货（未结算）</span></td>
+                                <td>1</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>TH-20250901-001</td>
+                                <td>LC001-1-L</td>
+                                <td>1,000</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
                                 <td><span class="status status-warning">工厂结算</span></td>
                                 <td>1</td>
                                 <td>-</td>
@@ -672,22 +688,22 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>4</td>
-                                <td><span class="status status-pending">采购退货</span></td>
+                                <td>5</td>
+                                <td><span class="status status-error">结算后退货（拒绝）</span></td>
                                 <td>1</td>
                                 <td>-</td>
                                 <td>-</td>
                                 <td>-</td>
                                 <td>-</td>
-                                <td>TH-20250901-001</td>
+                                <td>TH-20250925-001</td>
                                 <td>LC001-1-L</td>
-                                <td>1,000</td>
+                                <td>500</td>
                                 <td>
                                     <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
                                 </td>
                             </tr>
                             <tr>
-                                <td>5</td>
+                                <td>6</td>
                                 <td><span class="status status-error">超量消耗（拒绝）</span></td>
                                 <td>1</td>
                                 <td>-</td>
@@ -697,21 +713,6 @@
                                 <td>-</td>
                                 <td>LC001-1-L</td>
                                 <td>5,000</td>
-                                <td>
-                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>6</td>
-                                <td><span class="status status-error">超量退货（拒绝）</span></td>
-                                <td>1</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>TH-20250925-001</td>
-                                <td>LC001-1-L</td>
-                                <td>3,000</td>
                                 <td>
                                     <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
                                 </td>
@@ -1445,10 +1446,10 @@
                         <ul style="margin: 15px 0; padding-left: 25px;">
                             <li style="margin-bottom: 8px;"><strong>步骤1：</strong>采购入库 10,000 件</li>
                             <li style="margin-bottom: 8px;"><strong>步骤2：</strong>销售出库 6,000 件</li>
-                            <li style="margin-bottom: 8px;"><strong>步骤3：</strong>工厂端结算 10,000 件</li>
-                            <li style="margin-bottom: 8px;"><strong>步骤4：</strong>退货 1,000 件</li>
-                            <li style="margin-bottom: 8px;"><strong>步骤5：</strong>尝试超量消耗（验证规则）</li>
-                            <li style="margin-bottom: 8px;"><strong>步骤6：</strong>尝试退货 3,000 件（验证规则）</li>
+                            <li style="margin-bottom: 8px;"><strong>步骤3：</strong>工厂未结算前，退货 1,000 件（✅ 允许）</li>
+                            <li style="margin-bottom: 8px;"><strong>步骤4：</strong>工厂端结算 10,000 件</li>
+                            <li style="margin-bottom: 8px;"><strong>步骤5：</strong>工厂结算后尝试退货（❌ 拒绝）</li>
+                            <li style="margin-bottom: 8px;"><strong>步骤6：</strong>尝试超量消耗（验证规则）</li>
                         </ul>
                     </div>
                 </div>
@@ -1501,27 +1502,37 @@
                                 <td>订单FBA192RDMZPS出库6,000件，增加"消耗"</td>
                             </tr>
                             <tr>
-                                <td><span class="status status-warning">步骤3</span></td>
+                                <td><span class="status status-active">步骤3</span></td>
+                                <td>工厂未结算前退货</td>
+                                <td>10,000</td>
+                                <td>6,000</td>
+                                <td>0</td>
+                                <td style="color: #27ae60; font-weight: bold;">1,000</td>
+                                <td>0</td>
+                                <td style="color: #27ae60;">✅ 成功：退货单TH-20250901-001退货1,000件，工厂未结算前允许退货，增加"退货数"</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status status-warning">步骤4</span></td>
                                 <td>工厂结算</td>
                                 <td>10,000</td>
                                 <td>6,000</td>
                                 <td style="color: #3498db; font-weight: bold;">10,000</td>
-                                <td>0</td>
-                                <td style="color: #3498db; font-weight: bold;">10,000</td>
-                                <td>工厂结算10,000件，增加"结算数"，真实结算数=结算数-退货数</td>
-                            </tr>
-                            <tr>
-                                <td><span class="status status-pending">步骤4</span></td>
-                                <td>采购退货</td>
-                                <td>10,000</td>
-                                <td>6,000</td>
-                                <td>10,000</td>
-                                <td style="color: #e74c3c; font-weight: bold;">1,000</td>
-                                <td style="color: #27ae60; font-weight: bold;">9,000</td>
-                                <td>退货单TH-20250901-001退货1,000件，增加"退货数"，真实结算数=10,000-1,000=9,000</td>
+                                <td>1,000</td>
+                                <td style="color: #3498db; font-weight: bold;">9,000</td>
+                                <td>工厂结算10,000件，增加"结算数"，真实结算数=结算数-退货数=10,000-1,000=9,000</td>
                             </tr>
                             <tr style="background: #ffebee;">
                                 <td><span class="status status-error">步骤5</span></td>
+                                <td>结算后尝试退货（拒绝）</td>
+                                <td>10,000</td>
+                                <td>6,000</td>
+                                <td>10,000</td>
+                                <td>1,000</td>
+                                <td>9,000</td>
+                                <td style="color: #e74c3c;">❌ 失败：尝试退货500件被拒绝，原因：工厂已结算，不允许再退货</td>
+                            </tr>
+                            <tr style="background: #ffebee;">
+                                <td><span class="status status-error">步骤6</span></td>
                                 <td>超量消耗（拒绝）</td>
                                 <td>10,000</td>
                                 <td>6,000</td>
@@ -1529,19 +1540,7 @@
                                 <td>1,000</td>
                                 <td>9,000</td>
                                 <td style="color: #e74c3c;">❌
-                                    失败：尝试出库3,000件被拒绝：剩余可用库存2,000件，不能超过可用库存（真实结算数-消耗=9,000-7,000=2,000）</td>
-                            </tr>
-                            <tr style="background: #ffebee;">
-                                <td><span class="status status-error">步骤6</span></td>
-                                <td>超量退货（拒绝）</td>
-                                <td>10,000</td>
-                                <td>6,000</td>
-                                <td>10,000</td>
-                                <td>1,000</td>
-                                <td>9,000</td>
-                                <td style="color: #e74c3c;">❌
-                                    失败：尝试出库3,000件被拒绝：剩余可用库存2,000件，不能超过可用库存（真实结算数-消耗=9,000-7,000=2,000）
-                                </td>
+                                    失败：尝试出库5,000件被拒绝，剩余可用库存3,000件（入库数量-消耗-退货数=10,000-6,000-1,000=3,000），不能超过可用库存</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1617,6 +1616,14 @@
                             </tr>
                             <tr>
                                 <td>3</td>
+                                <td><span class="status status-active">采购退货（未结算）</span></td>
+                                <td>1</td>
+                                <td>1,000</td>
+                                <td>退货数 +1,000</td>
+                                <td>退货单号：TH-20250901-001</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
                                 <td><span class="status status-warning">工厂结算</span></td>
                                 <td>1</td>
                                 <td>10,000</td>
@@ -1624,28 +1631,20 @@
                                 <td>采购单号：PO-1235</td>
                             </tr>
                             <tr>
-                                <td>4</td>
-                                <td><span class="status status-pending">采购退货</span></td>
+                                <td>5</td>
+                                <td><span class="status status-error">结算后退货（拒绝）</span></td>
                                 <td>1</td>
-                                <td>1,000</td>
-                                <td>退货数 +1,000</td>
-                                <td>退货单号：TH-20250901-001</td>
+                                <td>500</td>
+                                <td>无变化（拒绝）</td>
+                                <td>退货单号：TH-20250925-001</td>
                             </tr>
                             <tr>
-                                <td>5</td>
+                                <td>6</td>
                                 <td><span class="status status-error">超量消耗（拒绝）</span></td>
                                 <td>1</td>
                                 <td>5,000</td>
                                 <td>无变化（拒绝）</td>
                                 <td>订单号：ORD-20250925-001</td>
-                            </tr>
-                            <tr>
-                                <td>6</td>
-                                <td><span class="status status-error">超量退货（拒绝）</span></td>
-                                <td>1</td>
-                                <td>3,000</td>
-                                <td>无变化（拒绝）</td>
-                                <td>退货单号：TH-20250925-001</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1659,10 +1658,11 @@
                         <ul style="margin: 0; padding-left: 25px; line-height: 2;">
                             <li><strong>数据不可篡改：</strong>"入库数量"字段一经录入不可修改，确保历史数据的完整性和可追溯性</li>
                             <li><strong>退货处理：</strong>退货不减少"入库数量"，而是通过"退货数"字段单独记录，保持审计线索清晰</li>
+                            <li style="color: #e74c3c;"><strong>⚠️
+                                    退货限制：</strong>只有在工厂未结算前才允许退货，一旦工厂结算完成（结算数>0），则不允许再进行退货操作</li>
                             <li><strong>财务结算：</strong>最终与工厂结算时，使用"真实结算数"（结算数-退货数）作为计算依据</li>
                             <li><strong>库存消耗：</strong>"消耗"字段仅记录销售出库，不包含退货，两者分别核算</li>
                             <li><strong>不能超量消耗：</strong>可用库存=入库数量-消耗-退货数，出库数量不能超过可用库存，系统会自动拒绝超量消耗请求</li>
-                            <li><strong>不能超量退货：</strong>可退货数量=结算数-已消耗-已退货数，退货数量不能超过可退货数量，系统会自动拒绝超量退货请求</li>
                             <li><strong>全程可追溯：</strong>所有变更都在"库存池变更记录"中留痕，支持完整的审计追溯</li>
                         </ul>
                     </div>
