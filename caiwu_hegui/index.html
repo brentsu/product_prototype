@@ -349,11 +349,11 @@
                 <li class="menu-item active" onclick="showSection('dashboard')">
                     <i>📦</i> 虚拟库存池
                 </li>
-                <li class="menu-item" onclick="showSection('cost')">
-                    <i>💰</i> 库存成本核算
-                </li>
                 <li class="menu-item" onclick="showSection('process')">
                     <i>📋</i> 流程说明
+                </li>
+                <li class="menu-item" onclick="showSection('cost')">
+                    <i>💰</i> 库存成本核算
                 </li>
                 <li class="menu-item" onclick="showSection('invoice')">
                     <i>🧾</i> 发票池
@@ -601,8 +601,8 @@
                             <div class="card-title">库存总成本</div>
                             <div>💰</div>
                         </div>
-                        <div class="card-value">¥ 528,000</div>
-                        <div class="card-change positive">当前库存28,000件</div>
+                        <div class="card-value">¥ 421,800</div>
+                        <div class="card-change positive">当前库存21,400件</div>
                     </div>
 
                     <div class="card">
@@ -610,7 +610,7 @@
                             <div class="card-title">平均单位成本</div>
                             <div>📊</div>
                         </div>
-                        <div class="card-value">¥ 18.86</div>
+                        <div class="card-value">¥ 19.71</div>
                         <div class="card-change">加权平均单价</div>
                     </div>
 
@@ -619,8 +619,8 @@
                             <div class="card-title">本月入库成本</div>
                             <div>📥</div>
                         </div>
-                        <div class="card-value">¥ 436,000</div>
-                        <div class="card-change positive">入库20,000件</div>
+                        <div class="card-value">¥ 546,000</div>
+                        <div class="card-change positive">入库28,000件</div>
                     </div>
 
                     <div class="card">
@@ -628,8 +628,8 @@
                             <div class="card-title">本月出库成本</div>
                             <div>📤</div>
                         </div>
-                        <div class="card-value">¥ 170,184</div>
-                        <div class="card-change">出库9,000件</div>
+                        <div class="card-value">¥ 183,700</div>
+                        <div class="card-change">出库9,500件</div>
                     </div>
                 </div>
 
@@ -661,13 +661,13 @@
                             <tr>
                                 <td>460工厂</td>
                                 <td>LC001-1-L</td>
-                                <td>3,000</td>
-                                <td style="color: #1a6dba; font-weight: bold;">¥ 20.00</td>
-                                <td>¥ 60,000</td>
-                                <td>10,000</td>
+                                <td>9,000</td>
+                                <td style="color: #1a6dba; font-weight: bold;">¥ 21.11</td>
+                                <td>¥ 190,000</td>
+                                <td>15,000</td>
                                 <td>6,000</td>
-                                <td>1,000</td>
-                                <td>¥ 120,000</td>
+                                <td>0</td>
+                                <td>¥ 124,000</td>
                                 <td>
                                     <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;"
                                         onclick="showCostDetail('460工厂', 'LC001-1-L')">查看明细</button>
@@ -709,7 +709,8 @@
                     <div
                         style="margin-top: 15px; background: #e8f5e9; padding: 12px; border-radius: 8px; border-left: 4px solid #27ae60;">
                         <p style="margin: 0; color: #2e7d32; font-size: 14px;">
-                            <strong>说明：</strong>此表按"工厂+SKU"维度汇总，多个采购单的入库记录会被加权平均合并计算。剩余可用库存 = 入库数量 - 消耗 - 退货数。
+                            <strong>说明：</strong>此表按"工厂+SKU"维度汇总，显示当前剩余库存的实际平均成本。加权平均成本 = 库存成本金额 ÷
+                            剩余可用库存（汇总各采购单的剩余库存成本计算）。
                         </p>
                     </div>
                 </div>
@@ -717,7 +718,7 @@
                 <!-- 库存成本明细表 -->
                 <div class="inventory-pool" style="margin-top: 30px;">
                     <div class="section-header">
-                        <div class="section-title">库存成本明细（按工厂+SKU+加权平均成本）</div>
+                        <div class="section-title">库存成本明细（按采购单明细展示）</div>
                         <div>
                             <button class="btn btn-primary">成本调整</button>
                             <button class="btn btn-success">导出报表</button>
@@ -738,14 +739,14 @@
                                 <th>退货数</th>
                                 <th>真实结算数</th>
                                 <th>接收仓库</th>
-                                <th>加权平均成本</th>
+                                <th>入库单价</th>
                                 <th>库存成本金额</th>
                                 <th>累计出库成本</th>
                                 <th>操作</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
+                            <tr style="background: #f0f8ff;">
                                 <td>1</td>
                                 <td>LC001-1-L</td>
                                 <td>460工厂</td>
@@ -754,8 +755,8 @@
                                 <td>10,000</td>
                                 <td>6,000</td>
                                 <td>10,000</td>
-                                <td>1,000</td>
-                                <td>9,000</td>
+                                <td>0</td>
+                                <td>10,000</td>
                                 <td>新时颖主仓</td>
                                 <td style="color: #1a6dba; font-weight: bold;">¥ 20.00</td>
                                 <td>¥ 80,000</td>
@@ -765,8 +766,28 @@
                                         onclick="showCostDetail('460工厂', 'LC001-1-L')">成本明细</button>
                                 </td>
                             </tr>
-                            <tr>
+                            <tr style="background: #f0f8ff;">
                                 <td>2</td>
+                                <td>LC001-1-L</td>
+                                <td>460工厂</td>
+                                <td>PO-1368</td>
+                                <td>JH251115000264032</td>
+                                <td>5,000</td>
+                                <td>0</td>
+                                <td>5,000</td>
+                                <td>0</td>
+                                <td>5,000</td>
+                                <td>新时颖主仓</td>
+                                <td style="color: #1a6dba; font-weight: bold;">¥ 22.00</td>
+                                <td>¥ 110,000</td>
+                                <td>¥ 0</td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;"
+                                        onclick="showCostDetail('460工厂', 'LC001-1-L')">成本明细</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
                                 <td>LC001-1-XL</td>
                                 <td>460工厂</td>
                                 <td>PO-1235</td>
@@ -786,7 +807,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>3</td>
+                                <td>4</td>
                                 <td>LC002-M</td>
                                 <td>460工厂</td>
                                 <td>PO-1342</td>
@@ -813,11 +834,13 @@
                         style="margin-top: 20px; background: #f0f8ff; padding: 15px; border-radius: 8px; border-left: 4px solid #1a6dba;">
                         <h5 style="color: #1a6dba; margin-bottom: 10px;">📊 成本计算说明</h5>
                         <ul style="margin: 0; padding-left: 25px; line-height: 2; color: #555;">
-                            <li><strong>成本维度：</strong>库存成本按"工厂+SKU"维度计算，每个工厂的每个SKU维护一个独立的加权平均成本</li>
-                            <li><strong>加权平均成本：</strong>该SKU在指定工厂下的所有入库记录按加权平均法计算出的单位成本</li>
-                            <li><strong>库存成本金额：</strong>= 库存数量 × 加权平均成本（库存数量 = 入库数量 - 消耗）</li>
-                            <li><strong>累计出库成本：</strong>= 累计出库数量 × 加权平均成本（每次出库时按当前加权成本计算）</li>
-                            <li><strong>成本更新时机：</strong>每次采购入库后重新计算加权平均成本，出库时使用当前加权成本计价</li>
+                            <li><strong>明细维度：</strong>此表按采购单明细展示，每一行代表一个采购单的入库记录</li>
+                            <li><strong>入库单价：</strong>该采购单的实际入库单价（每个采购单可能有不同的单价）</li>
+                            <li><strong>库存成本金额：</strong>= 剩余库存数量 × 入库单价（剩余库存 = 入库数量 - 消耗 - 退货数）</li>
+                            <li><strong>累计出库成本：</strong>= 该采购单已出库数量 × 入库单价</li>
+                            <li><strong>💡
+                                    示例：</strong>第1、2行都是"460工厂+LC001-1-L"，两个采购单入库单价不同（¥20.00和¥22.00），在汇总表中会被加权平均为¥20.67
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -851,15 +874,15 @@
                             <tr style="background: #f0f8ff;">
                                 <td>460工厂</td>
                                 <td>LC001-1-L</td>
-                                <td>10,000</td>
-                                <td>¥ 200,000</td>
+                                <td>15,000</td>
+                                <td>¥ 310,000</td>
                                 <td>6,000</td>
-                                <td>1,000</td>
-                                <td style="color: #27ae60; font-weight: bold;">3,000</td>
-                                <td style="color: #1a6dba; font-weight: bold;">¥ 20.00</td>
-                                <td>¥ 60,000</td>
-                                <td>¥ 120,000</td>
-                                <td>2025-09-15</td>
+                                <td>0</td>
+                                <td style="color: #27ae60; font-weight: bold;">9,000</td>
+                                <td style="color: #1a6dba; font-weight: bold;">¥ 21.11</td>
+                                <td>¥ 190,000</td>
+                                <td>¥ 124,000</td>
+                                <td>2025-11-15</td>
                             </tr>
                             <tr>
                                 <td>460工厂</td>
@@ -898,10 +921,10 @@
                         <ul
                             style="margin: 8px 0 0 0; padding-left: 25px; line-height: 1.8; color: #555; font-size: 14px;">
                             <li><strong>剩余可用库存</strong> = 累计入库数量 - 累计消耗数量 - 累计退货数量</li>
-                            <li><strong>加权平均成本</strong> = 累计入库金额 ÷ 累计入库数量（多个采购单的入库会被加权平均合并）</li>
-                            <li><strong>库存成本金额</strong> = 剩余可用库存 × 加权平均成本</li>
-                            <li><strong>累计出库成本</strong> = 累计消耗数量 × 加权平均成本</li>
-                            <li>同一工厂+SKU的多个采购单入库记录会被合并计算，形成一条加权平均成本记录</li>
+                            <li><strong>加权平均成本</strong> = 库存成本金额 ÷ 剩余可用库存（反映当前剩余库存的实际平均成本）</li>
+                            <li><strong>库存成本金额</strong> = 各采购单剩余库存成本之和（从明细表汇总）</li>
+                            <li><strong>累计出库成本</strong> = 各采购单累计出库成本之和（从明细表汇总）</li>
+                            <li>同一工厂+SKU的多个采购单入库记录会被合并汇总，显示当前剩余库存的平均成本</li>
                         </ul>
                     </div>
                 </div>
@@ -915,7 +938,8 @@
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
                         <h4 style="color: #2c3e50; margin-bottom: 15px;">算法原理</h4>
                         <p style="line-height: 1.8; margin-bottom: 15px;">
-                            加权平均法是一种常用的库存成本核算方法。系统按照<strong>"工厂+SKU"</strong>维度维护独立的加权平均成本，即每个工厂的每个SKU都有自己独立的成本池。每次该工厂+SKU组合入库后重新计算平均单位成本，出库时按当前加权平均成本计价。
+                            加权平均法是一种常用的库存成本核算方法。系统按照<strong>"工厂+SKU"</strong>维度维护独立的加权平均成本，即每个工厂的每个SKU都有自己独立的成本池。<strong>加权平均成本
+                                = 当前库存成本金额 ÷ 当前剩余库存数量</strong>，反映当前剩余库存的实际平均成本。该组合的所有采购单明细会被汇总计算。
                         </p>
 
                         <div
@@ -934,15 +958,16 @@
                             <h5 style="color: #1a6dba; margin-bottom: 10px;">📐 计算公式</h5>
                             <p
                                 style="font-family: monospace; background: #f0f8ff; padding: 10px; border-radius: 4px; margin: 10px 0;">
-                                <strong>入库时：</strong><br>
-                                新加权成本 = (原库存金额 + 本次入库金额) ÷ (原库存数量 + 本次入库数量)
+                                <strong>加权平均成本：</strong><br>
+                                加权成本 = 库存成本金额 ÷ 剩余可用库存<br>
+                                <span style="font-size: 12px; color: #666;">（按工厂+SKU维度，汇总各采购单剩余库存成本计算）</span>
                             </p>
                             <p
                                 style="font-family: monospace; background: #f0f8ff; padding: 10px; border-radius: 4px; margin: 10px 0;">
-                                <strong>出库时：</strong><br>
-                                出库成本 = 出库数量 × 当前加权成本<br>
-                                剩余库存金额 = 原库存金额 - 出库成本<br>
-                                加权成本保持不变
+                                <strong>库存成本金额：</strong><br>
+                                库存成本金额 = 各采购单剩余库存成本之和<br>
+                                剩余可用库存 = 各采购单剩余库存数量之和<br>
+                                <span style="font-size: 12px; color: #666;">（从明细表汇总）</span>
                             </p>
                         </div>
 
@@ -955,8 +980,9 @@
 
                                 <p style="margin-top: 15px;"><strong>第1次入库：</strong>460工厂的LC001-1-L入库10,000件，单价¥20.00
                                 </p>
-                                <p style="padding-left: 20px;">→ 加权成本 = (0 + 10,000×20) ÷ (0 + 10,000) = ¥20.00</p>
-                                <p style="padding-left: 20px;">→ 库存：10,000件，库存金额¥200,000</p>
+                                <p style="padding-left: 20px;">→ 累计入库：10,000件，累计金额¥200,000</p>
+                                <p style="padding-left: 20px;">→ 加权成本 = 200,000 ÷ 10,000 = ¥20.00</p>
+                                <p style="padding-left: 20px;">→ 当前库存：10,000件，库存金额¥200,000</p>
                                 <p style="padding-left: 20px; color: #1a6dba; font-weight: bold;">→
                                     460工厂+LC001-1-L的加权成本：¥20.00</p>
 
@@ -967,15 +993,20 @@
 
                                 <p style="margin-top: 15px;"><strong>第2次入库：</strong>460工厂的LC001-1-L再次入库5,000件，单价¥22.00
                                 </p>
-                                <p style="padding-left: 20px;">→ 加权成本 = (80,000 + 5,000×22) ÷ (4,000 + 5,000) = ¥20.89
-                                </p>
-                                <p style="padding-left: 20px;">→ 库存：9,000件，库存金额¥188,000</p>
-                                <p style="padding-left: 20px; color: #1a6dba; font-weight: bold;">→
-                                    460工厂+LC001-1-L的新加权成本：¥20.89</p>
+                                <p style="padding-left: 20px;">→ 入库成本：5,000 × ¥22.00 = ¥110,000</p>
+                                <p style="padding-left: 20px;">→ PO-1368剩余：5,000件，库存金额¥110,000</p>
+
+                                <p style="margin-top: 15px;"><strong>汇总计算（460工厂+LC001-1-L）：</strong></p>
+                                <p style="padding-left: 20px;">→ 剩余库存：4,000 + 5,000 = <strong>9,000件</strong></p>
+                                <p style="padding-left: 20px;">→ 库存成本金额：80,000 + 110,000 = <strong>¥190,000</strong></p>
+                                <p style="padding-left: 20px; color: #1a6dba; font-weight: bold;">→ 加权平均成本：190,000 ÷
+                                    9,000 = <strong>¥21.11</strong></p>
+                                <p style="padding-left: 20px;">→ 累计出库成本：<strong>¥124,000</strong></p>
 
                                 <p
                                     style="margin-top: 15px; padding: 10px; background: #f0f8ff; border-radius: 4px; color: #555;">
-                                    <strong>说明：</strong>如果同一SKU（LC001-1-L）从其他工厂（如470工厂）入库，将维护独立的成本池和加权成本，互不影响。
+                                    <strong>💡 说明：</strong>系统采用<strong>当前库存实际平均成本法</strong>，加权成本 = 库存成本金额 ÷
+                                    剩余库存数量。如果同一SKU（LC001-1-L）从其他工厂（如470工厂）入库，将维护独立的成本池和加权成本，互不影响。
                                 </p>
                             </div>
                         </div>
