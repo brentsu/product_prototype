@@ -1,0 +1,29 @@
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Vercel
+.vercel
+
+# Node modules（如果使用了 Node.js 工具）
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 临时文件
+*.log
+*.tmp
+*.bak
+
+# 环境变量
+.env
+.env.local
+

@@ -1,0 +1,209 @@
+                <!-- 虚拟库存池 -->
+                <div class="inventory-pool">
+                    <div class="section-header">
+                        <div class="section-title">虚拟库存池</div>
+                        <div>
+                            <button class="btn btn-primary">添加商品</button>
+                            <button class="btn btn-success">导出数据</button>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>SKU</th>
+                                <th>工厂</th>
+                                <th>采购单号</th>
+                                <th>接货单号</th>
+                                <th>入库数量</th>
+                                <th>消耗</th>
+                                <th>结算数</th>
+                                <th>退货数</th>
+                                <th>真实结算数</th>
+                                <th>接收仓库</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>LC001-1-L</td>
+                                <td>460工厂</td>
+                                <td>PO-1235</td>
+                                <td>JH251027000264018</td>
+                                <td>10,000</td>
+                                <td>6,000</td>
+                                <td>10,000</td>
+                                <td>0</td>
+                                <td>10,000</td>
+                                <td>新时颖主仓</td>
+                                <td>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">编辑</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>LC001-1-XL</td>
+                                <td>460工厂</td>
+                                <td>PO-1235</td>
+                                <td>JH251027000264018</td>
+                                <td>10,000</td>
+                                <td>3,000</td>
+                                <td>10,000</td>
+                                <td>0</td>
+                                <td>10,000</td>
+                                <td>新时颖主仓</td>
+                                <td>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">编辑</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>LC002-M</td>
+                                <td>460工厂</td>
+                                <td>PO-1342</td>
+                                <td>JH252027000264020</td>
+                                <td>8,000</td>
+                                <td>2,500</td>
+                                <td>8,000</td>
+                                <td>100</td>
+                                <td>7,900</td>
+                                <td>新时颖主仓</td>
+                                <td>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">编辑</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 库存池变更记录 -->
+                <div class="inventory-pool" style="margin-top: 30px;">
+                    <div class="section-header">
+                        <div class="section-title">库存池变更记录</div>
+                        <div>
+                            <button class="btn btn-primary">添加记录</button>
+                            <button class="btn btn-success">导出记录</button>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>消耗类型</th>
+                                <th>关联库存ID</th>
+                                <th>报关单协议号</th>
+                                <th>FBA Shipment ID</th>
+                                <th>订单号</th>
+                                <th>采购单号</th>
+                                <th>采购退货单号</th>
+                                <th>SKU</th>
+                                <th>数量</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td><span class="status status-active">采购入库</span></td>
+                                <td>1</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>PO-1235</td>
+                                <td>-</td>
+                                <td>LC001-1-L</td>
+                                <td>10,000</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td><span class="status status-active">销售出库</span></td>
+                                <td>1</td>
+                                <td>FBA192PWFTD1</td>
+                                <td>FBA192RDMZPS</td>
+                                <td>FBA192RDMZPS</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>LC001-1-L</td>
+                                <td>6,000</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td><span class="status status-active">采购退货（未结算）</span></td>
+                                <td>1</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>TH-20250901-001</td>
+                                <td>LC001-1-L</td>
+                                <td>1,000</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td><span class="status status-warning">工厂结算</span></td>
+                                <td>1</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>PO-1235</td>
+                                <td>-</td>
+                                <td>LC001-1-L</td>
+                                <td>10,000</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td><span class="status status-error">结算后退货（拒绝）</span></td>
+                                <td>1</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>TH-20250925-001</td>
+                                <td>LC001-1-L</td>
+                                <td>500</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td><span class="status status-error">超量消耗（拒绝）</span></td>
+                                <td>1</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>ORD-20250925-001</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>LC001-1-L</td>
+                                <td>5,000</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>

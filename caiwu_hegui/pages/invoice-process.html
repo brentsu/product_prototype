@@ -1,0 +1,767 @@
+                <h2 style="margin-bottom: 20px;">待开票流程</h2>
+
+                <!-- 流程概述 -->
+                <div class="inventory-pool" style="margin-bottom: 30px;">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px; font-size: 18px;">📌 待开票业务流程概述</h3>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; line-height: 1.8;">
+                        <p style="margin-bottom: 15px; font-size: 15px;">
+                            <strong>核心逻辑：</strong>入库时或退货时，库存池数据增加的同时，自动生成待开票需求；收到供应商进项发票后，进行发票匹配操作（支持多对多关系）。
+                        </p>
+                        <p style="margin-bottom: 10px;"><strong>示例场景：</strong>展示三种典型发票匹配场景的完整业务流程</p>
+                        <ul style="margin: 15px 0; padding-left: 25px;">
+                            <li style="margin-bottom: 8px;"><strong>场景1 - 一对一匹配：</strong>1个采购单对应1张进项发票（蓝色背景）</li>
+                            <li style="margin-bottom: 8px;"><strong>场景2 - 合开发票：</strong>2个采购单合并开具1张进项发票（黄色背景）</li>
+                            <li style="margin-bottom: 8px;"><strong>场景3 - 分开发票：</strong>1个采购单分2张进项发票开具（蓝色背景）</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 场景1：一对一匹配 -->
+                <div class="inventory-pool" style="margin-bottom: 30px;">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px; font-size: 18px;">🔵 场景1：一对一匹配（完全匹配）</h3>
+
+                    <!-- 步骤1：采购入库 -->
+                    <div
+                        style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #1a6dba;">
+                        <h4 style="color: #1a6dba; margin-bottom: 10px;">步骤1：采购入库（2025-09-01）</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>采购单PO-1235入库，10,000件LC001-1-L，单价¥20.00，不含税金额¥200,000，税率13%
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="7" style="text-align: left; padding: 8px;">虚拟库存池（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">ID</th>
+                                        <th>SKU</th>
+                                        <th>采购单号</th>
+                                        <th>入库数量</th>
+                                        <th>消耗</th>
+                                        <th>结算数</th>
+                                        <th>退货数</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">1</td>
+                                        <td>LC001-1-L</td>
+                                        <td>PO-1235</td>
+                                        <td style="color: #27ae60; font-weight: bold;">10,000</td>
+                                        <td>0</td>
+                                        <td>0</td>
+                                        <td>0</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table style="width: 100%; margin-top: 15px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="9" style="text-align: left; padding: 8px;">待开票列表（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">待开票ID</th>
+                                        <th>采购单号</th>
+                                        <th>SKU</th>
+                                        <th>数量</th>
+                                        <th>不含税金额</th>
+                                        <th>税额</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">1</td>
+                                        <td>PO-1235</td>
+                                        <td>LC001-1-L</td>
+                                        <td>10,000</td>
+                                        <td>¥200,000</td>
+                                        <td>¥26,000</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥226,000</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-pending">未匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 步骤2：收到进项发票 -->
+                    <div
+                        style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #1a6dba;">
+                        <h4 style="color: #1a6dba; margin-bottom: 10px;">步骤2：收到供应商进项发票（2025-09-05）</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>供应商开具进项发票，发票号码25352000，不含税金额¥200,000，税额¥26,000，价税合计¥226,000
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="8" style="text-align: left; padding: 8px;">进项发票列表（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">进项发票ID</th>
+                                        <th>发票号码</th>
+                                        <th>不含税金额</th>
+                                        <th>税额</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>剩余可用</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">1</td>
+                                        <td>25352000</td>
+                                        <td>¥200,000</td>
+                                        <td>¥26,000</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥226,000</td>
+                                        <td>¥0</td>
+                                        <td>¥226,000</td>
+                                        <td><span class="status status-pending">未匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 步骤3：进行发票匹配 -->
+                    <div
+                        style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #27ae60;">
+                        <h4 style="color: #27ae60; margin-bottom: 10px;">步骤3：进行发票匹配（2025-09-05）✅</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>财务人员将待开票1与进项发票1进行匹配，匹配金额¥226,000（价税合计）
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="7" style="text-align: left; padding: 8px;">发票匹配记录（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">匹配ID</th>
+                                        <th>待开票ID</th>
+                                        <th>采购单号</th>
+                                        <th>进项发票ID</th>
+                                        <th>发票号码</th>
+                                        <th>匹配金额</th>
+                                        <th>匹配比例</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">1</td>
+                                        <td>1</td>
+                                        <td>PO-1235</td>
+                                        <td>1</td>
+                                        <td>25352000</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥226,000</td>
+                                        <td>100%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table style="width: 100%; margin-top: 15px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">待开票列表（更新）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">待开票ID</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>剩余待匹配</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">1</td>
+                                        <td>¥226,000</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥226,000</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-active">已完全匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table style="width: 100%; margin-top: 15px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">进项发票列表（更新）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">进项发票ID</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>剩余可用</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">1</td>
+                                        <td>¥226,000</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥226,000</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-active">已完全匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div style="margin-top: 15px; background: #fff; padding: 12px; border-radius: 6px;">
+                            <p style="margin: 0; color: #27ae60; font-weight: bold;">✅ 匹配结果：</p>
+                            <p style="margin: 5px 0 0 0; color: #555;">待开票1完全匹配，进项发票1完全匹配，财务可以进行抵扣操作。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 场景2：合开发票 -->
+                <div class="inventory-pool" style="margin-bottom: 30px;">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px; font-size: 18px;">🟡 场景2：合开发票（1张发票匹配2个待开票）</h3>
+
+                    <!-- 步骤1：第一次采购入库 -->
+                    <div
+                        style="background: #fffacd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f39c12;">
+                        <h4 style="color: #f39c12; margin-bottom: 10px;">步骤1：第一次采购入库（2025-11-15）</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>采购单PO-1368入库，5,000件LC001-1-L，单价¥22.00，不含税金额¥110,000
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #fff9e6;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">待开票列表（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">待开票ID</th>
+                                        <th>采购单号</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">2</td>
+                                        <td>PO-1368</td>
+                                        <td style="color: #f39c12; font-weight: bold;">¥124,300</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-pending">未匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 步骤2：第二次采购入库 -->
+                    <div
+                        style="background: #fffacd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f39c12;">
+                        <h4 style="color: #f39c12; margin-bottom: 10px;">步骤2：第二次采购入库（2025-09-01）</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>采购单PO-1235入库，10,000件LC001-1-XL，单价¥20.00，不含税金额¥200,000
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #fff9e6;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">待开票列表（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">待开票ID</th>
+                                        <th>采购单号</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">3</td>
+                                        <td>PO-1235</td>
+                                        <td style="color: #f39c12; font-weight: bold;">¥226,000</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-pending">未匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 步骤3：供应商合并开具1张发票 -->
+                    <div
+                        style="background: #fffacd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f39c12;">
+                        <h4 style="color: #f39c12; margin-bottom: 10px;">步骤3：收到供应商合并开具的进项发票（2025-11-16）</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>供应商将PO-1368和PO-1235两个采购单合并开具1张发票，发票号码25352001，价税合计¥226,000（仅部分金额）
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #fff9e6;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">进项发票列表（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">进项发票ID</th>
+                                        <th>发票号码</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">2</td>
+                                        <td>25352001</td>
+                                        <td style="color: #f39c12; font-weight: bold;">¥226,000</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-pending">未匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 步骤4：进行发票匹配 -->
+                    <div
+                        style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #27ae60;">
+                        <h4 style="color: #27ae60; margin-bottom: 10px;">步骤4：进行发票匹配（2025-11-16）✅</h4>
+                        <p style="margin-bottom: 10px; color: #555;"><strong>业务操作：</strong>财务人员将进项发票2拆分匹配到待开票2和待开票3
+                        </p>
+                        <ul style="margin: 10px 0 10px 25px; color: #555;">
+                            <li>匹配记录2：待开票2(PO-1368) ← 进项发票2，匹配金额¥124,300（55%）</li>
+                            <li>匹配记录3：待开票3(PO-1235) ← 进项发票2，匹配金额¥101,700（45%）</li>
+                        </ul>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="7" style="text-align: left; padding: 8px;">发票匹配记录（新增2条记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">匹配ID</th>
+                                        <th>待开票ID</th>
+                                        <th>采购单号</th>
+                                        <th>进项发票ID</th>
+                                        <th>发票号码</th>
+                                        <th>匹配金额</th>
+                                        <th>匹配比例</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">2</td>
+                                        <td>2</td>
+                                        <td>PO-1368</td>
+                                        <td>2</td>
+                                        <td>25352001</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥124,300</td>
+                                        <td>55%</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 6px;">3</td>
+                                        <td>3</td>
+                                        <td>PO-1235</td>
+                                        <td>2</td>
+                                        <td>25352001</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥101,700</td>
+                                        <td>45%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table style="width: 100%; margin-top: 15px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #fff9e6;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">待开票列表（更新）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">待开票ID</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>剩余待匹配</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">2</td>
+                                        <td>¥124,300</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥124,300</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-active">已完全匹配</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 6px;">3</td>
+                                        <td>¥226,000</td>
+                                        <td style="color: #f39c12; font-weight: bold;">¥101,700</td>
+                                        <td style="color: #e67e22; font-weight: bold;">¥124,300</td>
+                                        <td><span class="status status-pending">部分匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table style="width: 100%; margin-top: 15px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #fff9e6;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">进项发票列表（更新）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">进项发票ID</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>剩余可用</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">2</td>
+                                        <td>¥226,000</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥226,000</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-active">已完全匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div style="margin-top: 15px; background: #fff; padding: 12px; border-radius: 6px;">
+                            <p style="margin: 0; color: #27ae60; font-weight: bold;">✅ 匹配结果：</p>
+                            <p style="margin: 5px 0 0 0; color: #555;">
+                                进项发票2（¥226,000）完全匹配，其中55%（¥124,300）匹配到待开票2，45%（¥101,700）匹配到待开票3。待开票2完全匹配，待开票3还需等待后续发票到达。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 场景3：分开发票 -->
+                <div class="inventory-pool" style="margin-bottom: 30px;">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px; font-size: 18px;">🔵 场景3：分开发票（1个待开票用2张发票匹配）</h3>
+
+                    <!-- 步骤1：采购入库 -->
+                    <div
+                        style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #1a6dba;">
+                        <h4 style="color: #1a6dba; margin-bottom: 10px;">步骤1：采购入库（2025-09-10）</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>采购单PO-1342入库，8,000件LC002-M，单价¥17.00，不含税金额¥136,000
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">待开票列表（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">待开票ID</th>
+                                        <th>采购单号</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">4</td>
+                                        <td>PO-1342</td>
+                                        <td style="color: #1a6dba; font-weight: bold;">¥153,680</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-pending">未匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 步骤2：收到第1张进项发票 -->
+                    <div
+                        style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #1a6dba;">
+                        <h4 style="color: #1a6dba; margin-bottom: 10px;">步骤2：收到第1张进项发票（2025-09-12）</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>供应商将PO-1342分2张发票开具，第1张发票号码25352002，价税合计¥76,840
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">进项发票列表（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">进项发票ID</th>
+                                        <th>发票号码</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">3</td>
+                                        <td>25352002</td>
+                                        <td style="color: #1a6dba; font-weight: bold;">¥76,840</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-pending">未匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 步骤3：第1次发票匹配 -->
+                    <div
+                        style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #27ae60;">
+                        <h4 style="color: #27ae60; margin-bottom: 10px;">步骤3：第1次发票匹配（2025-09-12）✅</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>财务人员将进项发票3匹配到待开票4，匹配金额¥76,840（50%）
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="7" style="text-align: left; padding: 8px;">发票匹配记录（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">匹配ID</th>
+                                        <th>待开票ID</th>
+                                        <th>采购单号</th>
+                                        <th>进项发票ID</th>
+                                        <th>发票号码</th>
+                                        <th>匹配金额</th>
+                                        <th>匹配比例</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">4</td>
+                                        <td>4</td>
+                                        <td>PO-1342</td>
+                                        <td>3</td>
+                                        <td>25352002</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥76,840</td>
+                                        <td>50%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table style="width: 100%; margin-top: 15px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">待开票列表（更新）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">待开票ID</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>剩余待匹配</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">4</td>
+                                        <td>¥153,680</td>
+                                        <td style="color: #f39c12; font-weight: bold;">¥76,840</td>
+                                        <td style="color: #e67e22; font-weight: bold;">¥76,840</td>
+                                        <td><span class="status status-pending">部分匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 步骤4：收到第2张进项发票 -->
+                    <div
+                        style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #1a6dba;">
+                        <h4 style="color: #1a6dba; margin-bottom: 10px;">步骤4：收到第2张进项发票（2025-09-15）</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>供应商开具第2张发票，发票号码25352003，价税合计¥76,840
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">进项发票列表（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">进项发票ID</th>
+                                        <th>发票号码</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">4</td>
+                                        <td>25352003</td>
+                                        <td style="color: #1a6dba; font-weight: bold;">¥76,840</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-pending">未匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 步骤5：第2次发票匹配 -->
+                    <div
+                        style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #27ae60;">
+                        <h4 style="color: #27ae60; margin-bottom: 10px;">步骤5：第2次发票匹配（2025-09-15）✅</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>财务人员将进项发票4匹配到待开票4，匹配金额¥76,840（50%）
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="7" style="text-align: left; padding: 8px;">发票匹配记录（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">匹配ID</th>
+                                        <th>待开票ID</th>
+                                        <th>采购单号</th>
+                                        <th>进项发票ID</th>
+                                        <th>发票号码</th>
+                                        <th>匹配金额</th>
+                                        <th>匹配比例</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">5</td>
+                                        <td>4</td>
+                                        <td>PO-1342</td>
+                                        <td>4</td>
+                                        <td>25352003</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥76,840</td>
+                                        <td>50%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table style="width: 100%; margin-top: 15px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">待开票列表（更新）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">待开票ID</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>剩余待匹配</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">4</td>
+                                        <td>¥153,680</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥153,680</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-active">已完全匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table style="width: 100%; margin-top: 15px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">进项发票列表（更新）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">进项发票ID</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>剩余可用</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">3</td>
+                                        <td>¥76,840</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥76,840</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-active">已完全匹配</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 6px;">4</td>
+                                        <td>¥76,840</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥76,840</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-active">已完全匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div style="margin-top: 15px; background: #fff; padding: 12px; border-radius: 6px;">
+                            <p style="margin: 0; color: #27ae60; font-weight: bold;">✅ 匹配结果：</p>
+                            <p style="margin: 5px 0 0 0; color: #555;">
+                                待开票4（¥153,680）完全匹配，由进项发票3（¥76,840）和进项发票4（¥76,840）共同匹配。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 关键要点 -->
+                <div class="inventory-pool" style="margin-top: 30px;">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px; font-size: 18px;">💡 待开票管理关键要点</h3>
+                    <div
+                        style="background: #fff9e6; padding: 20px; border-radius: 8px; border-left: 4px solid #f39c12;">
+                        <ul style="margin: 0; padding-left: 25px; line-height: 2;">
+                            <li><strong>自动生成待开票：</strong>采购入库或退货时，系统自动在待开票列表中生成待开票需求记录</li>
+                            <li><strong>价税合计匹配：</strong>发票匹配按"价税合计"金额进行，包含不含税金额和税额（13%）</li>
+                            <li><strong>多对多关系：</strong>支持灵活的多对多匹配关系，一张进项发票可以匹配多个待开票记录，一个待开票记录也可以由多张进项发票匹配</li>
+                            <li><strong>合开发票场景：</strong>供应商可以将多个采购单合并开具1张发票，通过拆分匹配金额和比例实现</li>
+                            <li><strong>分开发票场景：</strong>供应商可以将1个采购单分多张发票开具，通过多次匹配操作完成</li>
+                            <li><strong>匹配状态跟踪：</strong>系统实时跟踪已匹配金额和剩余待匹配金额，支持部分匹配状态</li>
+                            <li><strong>税额抵扣：</strong>进项发票完全匹配后，财务可以进行增值税抵扣操作</li>
+                            <li><strong>全程可追溯：</strong>所有匹配记录都在"发票匹配记录"表中留痕，支持完整的审计追溯</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- 结束待开票流程区域 -->
+
