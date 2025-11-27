@@ -1,0 +1,2621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跨境电商财务合规系统</title>
+    <style>
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 侧边栏样式 */
+        .sidebar {
+            width: 220px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .logo span {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .menu {
+            list-style: none;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #4CAF50;
+        }
+
+        .menu-item i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* 主内容区样式 */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .header h2 {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #3498db;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+        /* 仪表板样式 */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #7f8c8d;
+        }
+
+        .card-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .card-change {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .positive {
+            color: #2ecc71;
+        }
+
+        .negative {
+            color: #e74c3c;
+        }
+
+        /* 库存池样式 */
+        .inventory-pool {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #7f8c8d;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-pending {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .status-warning {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .status-error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        /* TAB 切换样式 */
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #7f8c8d;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button:hover {
+            color: #2c3e50;
+            background-color: #f8f9fa;
+        }
+
+        .tab-button.active {
+            color: #1a6dba;
+            border-bottom-color: #1a6dba;
+            background-color: #f0f8ff;
+        }
+
+        .tab-content-area {
+            display: none;
+        }
+
+        .tab-content-area.active {
+            display: block;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 10px 0;
+            }
+
+            .menu {
+                display: flex;
+                overflow-x: auto;
+            }
+
+            .menu-item {
+                white-space: nowrap;
+                border-left: none;
+                border-bottom: 4px solid transparent;
+            }
+
+            .menu-item:hover,
+            .menu-item.active {
+                border-left: none;
+                border-bottom: 4px solid #4CAF50;
+            }
+
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1>跨境电商财务系统</h1>
+                <span>财务合规管理平台</span>
+            </div>
+            <ul class="menu">
+                <li class="menu-item active" onclick="showSection('dashboard')">
+                    <i>📦</i> 虚拟库存池
+                </li>
+                <li class="menu-item" onclick="showSection('inventory-process')">
+                    <i>📋</i> 虚拟库存池流程
+                </li>
+                <li class="menu-item" onclick="showSection('cost')">
+                    <i>💰</i> 库存成本核算
+                </li>
+                <li class="menu-item" onclick="showSection('invoice')">
+                    <i>🧾</i> 待开票管理
+                </li>
+                <li class="menu-item" onclick="showSection('invoice-process')">
+                    <i>📋</i> 待开票流程
+                </li>
+            </ul>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <div class="header">
+                <h2 id="page-title">虚拟库存池管理</h2>
+                <div class="user-info">
+                    <div class="user-avatar">JD</div>
+                    <div>
+                        <div>管理员</div>
+                        <div style="font-size: 12px; color: #7f8c8d;">jd@company.com</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 虚拟库存池区域 -->
+            <div id="dashboard-section" class="content-section">
+                <!-- 虚拟库存池 -->
+                <div class="inventory-pool">
+                    <div class="section-header">
+                        <div class="section-title">虚拟库存池</div>
+                        <div>
+                            <button class="btn btn-primary">添加商品</button>
+                            <button class="btn btn-success">导出数据</button>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>SKU</th>
+                                <th>工厂</th>
+                                <th>采购单号</th>
+                                <th>接货单号</th>
+                                <th>入库数量</th>
+                                <th>消耗</th>
+                                <th>结算数</th>
+                                <th>退货数</th>
+                                <th>真实结算数</th>
+                                <th>接收仓库</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>LC001-1-L</td>
+                                <td>460工厂</td>
+                                <td>PO-1235</td>
+                                <td>JH251027000264018</td>
+                                <td>10,000</td>
+                                <td>6,000</td>
+                                <td>10,000</td>
+                                <td>0</td>
+                                <td>10,000</td>
+                                <td>新时颖主仓</td>
+                                <td>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">编辑</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>LC001-1-XL</td>
+                                <td>460工厂</td>
+                                <td>PO-1235</td>
+                                <td>JH251027000264018</td>
+                                <td>10,000</td>
+                                <td>3,000</td>
+                                <td>10,000</td>
+                                <td>0</td>
+                                <td>10,000</td>
+                                <td>新时颖主仓</td>
+                                <td>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">编辑</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>LC002-M</td>
+                                <td>460工厂</td>
+                                <td>PO-1342</td>
+                                <td>JH252027000264020</td>
+                                <td>8,000</td>
+                                <td>2,500</td>
+                                <td>8,000</td>
+                                <td>100</td>
+                                <td>7,900</td>
+                                <td>新时颖主仓</td>
+                                <td>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">编辑</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 库存池变更记录 -->
+                <div class="inventory-pool" style="margin-top: 30px;">
+                    <div class="section-header">
+                        <div class="section-title">库存池变更记录</div>
+                        <div>
+                            <button class="btn btn-primary">添加记录</button>
+                            <button class="btn btn-success">导出记录</button>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>消耗类型</th>
+                                <th>关联库存ID</th>
+                                <th>报关单协议号</th>
+                                <th>FBA Shipment ID</th>
+                                <th>订单号</th>
+                                <th>采购单号</th>
+                                <th>采购退货单号</th>
+                                <th>SKU</th>
+                                <th>数量</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td><span class="status status-active">采购入库</span></td>
+                                <td>1</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>PO-1235</td>
+                                <td>-</td>
+                                <td>LC001-1-L</td>
+                                <td>10,000</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td><span class="status status-active">销售出库</span></td>
+                                <td>1</td>
+                                <td>FBA192PWFTD1</td>
+                                <td>FBA192RDMZPS</td>
+                                <td>FBA192RDMZPS</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>LC001-1-L</td>
+                                <td>6,000</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td><span class="status status-active">采购退货（未结算）</span></td>
+                                <td>1</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>TH-20250901-001</td>
+                                <td>LC001-1-L</td>
+                                <td>1,000</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td><span class="status status-warning">工厂结算</span></td>
+                                <td>1</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>PO-1235</td>
+                                <td>-</td>
+                                <td>LC001-1-L</td>
+                                <td>10,000</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td><span class="status status-error">结算后退货（拒绝）</span></td>
+                                <td>1</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>TH-20250925-001</td>
+                                <td>LC001-1-L</td>
+                                <td>500</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td><span class="status status-error">超量消耗（拒绝）</span></td>
+                                <td>1</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>ORD-20250925-001</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>LC001-1-L</td>
+                                <td>5,000</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- 结束虚拟库存池区域 -->
+
+            <!-- 库存成本核算区域 -->
+            <div id="cost-section" class="content-section" style="display: none;">
+                <div class="section-header" style="margin-bottom: 20px;">
+                    <div class="section-title">库存成本核算（加权平均法）</div>
+                </div>
+
+                <!-- 成本概览卡片 -->
+                <div class="dashboard" style="margin-bottom: 30px;">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">库存总成本</div>
+                            <div>💰</div>
+                        </div>
+                        <div class="card-value">¥ 421,800</div>
+                        <div class="card-change positive">当前库存21,400件</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">平均单位成本</div>
+                            <div>📊</div>
+                        </div>
+                        <div class="card-value">¥ 19.71</div>
+                        <div class="card-change">加权平均单价</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">本月入库成本</div>
+                            <div>📥</div>
+                        </div>
+                        <div class="card-value">¥ 546,000</div>
+                        <div class="card-change positive">入库28,000件</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">本月出库成本</div>
+                            <div>📤</div>
+                        </div>
+                        <div class="card-value">¥ 183,700</div>
+                        <div class="card-change">出库9,500件</div>
+                    </div>
+                </div>
+
+                <!-- 最终计算结果汇总表 -->
+                <div class="inventory-pool">
+                    <div class="section-header">
+                        <div class="section-title">最终计算结果汇总（按工厂+SKU）</div>
+                        <div>
+                            <button class="btn btn-success">导出报表</button>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>工厂</th>
+                                <th>SKU</th>
+                                <th>剩余可用库存</th>
+                                <th>加权平均成本</th>
+                                <th>库存成本金额</th>
+                                <th>累计入库数量</th>
+                                <th>累计消耗数量</th>
+                                <th>累计退货数量</th>
+                                <th>累计出库成本</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>460工厂</td>
+                                <td>LC001-1-L</td>
+                                <td>9,000</td>
+                                <td style="color: #1a6dba; font-weight: bold;">¥ 21.11</td>
+                                <td>¥ 190,000</td>
+                                <td>15,000</td>
+                                <td>6,000</td>
+                                <td>0</td>
+                                <td>¥ 124,000</td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;"
+                                        onclick="showCostDetail('460工厂', 'LC001-1-L')">查看明细</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>460工厂</td>
+                                <td>LC001-1-XL</td>
+                                <td>7,000</td>
+                                <td style="color: #1a6dba; font-weight: bold;">¥ 20.00</td>
+                                <td>¥ 140,000</td>
+                                <td>10,000</td>
+                                <td>3,000</td>
+                                <td>0</td>
+                                <td>¥ 60,000</td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;"
+                                        onclick="showCostDetail('460工厂', 'LC001-1-XL')">查看明细</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>460工厂</td>
+                                <td>LC002-M</td>
+                                <td>5,400</td>
+                                <td style="color: #1a6dba; font-weight: bold;">¥ 17.00</td>
+                                <td>¥ 91,800</td>
+                                <td>8,000</td>
+                                <td>2,500</td>
+                                <td>100</td>
+                                <td>¥ 42,500</td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;"
+                                        onclick="showCostDetail('460工厂', 'LC002-M')">查看明细</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div
+                        style="margin-top: 15px; background: #e8f5e9; padding: 12px; border-radius: 8px; border-left: 4px solid #27ae60;">
+                        <p style="margin: 0; color: #2e7d32; font-size: 14px;">
+                            <strong>说明：</strong>此表按"工厂+SKU"维度汇总，显示当前剩余库存的实际平均成本。加权平均成本 = 库存成本金额 ÷
+                            剩余可用库存（汇总各采购单的剩余库存成本计算）。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 库存成本明细表 -->
+                <div class="inventory-pool" style="margin-top: 30px;">
+                    <div class="section-header">
+                        <div class="section-title">库存成本明细（按采购单明细展示）</div>
+                        <div>
+                            <button class="btn btn-primary">成本调整</button>
+                            <button class="btn btn-success">导出报表</button>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>SKU</th>
+                                <th>工厂</th>
+                                <th>采购单号</th>
+                                <th>接货单号</th>
+                                <th>入库数量</th>
+                                <th>消耗</th>
+                                <th>结算数</th>
+                                <th>退货数</th>
+                                <th>真实结算数</th>
+                                <th>接收仓库</th>
+                                <th>入库单价</th>
+                                <th>库存成本金额</th>
+                                <th>累计出库成本</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #f0f8ff;">
+                                <td>1</td>
+                                <td>LC001-1-L</td>
+                                <td>460工厂</td>
+                                <td>PO-1235</td>
+                                <td>JH251027000264018</td>
+                                <td>10,000</td>
+                                <td>6,000</td>
+                                <td>10,000</td>
+                                <td>0</td>
+                                <td>10,000</td>
+                                <td>新时颖主仓</td>
+                                <td style="color: #1a6dba; font-weight: bold;">¥ 20.00</td>
+                                <td>¥ 80,000</td>
+                                <td>¥ 120,000</td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;"
+                                        onclick="showCostDetail('460工厂', 'LC001-1-L')">成本明细</button>
+                                </td>
+                            </tr>
+                            <tr style="background: #f0f8ff;">
+                                <td>2</td>
+                                <td>LC001-1-L</td>
+                                <td>460工厂</td>
+                                <td>PO-1368</td>
+                                <td>JH251115000264032</td>
+                                <td>5,000</td>
+                                <td>0</td>
+                                <td>5,000</td>
+                                <td>0</td>
+                                <td>5,000</td>
+                                <td>新时颖主仓</td>
+                                <td style="color: #1a6dba; font-weight: bold;">¥ 22.00</td>
+                                <td>¥ 110,000</td>
+                                <td>¥ 0</td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;"
+                                        onclick="showCostDetail('460工厂', 'LC001-1-L')">成本明细</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>LC001-1-XL</td>
+                                <td>460工厂</td>
+                                <td>PO-1235</td>
+                                <td>JH251027000264018</td>
+                                <td>10,000</td>
+                                <td>3,000</td>
+                                <td>10,000</td>
+                                <td>0</td>
+                                <td>10,000</td>
+                                <td>新时颖主仓</td>
+                                <td style="color: #1a6dba; font-weight: bold;">¥ 20.00</td>
+                                <td>¥ 140,000</td>
+                                <td>¥ 60,000</td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;"
+                                        onclick="showCostDetail('460工厂', 'LC001-1-XL')">成本明细</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>LC002-M</td>
+                                <td>460工厂</td>
+                                <td>PO-1342</td>
+                                <td>JH252027000264020</td>
+                                <td>8,000</td>
+                                <td>2,500</td>
+                                <td>8,000</td>
+                                <td>100</td>
+                                <td>7,900</td>
+                                <td>新时颖主仓</td>
+                                <td style="color: #1a6dba; font-weight: bold;">¥ 17.00</td>
+                                <td>¥ 93,500</td>
+                                <td>¥ 42,500</td>
+                                <td>
+                                    <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px;"
+                                        onclick="showCostDetail('460工厂', 'LC002-M')">成本明细</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- 成本汇总说明 -->
+                    <div
+                        style="margin-top: 20px; background: #f0f8ff; padding: 15px; border-radius: 8px; border-left: 4px solid #1a6dba;">
+                        <h5 style="color: #1a6dba; margin-bottom: 10px;">📊 成本计算说明</h5>
+                        <ul style="margin: 0; padding-left: 25px; line-height: 2; color: #555;">
+                            <li><strong>明细维度：</strong>此表按采购单明细展示，每一行代表一个采购单的入库记录</li>
+                            <li><strong>入库单价：</strong>该采购单的实际入库单价（每个采购单可能有不同的单价）</li>
+                            <li><strong>库存成本金额：</strong>= 剩余库存数量 × 入库单价（剩余库存 = 入库数量 - 消耗 - 退货数）</li>
+                            <li><strong>累计出库成本：</strong>= 该采购单已出库数量 × 入库单价</li>
+                            <li><strong>💡
+                                    示例：</strong>第1、2行都是"460工厂+LC001-1-L"，两个采购单入库单价不同（¥20.00和¥22.00），在汇总表中会被加权平均为¥20.67
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 加权平均成本计算记录 -->
+                <div class="inventory-pool" style="margin-top: 30px;">
+                    <div class="section-header">
+                        <div class="section-title">加权平均成本计算记录（按工厂+SKU合并）</div>
+                        <div>
+                            <button class="btn btn-success">导出记录</button>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>工厂</th>
+                                <th>SKU</th>
+                                <th>累计入库数量</th>
+                                <th>累计入库金额</th>
+                                <th>累计消耗数量</th>
+                                <th>累计退货数量</th>
+                                <th>剩余可用库存</th>
+                                <th>加权平均成本</th>
+                                <th>库存成本金额</th>
+                                <th>累计出库成本</th>
+                                <th>最后更新时间</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #f0f8ff;">
+                                <td>460工厂</td>
+                                <td>LC001-1-L</td>
+                                <td>15,000</td>
+                                <td>¥ 310,000</td>
+                                <td>6,000</td>
+                                <td>0</td>
+                                <td style="color: #27ae60; font-weight: bold;">9,000</td>
+                                <td style="color: #1a6dba; font-weight: bold;">¥ 21.11</td>
+                                <td>¥ 190,000</td>
+                                <td>¥ 124,000</td>
+                                <td>2025-11-15</td>
+                            </tr>
+                            <tr>
+                                <td>460工厂</td>
+                                <td>LC001-1-XL</td>
+                                <td>10,000</td>
+                                <td>¥ 200,000</td>
+                                <td>3,000</td>
+                                <td>0</td>
+                                <td style="color: #27ae60; font-weight: bold;">7,000</td>
+                                <td style="color: #1a6dba; font-weight: bold;">¥ 20.00</td>
+                                <td>¥ 140,000</td>
+                                <td>¥ 60,000</td>
+                                <td>2025-09-20</td>
+                            </tr>
+                            <tr style="background: #f0f8ff;">
+                                <td>460工厂</td>
+                                <td>LC002-M</td>
+                                <td>8,000</td>
+                                <td>¥ 136,000</td>
+                                <td>2,500</td>
+                                <td>100</td>
+                                <td style="color: #27ae60; font-weight: bold;">5,400</td>
+                                <td style="color: #1a6dba; font-weight: bold;">¥ 17.00</td>
+                                <td>¥ 91,800</td>
+                                <td>¥ 42,500</td>
+                                <td>2025-09-22</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div
+                        style="margin-top: 15px; background: #fff9e6; padding: 12px; border-radius: 8px; border-left: 4px solid #f39c12;">
+                        <p style="margin: 0; color: #555; font-size: 14px;">
+                            <strong>计算说明：</strong>
+                        </p>
+                        <ul
+                            style="margin: 8px 0 0 0; padding-left: 25px; line-height: 1.8; color: #555; font-size: 14px;">
+                            <li><strong>剩余可用库存</strong> = 累计入库数量 - 累计消耗数量 - 累计退货数量</li>
+                            <li><strong>加权平均成本</strong> = 库存成本金额 ÷ 剩余可用库存（反映当前剩余库存的实际平均成本）</li>
+                            <li><strong>库存成本金额</strong> = 各采购单剩余库存成本之和（从明细表汇总）</li>
+                            <li><strong>累计出库成本</strong> = 各采购单累计出库成本之和（从明细表汇总）</li>
+                            <li>同一工厂+SKU的多个采购单入库记录会被合并汇总，显示当前剩余库存的平均成本</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 加权平均算法说明 -->
+                <div class="inventory-pool" style="margin-top: 30px;">
+                    <div class="section-header">
+                        <div class="section-title">📖 加权平均算法说明</div>
+                    </div>
+
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                        <h4 style="color: #2c3e50; margin-bottom: 15px;">算法原理</h4>
+                        <p style="line-height: 1.8; margin-bottom: 15px;">
+                            加权平均法是一种常用的库存成本核算方法。系统按照<strong>"工厂+SKU"</strong>维度维护独立的加权平均成本，即每个工厂的每个SKU都有自己独立的成本池。<strong>加权平均成本
+                                = 当前库存成本金额 ÷ 当前剩余库存数量</strong>，反映当前剩余库存的实际平均成本。该组合的所有采购单明细会被汇总计算。
+                        </p>
+
+                        <div
+                            style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #1a6dba;">
+                            <h5 style="color: #1a6dba; margin-bottom: 10px;">📐 成本计算维度</h5>
+                            <p
+                                style="background: #e8f5e9; padding: 10px; border-radius: 4px; margin: 10px 0; color: #2e7d32; font-weight: bold;">
+                                <strong>成本池 = 工厂 + SKU</strong><br>
+                                例如：460工厂 + LC001-1-L 是一个独立的成本池<br>
+                                同一SKU在不同工厂下维护不同的加权平均成本
+                            </p>
+                        </div>
+
+                        <div
+                            style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #1a6dba;">
+                            <h5 style="color: #1a6dba; margin-bottom: 10px;">📐 计算公式</h5>
+                            <p
+                                style="font-family: monospace; background: #f0f8ff; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                                <strong>加权平均成本：</strong><br>
+                                加权成本 = 库存成本金额 ÷ 剩余可用库存<br>
+                                <span style="font-size: 12px; color: #666;">（按工厂+SKU维度，汇总各采购单剩余库存成本计算）</span>
+                            </p>
+                            <p
+                                style="font-family: monospace; background: #f0f8ff; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                                <strong>库存成本金额：</strong><br>
+                                库存成本金额 = 各采购单剩余库存成本之和<br>
+                                剩余可用库存 = 各采购单剩余库存数量之和<br>
+                                <span style="font-size: 12px; color: #666;">（从明细表汇总）</span>
+                            </p>
+                        </div>
+
+                        <div
+                            style="background: #fff9e6; padding: 15px; border-radius: 8px; border-left: 4px solid #f39c12;">
+                            <h5 style="color: #f39c12; margin-bottom: 10px;">💡 计算示例（460工厂 + LC001-1-L）</h5>
+                            <div style="line-height: 2;">
+                                <p><strong>成本池：</strong>460工厂 + LC001-1-L</p>
+                                <p><strong>初始状态：</strong>库存0件，加权成本¥0.00</p>
+
+                                <p style="margin-top: 15px;"><strong>第1次入库：</strong>460工厂的LC001-1-L入库10,000件，单价¥20.00
+                                </p>
+                                <p style="padding-left: 20px;">→ 累计入库：10,000件，累计金额¥200,000</p>
+                                <p style="padding-left: 20px;">→ 加权成本 = 200,000 ÷ 10,000 = ¥20.00</p>
+                                <p style="padding-left: 20px;">→ 当前库存：10,000件，库存金额¥200,000</p>
+                                <p style="padding-left: 20px; color: #1a6dba; font-weight: bold;">→
+                                    460工厂+LC001-1-L的加权成本：¥20.00</p>
+
+                                <p style="margin-top: 15px;"><strong>第1次出库：</strong>460工厂的LC001-1-L出库6,000件</p>
+                                <p style="padding-left: 20px;">→ 出库成本 = 6,000 × ¥20.00 = ¥120,000（按当前加权成本计算）</p>
+                                <p style="padding-left: 20px;">→ 剩余库存：4,000件，库存金额¥80,000</p>
+                                <p style="padding-left: 20px; color: #1a6dba; font-weight: bold;">→ 加权成本保持：¥20.00</p>
+
+                                <p style="margin-top: 15px;"><strong>第2次入库：</strong>460工厂的LC001-1-L再次入库5,000件，单价¥22.00
+                                </p>
+                                <p style="padding-left: 20px;">→ 入库成本：5,000 × ¥22.00 = ¥110,000</p>
+                                <p style="padding-left: 20px;">→ PO-1368剩余：5,000件，库存金额¥110,000</p>
+
+                                <p style="margin-top: 15px;"><strong>汇总计算（460工厂+LC001-1-L）：</strong></p>
+                                <p style="padding-left: 20px;">→ 剩余库存：4,000 + 5,000 = <strong>9,000件</strong></p>
+                                <p style="padding-left: 20px;">→ 库存成本金额：80,000 + 110,000 = <strong>¥190,000</strong></p>
+                                <p style="padding-left: 20px; color: #1a6dba; font-weight: bold;">→ 加权平均成本：190,000 ÷
+                                    9,000 = <strong>¥21.11</strong></p>
+                                <p style="padding-left: 20px;">→ 累计出库成本：<strong>¥124,000</strong></p>
+
+                                <p
+                                    style="margin-top: 15px; padding: 10px; background: #f0f8ff; border-radius: 4px; color: #555;">
+                                    <strong>💡 说明：</strong>系统采用<strong>当前库存实际平均成本法</strong>，加权成本 = 库存成本金额 ÷
+                                    剩余库存数量。如果同一SKU（LC001-1-L）从其他工厂（如470工厂）入库，将维护独立的成本池和加权成本，互不影响。
+                                </p>
+                            </div>
+                        </div>
+
+                        <div
+                            style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #27ae60;">
+                            <h5 style="color: #27ae60; margin-bottom: 10px;">✅ 优势特点</h5>
+                            <ul style="margin: 0; padding-left: 25px; line-height: 2;">
+                                <li><strong>按工厂+SKU维度独立核算：</strong>每个工厂的每个SKU维护独立的成本池，反映不同工厂的实际采购成本差异</li>
+                                <li><strong>计算简便，易于理解和操作：</strong>加权平均法逻辑清晰，易于财务人员理解和使用</li>
+                                <li><strong>避免物价波动对成本的剧烈影响：</strong>平滑成本波动，避免单次采购价格波动对整体成本造成冲击</li>
+                                <li><strong>成本计算相对平稳：</strong>符合会计稳健性原则，便于成本分析和预测</li>
+                                <li><strong>适合批量采购、价格相对稳定的商品：</strong>尤其适合跨境电商批量采购场景</li>
+                                <li><strong>便于财务核算和税务处理：</strong>成本追溯清晰，满足财务合规和审计要求</li>
+                                <li><strong>支持多工厂成本对比：</strong>同一SKU在不同工厂下的成本可独立对比分析</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 结束库存成本核算区域 -->
+
+            <!-- 待开票管理区域 -->
+            <div id="invoice-section" class="content-section" style="display: none;">
+                <h2 style="margin-bottom: 20px;">待开票管理</h2>
+
+                <!-- 待开票统计卡片 -->
+                <div class="dashboard" style="margin-bottom: 30px;">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">待开票总额</div>
+                            <div>📋</div>
+                        </div>
+                        <div class="card-value">¥ 729,980</div>
+                        <div class="card-change positive">4 笔待开票需求</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">进项发票总额</div>
+                            <div>📥</div>
+                        </div>
+                        <div class="card-value">¥ 605,680</div>
+                        <div class="card-change positive">已收 4 张</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">已匹配金额</div>
+                            <div>✅</div>
+                        </div>
+                        <div class="card-value">¥ 605,680</div>
+                        <div class="card-change positive">匹配率 83%</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">本月可抵扣税额</div>
+                            <div>💰</div>
+                        </div>
+                        <div class="card-value">¥ 69,680</div>
+                        <div class="card-change positive">税率 13%</div>
+                    </div>
+                </div>
+
+                <!-- 待开票列表 -->
+                <div class="inventory-pool">
+                    <div class="section-header">
+                        <div class="section-title">待开票列表（待开票需求）</div>
+                        <div>
+                            <button class="btn btn-success">导出数据</button>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>待开票ID</th>
+                                <th>关联库存ID</th>
+                                <th>业务类型</th>
+                                <th>采购单号</th>
+                                <th>退货单号</th>
+                                <th>SKU</th>
+                                <th>工厂</th>
+                                <th>数量</th>
+                                <th>不含税金额</th>
+                                <th>税率</th>
+                                <th>税额</th>
+                                <th>价税合计</th>
+                                <th>已匹配金额</th>
+                                <th>剩余待匹配</th>
+                                <th>匹配状态</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #f0f8ff;">
+                                <td>1</td>
+                                <td>1</td>
+                                <td><span class="status status-active">采购入库</span></td>
+                                <td>PO-1235</td>
+                                <td>-</td>
+                                <td>LC001-1-L</td>
+                                <td>460工厂</td>
+                                <td>10,000</td>
+                                <td>¥ 200,000</td>
+                                <td>13%</td>
+                                <td>¥ 26,000</td>
+                                <td>¥ 226,000</td>
+                                <td>¥ 226,000</td>
+                                <td>¥ 0</td>
+                                <td><span class="status status-active">已完全匹配</span></td>
+                                <td>2025-09-01</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">匹配发票</button>
+                                </td>
+                            </tr>
+                            <tr style="background: #fffacd;">
+                                <td>2</td>
+                                <td>2</td>
+                                <td><span class="status status-active">采购入库</span></td>
+                                <td>PO-1368</td>
+                                <td>-</td>
+                                <td>LC001-1-L</td>
+                                <td>460工厂</td>
+                                <td>5,000</td>
+                                <td>¥ 110,000</td>
+                                <td>13%</td>
+                                <td>¥ 14,300</td>
+                                <td>¥ 124,300</td>
+                                <td>¥ 124,300</td>
+                                <td>¥ 0</td>
+                                <td><span class="status status-active">已完全匹配</span></td>
+                                <td>2025-11-15</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">匹配发票</button>
+                                </td>
+                            </tr>
+                            <tr style="background: #fffacd;">
+                                <td>3</td>
+                                <td>3</td>
+                                <td><span class="status status-active">采购入库</span></td>
+                                <td>PO-1235</td>
+                                <td>-</td>
+                                <td>LC001-1-XL</td>
+                                <td>460工厂</td>
+                                <td>10,000</td>
+                                <td>¥ 200,000</td>
+                                <td>13%</td>
+                                <td>¥ 26,000</td>
+                                <td>¥ 226,000</td>
+                                <td>¥ 101,700</td>
+                                <td>¥ 124,300</td>
+                                <td><span class="status status-pending">部分匹配</span></td>
+                                <td>2025-09-01</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">匹配发票</button>
+                                </td>
+                            </tr>
+                            <tr style="background: #f0f8ff;">
+                                <td>4</td>
+                                <td>4</td>
+                                <td><span class="status status-active">采购入库</span></td>
+                                <td>PO-1342</td>
+                                <td>-</td>
+                                <td>LC002-M</td>
+                                <td>460工厂</td>
+                                <td>8,000</td>
+                                <td>¥ 136,000</td>
+                                <td>13%</td>
+                                <td>¥ 17,680</td>
+                                <td>¥ 153,680</td>
+                                <td>¥ 153,680</td>
+                                <td>¥ 0</td>
+                                <td><span class="status status-active">已完全匹配</span></td>
+                                <td>2025-09-10</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">匹配发票</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div
+                        style="margin-top: 15px; background: #e8f5e9; padding: 12px; border-radius: 8px; border-left: 4px solid #27ae60;">
+                        <p style="margin: 0; color: #2e7d32; font-size: 14px;">
+                            <strong>说明：</strong>待开票列表记录每次入库或退货产生的待开票需求，关联库存池数据。当收到供应商发票时，在进项发票列表中登记，然后进行匹配。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 进项发票列表 -->
+                <div class="inventory-pool" style="margin-top: 30px;">
+                    <div class="section-header">
+                        <div class="section-title">进项发票列表（供应商开具）</div>
+                        <div>
+                            <button class="btn btn-primary">登记发票</button>
+                            <button class="btn btn-success">批量导入</button>
+                            <button class="btn btn-success">导出数据</button>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>发票ID</th>
+                                <th>发票代码</th>
+                                <th>发票号码</th>
+                                <th>开票日期</th>
+                                <th>购买方</th>
+                                <th>销售方（工厂）</th>
+                                <th>不含税金额</th>
+                                <th>税率</th>
+                                <th>税额</th>
+                                <th>价税合计</th>
+                                <th>已匹配金额</th>
+                                <th>剩余可用金额</th>
+                                <th>发票状态</th>
+                                <th>匹配状态</th>
+                                <th>归属月份</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #f0f8ff;">
+                                <td>1</td>
+                                <td>40313160</td>
+                                <td>25352000</td>
+                                <td>2025-09-05</td>
+                                <td>福建新时颖潮牌品牌运营有限公司</td>
+                                <td>广州纤依服饰有限公司（460工厂）</td>
+                                <td>¥ 200,000</td>
+                                <td>13%</td>
+                                <td>¥ 26,000</td>
+                                <td>¥ 226,000</td>
+                                <td>¥ 226,000</td>
+                                <td>¥ 0</td>
+                                <td><span class="status status-active">已认证</span></td>
+                                <td><span class="status status-active">已完全匹配</span></td>
+                                <td>2025-09</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">匹配</button>
+                                </td>
+                            </tr>
+                            <tr style="background: #fffacd;">
+                                <td>2</td>
+                                <td>40313161</td>
+                                <td>25352001</td>
+                                <td>2025-11-16</td>
+                                <td>福建新时颖潮牌品牌运营有限公司</td>
+                                <td>广州纤依服饰有限公司（460工厂）</td>
+                                <td>¥ 200,000</td>
+                                <td>13%</td>
+                                <td>¥ 26,000</td>
+                                <td>¥ 226,000</td>
+                                <td>¥ 226,000</td>
+                                <td>¥ 0</td>
+                                <td><span class="status status-active">已认证</span></td>
+                                <td><span class="status status-active">已完全匹配</span></td>
+                                <td>2025-11</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">匹配</button>
+                                </td>
+                            </tr>
+                            <tr style="background: #f0f8ff;">
+                                <td>3</td>
+                                <td>40313162</td>
+                                <td>25352002</td>
+                                <td>2025-09-12</td>
+                                <td>福建新时颖潮牌品牌运营有限公司</td>
+                                <td>广州纤依服饰有限公司（460工厂）</td>
+                                <td>¥ 68,000</td>
+                                <td>13%</td>
+                                <td>¥ 8,840</td>
+                                <td>¥ 76,840</td>
+                                <td>¥ 76,840</td>
+                                <td>¥ 0</td>
+                                <td><span class="status status-active">已认证</span></td>
+                                <td><span class="status status-active">已完全匹配</span></td>
+                                <td>2025-09</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">匹配</button>
+                                </td>
+                            </tr>
+                            <tr style="background: #f0f8ff;">
+                                <td>4</td>
+                                <td>40313163</td>
+                                <td>25352003</td>
+                                <td>2025-09-15</td>
+                                <td>福建新时颖潮牌品牌运营有限公司</td>
+                                <td>广州纤依服饰有限公司（460工厂）</td>
+                                <td>¥ 68,000</td>
+                                <td>13%</td>
+                                <td>¥ 8,840</td>
+                                <td>¥ 76,840</td>
+                                <td>¥ 76,840</td>
+                                <td>¥ 0</td>
+                                <td><span class="status status-active">已认证</span></td>
+                                <td><span class="status status-active">已完全匹配</span></td>
+                                <td>2025-09</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn btn-primary"
+                                        style="padding: 4px 8px; font-size: 12px;">匹配</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div
+                        style="margin-top: 15px; background: #e8f5e9; padding: 12px; border-radius: 8px; border-left: 4px solid #27ae60;">
+                        <p style="margin: 0; color: #2e7d32; font-size: 14px;">
+                            <strong>说明：</strong>进项发票是从供应商（工厂）实际收到的增值税发票，用于抵扣税额。一张发票可能包含多个采购单的货物，需要通过匹配功能关联到具体的待开票记录。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 发票匹配记录（多对多关系） -->
+                <div class="inventory-pool" style="margin-top: 30px;">
+                    <div class="section-header">
+                        <div class="section-title">发票匹配记录（多对多关系）</div>
+                        <div>
+                            <button class="btn btn-primary">新增匹配</button>
+                            <button class="btn btn-success">导出记录</button>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>匹配ID</th>
+                                <th>待开票ID</th>
+                                <th>采购单号</th>
+                                <th>SKU</th>
+                                <th>进项发票ID</th>
+                                <th>发票号码</th>
+                                <th>匹配金额</th>
+                                <th>匹配比例</th>
+                                <th>匹配时间</th>
+                                <th>匹配人</th>
+                                <th>备注</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #f0f8ff;">
+                                <td>1</td>
+                                <td>1</td>
+                                <td>PO-1235</td>
+                                <td>LC001-1-L</td>
+                                <td>1</td>
+                                <td>25352000</td>
+                                <td>¥ 226,000</td>
+                                <td>100%</td>
+                                <td>2025-09-05 14:30</td>
+                                <td>张三</td>
+                                <td>完全匹配（一对一）</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn"
+                                        style="padding: 4px 8px; font-size: 12px; background-color: #e74c3c; color: white;">取消匹配</button>
+                                </td>
+                            </tr>
+                            <tr style="background: #fffacd;">
+                                <td>2</td>
+                                <td>2</td>
+                                <td>PO-1368</td>
+                                <td>LC001-1-L</td>
+                                <td>2</td>
+                                <td>25352001</td>
+                                <td>¥ 124,300</td>
+                                <td>55%</td>
+                                <td>2025-11-16 15:20</td>
+                                <td>张三</td>
+                                <td>合开发票（1张发票匹配2个待开票记录）</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn"
+                                        style="padding: 4px 8px; font-size: 12px; background-color: #e74c3c; color: white;">取消匹配</button>
+                                </td>
+                            </tr>
+                            <tr style="background: #fffacd;">
+                                <td>3</td>
+                                <td>3</td>
+                                <td>PO-1235</td>
+                                <td>LC001-1-XL</td>
+                                <td>2</td>
+                                <td>25352001</td>
+                                <td>¥ 101,700</td>
+                                <td>45%</td>
+                                <td>2025-11-16 15:21</td>
+                                <td>张三</td>
+                                <td>合开发票（1张发票匹配2个待开票记录）</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn"
+                                        style="padding: 4px 8px; font-size: 12px; background-color: #e74c3c; color: white;">取消匹配</button>
+                                </td>
+                            </tr>
+                            <tr style="background: #f0f8ff;">
+                                <td>4</td>
+                                <td>4</td>
+                                <td>PO-1342</td>
+                                <td>LC002-M</td>
+                                <td>3</td>
+                                <td>25352002</td>
+                                <td>¥ 76,840</td>
+                                <td>50%</td>
+                                <td>2025-09-12 10:20</td>
+                                <td>李四</td>
+                                <td>分开发票（1个待开票用2张发票匹配）</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn"
+                                        style="padding: 4px 8px; font-size: 12px; background-color: #e74c3c; color: white;">取消匹配</button>
+                                </td>
+                            </tr>
+                            <tr style="background: #f0f8ff;">
+                                <td>5</td>
+                                <td>4</td>
+                                <td>PO-1342</td>
+                                <td>LC002-M</td>
+                                <td>4</td>
+                                <td>25352003</td>
+                                <td>¥ 76,840</td>
+                                <td>50%</td>
+                                <td>2025-09-15 16:15</td>
+                                <td>李四</td>
+                                <td>分开发票（1个待开票用2张发票匹配）</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn"
+                                        style="padding: 4px 8px; font-size: 12px; background-color: #e74c3c; color: white;">取消匹配</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div
+                        style="margin-top: 15px; background: #fff9e6; padding: 12px; border-radius: 8px; border-left: 4px solid #f39c12;">
+                        <p style="margin: 0 0 15px 0; color: #555; font-size: 14px;">
+                            <strong>说明：</strong>发票匹配支持多对多关系：一张进项发票可以匹配多个待开票记录，一个待开票记录也可以由多张进项发票匹配。匹配金额可以灵活拆分。
+                        </p>
+                        <div style="background: #ffffff; padding: 12px; border-radius: 6px; margin-top: 10px;">
+                            <p style="margin: 0 0 10px 0; font-weight: bold; color: #333;">📊 业务场景说明：</p>
+                            <ul style="margin: 0; padding-left: 25px; line-height: 2; color: #555;">
+                                <li><strong>场景1 - 一对一匹配（蓝色背景）：</strong>待开票1(PO-1235, 价税合计¥226,000) 完全匹配进项发票1(25352000,
+                                    ¥226,000)，匹配比例100%</li>
+                                <li><strong>场景2 - 合开发票（黄色背景）：</strong>供应商将2个采购单合并开具1张发票，进项发票2(25352001,
+                                    ¥226,000)同时匹配待开票2(PO-1368, ¥124,300)和待开票3(PO-1235, ¥101,700)，匹配比例分别为55%和45%</li>
+                                <li><strong>场景3 - 分开发票（蓝色背景）：</strong>供应商将1个采购单分2张发票开具，待开票4(PO-1342,
+                                    ¥153,680)由进项发票3(25352002, ¥76,840)和进项发票4(25352003, ¥76,840)共同匹配，每张发票匹配50%</li>
+                                <li><strong>💡
+                                        重要说明：</strong>发票匹配按"价税合计"金额进行，包含不含税金额和税额（13%）。待开票3当前已匹配¥101,700，还有¥124,300待匹配，等待后续进项发票到达后继续匹配
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 销项发票列表 -->
+                <div class="inventory-pool" style="margin-top: 30px;">
+                    <div class="section-header">
+                        <div class="section-title">销项发票列表（出口发票）</div>
+                        <div>
+                            <button class="btn btn-primary">开具发票</button>
+                            <button class="btn btn-success">导出数据</button>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>发票ID</th>
+                                <th>发票号码</th>
+                                <th>开票日期</th>
+                                <th>客户名称</th>
+                                <th>国家/地区</th>
+                                <th>关联订单号</th>
+                                <th>FBA Shipment ID</th>
+                                <th>不含税金额</th>
+                                <th>币种</th>
+                                <th>发票类型</th>
+                                <th>状态</th>
+                                <th>归属月份</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>EXP-2025090001</td>
+                                <td>2025-09-15</td>
+                                <td>Amazon FBA</td>
+                                <td>美国</td>
+                                <td>FBA192RDMZPS</td>
+                                <td>FBA192RDMZPS</td>
+                                <td>$ 15,000</td>
+                                <td>USD</td>
+                                <td><span class="status status-active">出口发票</span></td>
+                                <td><span class="status status-active">已开票</span></td>
+                                <td>2025-09</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">下载</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>EXP-2025090002</td>
+                                <td>2025-09-20</td>
+                                <td>Amazon FBA</td>
+                                <td>英国</td>
+                                <td>FBA193RDMZPS</td>
+                                <td>FBA193RDMZPS</td>
+                                <td>£ 8,500</td>
+                                <td>GBP</td>
+                                <td><span class="status status-active">出口发票</span></td>
+                                <td><span class="status status-active">已开票</span></td>
+                                <td>2025-09</td>
+                                <td>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看</button>
+                                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">下载</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- 结束待开票管理区域 -->
+
+            <!-- 虚拟库存池流程区域 -->
+            <div id="inventory-process-section" class="content-section" style="display: none;">
+                <h2 style="margin-bottom: 20px;">虚拟库存池流程</h2>
+                <!-- 业务流程说明卡片 -->
+                <div class="inventory-pool" style="margin-bottom: 30px;">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px; font-size: 18px;">📌 业务流程概述</h3>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; line-height: 1.8;">
+                        <p style="margin-bottom: 10px;"><strong>关联库存ID：1（SKU: LC001-1-L）</strong></p>
+                        <ul style="margin: 15px 0; padding-left: 25px;">
+                            <li style="margin-bottom: 8px;"><strong>步骤1：</strong>采购入库 10,000 件</li>
+                            <li style="margin-bottom: 8px;"><strong>步骤2：</strong>销售出库 6,000 件</li>
+                            <li style="margin-bottom: 8px;"><strong>步骤3：</strong>工厂未结算前，退货 1,000 件（✅ 允许）</li>
+                            <li style="margin-bottom: 8px;"><strong>步骤4：</strong>工厂端结算 10,000 件</li>
+                            <li style="margin-bottom: 8px;"><strong>步骤5：</strong>工厂结算后尝试退货（❌ 拒绝）</li>
+                            <li style="margin-bottom: 8px;"><strong>步骤6：</strong>尝试超量消耗（验证规则）</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 虚拟库存池状态变化表 -->
+                <div class="inventory-pool">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px; font-size: 18px;">📊 虚拟库存池状态变化</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>步骤</th>
+                                <th>业务操作</th>
+                                <th>入库数量</th>
+                                <th>消耗</th>
+                                <th>结算数</th>
+                                <th>退货数</th>
+                                <th>真实结算数</th>
+                                <th>说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #f8f9fa;">
+                                <td><strong>初始状态</strong></td>
+                                <td>-</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>库存池为空</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status status-active">步骤1</span></td>
+                                <td>采购入库</td>
+                                <td style="color: #27ae60; font-weight: bold;">10,000</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>采购单PO-1235入库10,000件，增加"入库数量"</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status status-active">步骤2</span></td>
+                                <td>销售出库</td>
+                                <td>10,000</td>
+                                <td style="color: #e67e22; font-weight: bold;">6,000</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>订单FBA192RDMZPS出库6,000件，增加"消耗"</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status status-active">步骤3</span></td>
+                                <td>工厂未结算前退货</td>
+                                <td>10,000</td>
+                                <td>6,000</td>
+                                <td>0</td>
+                                <td style="color: #27ae60; font-weight: bold;">1,000</td>
+                                <td>0</td>
+                                <td style="color: #27ae60;">✅ 成功：退货单TH-20250901-001退货1,000件，工厂未结算前允许退货，增加"退货数"</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status status-warning">步骤4</span></td>
+                                <td>工厂结算</td>
+                                <td>10,000</td>
+                                <td>6,000</td>
+                                <td style="color: #3498db; font-weight: bold;">10,000</td>
+                                <td>1,000</td>
+                                <td style="color: #3498db; font-weight: bold;">9,000</td>
+                                <td>工厂结算10,000件，增加"结算数"，真实结算数=结算数-退货数=10,000-1,000=9,000</td>
+                            </tr>
+                            <tr style="background: #ffebee;">
+                                <td><span class="status status-error">步骤5</span></td>
+                                <td>结算后尝试退货（拒绝）</td>
+                                <td>10,000</td>
+                                <td>6,000</td>
+                                <td>10,000</td>
+                                <td>1,000</td>
+                                <td>9,000</td>
+                                <td style="color: #e74c3c;">❌ 失败：尝试退货500件被拒绝，原因：工厂已结算，不允许再退货</td>
+                            </tr>
+                            <tr style="background: #ffebee;">
+                                <td><span class="status status-error">步骤6</span></td>
+                                <td>超量消耗（拒绝）</td>
+                                <td>10,000</td>
+                                <td>6,000</td>
+                                <td>10,000</td>
+                                <td>1,000</td>
+                                <td>9,000</td>
+                                <td style="color: #e74c3c;">❌
+                                    失败：尝试出库5,000件被拒绝，剩余可用库存3,000件（入库数量-消耗-退货数=10,000-6,000-1,000=3,000），不能超过可用库存
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 字段说明 -->
+                <div class="inventory-pool" style="margin-top: 30px;">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px; font-size: 18px;">📖 字段说明</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+                        <div
+                            style="background: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 4px solid #27ae60;">
+                            <strong style="color: #27ae60;">入库数量</strong>
+                            <p style="margin: 8px 0 0 0; color: #555; font-size: 14px;">
+                                从工厂采购入库的总数量，此字段一经录入不可更改，保持历史记录的完整性</p>
+                        </div>
+                        <div
+                            style="background: #fff3e0; padding: 15px; border-radius: 8px; border-left: 4px solid #e67e22;">
+                            <strong style="color: #e67e22;">消耗</strong>
+                            <p style="margin: 8px 0 0 0; color: #555; font-size: 14px;">
+                                因销售出库而消耗的库存数量，用于计算可用库存和财务成本结转
+                            </p>
+                        </div>
+                        <div
+                            style="background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #3498db;">
+                            <strong style="color: #3498db;">结算数</strong>
+                            <p style="margin: 8px 0 0 0; color: #555; font-size: 14px;">
+                                与工厂约定的结算数量，通常在一段时间后确认，用于财务应付账款核算
+                            </p>
+                        </div>
+                        <div
+                            style="background: #ffebee; padding: 15px; border-radius: 8px; border-left: 4px solid #e74c3c;">
+                            <strong style="color: #e74c3c;">退货数</strong>
+                            <p style="margin: 8px 0 0 0; color: #555; font-size: 14px;">因质量问题等原因退回给工厂的数量，冲减应付账款</p>
+                        </div>
+                        <div
+                            style="background: #f3e5f5; padding: 15px; border-radius: 8px; border-left: 4px solid #9c27b0;">
+                            <strong style="color: #9c27b0;">真实结算数</strong>
+                            <p style="margin: 8px 0 0 0; color: #555; font-size: 14px;">实际需要与工厂结算的数量，计算公式：真实结算数 =
+                                结算数 -
+                                退货数</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 库存池变更记录关联 -->
+                <div class="inventory-pool" style="margin-top: 30px;">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px; font-size: 18px;">🔗 库存池变更记录</h3>
+                    <p style="color: #555; margin-bottom: 15px;">每次虚拟库存池字段发生变化时，都会在"库存池变更记录"中生成对应的记录，便于审计和追溯：</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>记录ID</th>
+                                <th>消耗类型</th>
+                                <th>关联库存ID</th>
+                                <th>数量</th>
+                                <th>影响字段</th>
+                                <th>业务单据</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td><span class="status status-active">采购入库</span></td>
+                                <td>1</td>
+                                <td>10,000</td>
+                                <td>入库数量 +10,000</td>
+                                <td>采购单号：PO-1235</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td><span class="status status-active">销售出库</span></td>
+                                <td>1</td>
+                                <td>6,000</td>
+                                <td>消耗 +6,000</td>
+                                <td>订单号：FBA192RDMZPS</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td><span class="status status-active">采购退货（未结算）</span></td>
+                                <td>1</td>
+                                <td>1,000</td>
+                                <td>退货数 +1,000</td>
+                                <td>退货单号：TH-20250901-001</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td><span class="status status-warning">工厂结算</span></td>
+                                <td>1</td>
+                                <td>10,000</td>
+                                <td>结算数 +10,000</td>
+                                <td>采购单号：PO-1235</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td><span class="status status-error">结算后退货（拒绝）</span></td>
+                                <td>1</td>
+                                <td>500</td>
+                                <td>无变化（拒绝）</td>
+                                <td>退货单号：TH-20250925-001</td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td><span class="status status-error">超量消耗（拒绝）</span></td>
+                                <td>1</td>
+                                <td>5,000</td>
+                                <td>无变化（拒绝）</td>
+                                <td>订单号：ORD-20250925-001</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 关键要点 -->
+                <div class="inventory-pool" style="margin-top: 30px;">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px; font-size: 18px;">💡 财务合规关键要点</h3>
+                    <div
+                        style="background: #fff9e6; padding: 20px; border-radius: 8px; border-left: 4px solid #f39c12;">
+                        <ul style="margin: 0; padding-left: 25px; line-height: 2;">
+                            <li><strong>数据不可篡改：</strong>"入库数量"字段一经录入不可修改，确保历史数据的完整性和可追溯性</li>
+                            <li><strong>退货处理：</strong>退货不减少"入库数量"，而是通过"退货数"字段单独记录，保持审计线索清晰</li>
+                            <li style="color: #e74c3c;"><strong>⚠️
+                                    退货限制：</strong>只有在工厂未结算前才允许退货，一旦工厂结算完成（结算数>0），则不允许再进行退货操作</li>
+                            <li><strong>财务结算：</strong>最终与工厂结算时，使用"真实结算数"（结算数-退货数）作为计算依据</li>
+                            <li><strong>库存消耗：</strong>"消耗"字段仅记录销售出库，不包含退货，两者分别核算</li>
+                            <li><strong>不能超量消耗：</strong>可用库存=入库数量-消耗-退货数，出库数量不能超过可用库存，系统会自动拒绝超量消耗请求</li>
+                            <li><strong>全程可追溯：</strong>所有变更都在"库存池变更记录"中留痕，支持完整的审计追溯</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- 结束虚拟库存池流程区域 -->
+
+            <!-- 待开票流程区域 -->
+            <div id="invoice-process-section" class="content-section" style="display: none;">
+                <h2 style="margin-bottom: 20px;">待开票流程</h2>
+
+                <!-- 流程概述 -->
+                <div class="inventory-pool" style="margin-bottom: 30px;">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px; font-size: 18px;">📌 待开票业务流程概述</h3>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; line-height: 1.8;">
+                        <p style="margin-bottom: 15px; font-size: 15px;">
+                            <strong>核心逻辑：</strong>入库时或退货时，库存池数据增加的同时，自动生成待开票需求；收到供应商进项发票后，进行发票匹配操作（支持多对多关系）。
+                        </p>
+                        <p style="margin-bottom: 10px;"><strong>示例场景：</strong>展示三种典型发票匹配场景的完整业务流程</p>
+                        <ul style="margin: 15px 0; padding-left: 25px;">
+                            <li style="margin-bottom: 8px;"><strong>场景1 - 一对一匹配：</strong>1个采购单对应1张进项发票（蓝色背景）</li>
+                            <li style="margin-bottom: 8px;"><strong>场景2 - 合开发票：</strong>2个采购单合并开具1张进项发票（黄色背景）</li>
+                            <li style="margin-bottom: 8px;"><strong>场景3 - 分开发票：</strong>1个采购单分2张进项发票开具（蓝色背景）</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 场景1：一对一匹配 -->
+                <div class="inventory-pool" style="margin-bottom: 30px;">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px; font-size: 18px;">🔵 场景1：一对一匹配（完全匹配）</h3>
+
+                    <!-- 步骤1：采购入库 -->
+                    <div
+                        style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #1a6dba;">
+                        <h4 style="color: #1a6dba; margin-bottom: 10px;">步骤1：采购入库（2025-09-01）</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>采购单PO-1235入库，10,000件LC001-1-L，单价¥20.00，不含税金额¥200,000，税率13%
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="7" style="text-align: left; padding: 8px;">虚拟库存池（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">ID</th>
+                                        <th>SKU</th>
+                                        <th>采购单号</th>
+                                        <th>入库数量</th>
+                                        <th>消耗</th>
+                                        <th>结算数</th>
+                                        <th>退货数</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">1</td>
+                                        <td>LC001-1-L</td>
+                                        <td>PO-1235</td>
+                                        <td style="color: #27ae60; font-weight: bold;">10,000</td>
+                                        <td>0</td>
+                                        <td>0</td>
+                                        <td>0</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table style="width: 100%; margin-top: 15px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="9" style="text-align: left; padding: 8px;">待开票列表（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">待开票ID</th>
+                                        <th>采购单号</th>
+                                        <th>SKU</th>
+                                        <th>数量</th>
+                                        <th>不含税金额</th>
+                                        <th>税额</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">1</td>
+                                        <td>PO-1235</td>
+                                        <td>LC001-1-L</td>
+                                        <td>10,000</td>
+                                        <td>¥200,000</td>
+                                        <td>¥26,000</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥226,000</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-pending">未匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 步骤2：收到进项发票 -->
+                    <div
+                        style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #1a6dba;">
+                        <h4 style="color: #1a6dba; margin-bottom: 10px;">步骤2：收到供应商进项发票（2025-09-05）</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>供应商开具进项发票，发票号码25352000，不含税金额¥200,000，税额¥26,000，价税合计¥226,000
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="8" style="text-align: left; padding: 8px;">进项发票列表（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">进项发票ID</th>
+                                        <th>发票号码</th>
+                                        <th>不含税金额</th>
+                                        <th>税额</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>剩余可用</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">1</td>
+                                        <td>25352000</td>
+                                        <td>¥200,000</td>
+                                        <td>¥26,000</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥226,000</td>
+                                        <td>¥0</td>
+                                        <td>¥226,000</td>
+                                        <td><span class="status status-pending">未匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 步骤3：进行发票匹配 -->
+                    <div
+                        style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #27ae60;">
+                        <h4 style="color: #27ae60; margin-bottom: 10px;">步骤3：进行发票匹配（2025-09-05）✅</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>财务人员将待开票1与进项发票1进行匹配，匹配金额¥226,000（价税合计）
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="7" style="text-align: left; padding: 8px;">发票匹配记录（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">匹配ID</th>
+                                        <th>待开票ID</th>
+                                        <th>采购单号</th>
+                                        <th>进项发票ID</th>
+                                        <th>发票号码</th>
+                                        <th>匹配金额</th>
+                                        <th>匹配比例</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">1</td>
+                                        <td>1</td>
+                                        <td>PO-1235</td>
+                                        <td>1</td>
+                                        <td>25352000</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥226,000</td>
+                                        <td>100%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table style="width: 100%; margin-top: 15px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">待开票列表（更新）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">待开票ID</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>剩余待匹配</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">1</td>
+                                        <td>¥226,000</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥226,000</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-active">已完全匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table style="width: 100%; margin-top: 15px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">进项发票列表（更新）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">进项发票ID</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>剩余可用</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">1</td>
+                                        <td>¥226,000</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥226,000</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-active">已完全匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div style="margin-top: 15px; background: #fff; padding: 12px; border-radius: 6px;">
+                            <p style="margin: 0; color: #27ae60; font-weight: bold;">✅ 匹配结果：</p>
+                            <p style="margin: 5px 0 0 0; color: #555;">待开票1完全匹配，进项发票1完全匹配，财务可以进行抵扣操作。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 场景2：合开发票 -->
+                <div class="inventory-pool" style="margin-bottom: 30px;">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px; font-size: 18px;">🟡 场景2：合开发票（1张发票匹配2个待开票）</h3>
+
+                    <!-- 步骤1：第一次采购入库 -->
+                    <div
+                        style="background: #fffacd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f39c12;">
+                        <h4 style="color: #f39c12; margin-bottom: 10px;">步骤1：第一次采购入库（2025-11-15）</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>采购单PO-1368入库，5,000件LC001-1-L，单价¥22.00，不含税金额¥110,000
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #fff9e6;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">待开票列表（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">待开票ID</th>
+                                        <th>采购单号</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">2</td>
+                                        <td>PO-1368</td>
+                                        <td style="color: #f39c12; font-weight: bold;">¥124,300</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-pending">未匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 步骤2：第二次采购入库 -->
+                    <div
+                        style="background: #fffacd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f39c12;">
+                        <h4 style="color: #f39c12; margin-bottom: 10px;">步骤2：第二次采购入库（2025-09-01）</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>采购单PO-1235入库，10,000件LC001-1-XL，单价¥20.00，不含税金额¥200,000
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #fff9e6;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">待开票列表（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">待开票ID</th>
+                                        <th>采购单号</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">3</td>
+                                        <td>PO-1235</td>
+                                        <td style="color: #f39c12; font-weight: bold;">¥226,000</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-pending">未匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 步骤3：供应商合并开具1张发票 -->
+                    <div
+                        style="background: #fffacd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f39c12;">
+                        <h4 style="color: #f39c12; margin-bottom: 10px;">步骤3：收到供应商合并开具的进项发票（2025-11-16）</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>供应商将PO-1368和PO-1235两个采购单合并开具1张发票，发票号码25352001，价税合计¥226,000（仅部分金额）
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #fff9e6;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">进项发票列表（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">进项发票ID</th>
+                                        <th>发票号码</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">2</td>
+                                        <td>25352001</td>
+                                        <td style="color: #f39c12; font-weight: bold;">¥226,000</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-pending">未匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 步骤4：进行发票匹配 -->
+                    <div
+                        style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #27ae60;">
+                        <h4 style="color: #27ae60; margin-bottom: 10px;">步骤4：进行发票匹配（2025-11-16）✅</h4>
+                        <p style="margin-bottom: 10px; color: #555;"><strong>业务操作：</strong>财务人员将进项发票2拆分匹配到待开票2和待开票3
+                        </p>
+                        <ul style="margin: 10px 0 10px 25px; color: #555;">
+                            <li>匹配记录2：待开票2(PO-1368) ← 进项发票2，匹配金额¥124,300（55%）</li>
+                            <li>匹配记录3：待开票3(PO-1235) ← 进项发票2，匹配金额¥101,700（45%）</li>
+                        </ul>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="7" style="text-align: left; padding: 8px;">发票匹配记录（新增2条记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">匹配ID</th>
+                                        <th>待开票ID</th>
+                                        <th>采购单号</th>
+                                        <th>进项发票ID</th>
+                                        <th>发票号码</th>
+                                        <th>匹配金额</th>
+                                        <th>匹配比例</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">2</td>
+                                        <td>2</td>
+                                        <td>PO-1368</td>
+                                        <td>2</td>
+                                        <td>25352001</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥124,300</td>
+                                        <td>55%</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 6px;">3</td>
+                                        <td>3</td>
+                                        <td>PO-1235</td>
+                                        <td>2</td>
+                                        <td>25352001</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥101,700</td>
+                                        <td>45%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table style="width: 100%; margin-top: 15px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #fff9e6;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">待开票列表（更新）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">待开票ID</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>剩余待匹配</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">2</td>
+                                        <td>¥124,300</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥124,300</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-active">已完全匹配</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 6px;">3</td>
+                                        <td>¥226,000</td>
+                                        <td style="color: #f39c12; font-weight: bold;">¥101,700</td>
+                                        <td style="color: #e67e22; font-weight: bold;">¥124,300</td>
+                                        <td><span class="status status-pending">部分匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table style="width: 100%; margin-top: 15px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #fff9e6;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">进项发票列表（更新）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">进项发票ID</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>剩余可用</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">2</td>
+                                        <td>¥226,000</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥226,000</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-active">已完全匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div style="margin-top: 15px; background: #fff; padding: 12px; border-radius: 6px;">
+                            <p style="margin: 0; color: #27ae60; font-weight: bold;">✅ 匹配结果：</p>
+                            <p style="margin: 5px 0 0 0; color: #555;">
+                                进项发票2（¥226,000）完全匹配，其中55%（¥124,300）匹配到待开票2，45%（¥101,700）匹配到待开票3。待开票2完全匹配，待开票3还需等待后续发票到达。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 场景3：分开发票 -->
+                <div class="inventory-pool" style="margin-bottom: 30px;">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px; font-size: 18px;">🔵 场景3：分开发票（1个待开票用2张发票匹配）</h3>
+
+                    <!-- 步骤1：采购入库 -->
+                    <div
+                        style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #1a6dba;">
+                        <h4 style="color: #1a6dba; margin-bottom: 10px;">步骤1：采购入库（2025-09-10）</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>采购单PO-1342入库，8,000件LC002-M，单价¥17.00，不含税金额¥136,000
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">待开票列表（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">待开票ID</th>
+                                        <th>采购单号</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">4</td>
+                                        <td>PO-1342</td>
+                                        <td style="color: #1a6dba; font-weight: bold;">¥153,680</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-pending">未匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 步骤2：收到第1张进项发票 -->
+                    <div
+                        style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #1a6dba;">
+                        <h4 style="color: #1a6dba; margin-bottom: 10px;">步骤2：收到第1张进项发票（2025-09-12）</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>供应商将PO-1342分2张发票开具，第1张发票号码25352002，价税合计¥76,840
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">进项发票列表（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">进项发票ID</th>
+                                        <th>发票号码</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">3</td>
+                                        <td>25352002</td>
+                                        <td style="color: #1a6dba; font-weight: bold;">¥76,840</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-pending">未匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 步骤3：第1次发票匹配 -->
+                    <div
+                        style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #27ae60;">
+                        <h4 style="color: #27ae60; margin-bottom: 10px;">步骤3：第1次发票匹配（2025-09-12）✅</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>财务人员将进项发票3匹配到待开票4，匹配金额¥76,840（50%）
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="7" style="text-align: left; padding: 8px;">发票匹配记录（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">匹配ID</th>
+                                        <th>待开票ID</th>
+                                        <th>采购单号</th>
+                                        <th>进项发票ID</th>
+                                        <th>发票号码</th>
+                                        <th>匹配金额</th>
+                                        <th>匹配比例</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">4</td>
+                                        <td>4</td>
+                                        <td>PO-1342</td>
+                                        <td>3</td>
+                                        <td>25352002</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥76,840</td>
+                                        <td>50%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table style="width: 100%; margin-top: 15px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">待开票列表（更新）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">待开票ID</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>剩余待匹配</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">4</td>
+                                        <td>¥153,680</td>
+                                        <td style="color: #f39c12; font-weight: bold;">¥76,840</td>
+                                        <td style="color: #e67e22; font-weight: bold;">¥76,840</td>
+                                        <td><span class="status status-pending">部分匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 步骤4：收到第2张进项发票 -->
+                    <div
+                        style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #1a6dba;">
+                        <h4 style="color: #1a6dba; margin-bottom: 10px;">步骤4：收到第2张进项发票（2025-09-15）</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>供应商开具第2张发票，发票号码25352003，价税合计¥76,840
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">进项发票列表（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">进项发票ID</th>
+                                        <th>发票号码</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">4</td>
+                                        <td>25352003</td>
+                                        <td style="color: #1a6dba; font-weight: bold;">¥76,840</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-pending">未匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 步骤5：第2次发票匹配 -->
+                    <div
+                        style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #27ae60;">
+                        <h4 style="color: #27ae60; margin-bottom: 10px;">步骤5：第2次发票匹配（2025-09-15）✅</h4>
+                        <p style="margin-bottom: 10px; color: #555;">
+                            <strong>业务操作：</strong>财务人员将进项发票4匹配到待开票4，匹配金额¥76,840（50%）
+                        </p>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-weight: bold; margin-bottom: 10px;">📊 数据变化：</p>
+
+                            <table style="width: 100%; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="7" style="text-align: left; padding: 8px;">发票匹配记录（新增记录）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">匹配ID</th>
+                                        <th>待开票ID</th>
+                                        <th>采购单号</th>
+                                        <th>进项发票ID</th>
+                                        <th>发票号码</th>
+                                        <th>匹配金额</th>
+                                        <th>匹配比例</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">5</td>
+                                        <td>4</td>
+                                        <td>PO-1342</td>
+                                        <td>4</td>
+                                        <td>25352003</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥76,840</td>
+                                        <td>50%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table style="width: 100%; margin-top: 15px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">待开票列表（更新）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">待开票ID</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>剩余待匹配</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">4</td>
+                                        <td>¥153,680</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥153,680</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-active">已完全匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table style="width: 100%; margin-top: 15px; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #e3f2fd;">
+                                        <th colspan="5" style="text-align: left; padding: 8px;">进项发票列表（更新）</th>
+                                    </tr>
+                                    <tr style="background: #f8f9fa;">
+                                        <th style="padding: 6px;">进项发票ID</th>
+                                        <th>价税合计</th>
+                                        <th>已匹配金额</th>
+                                        <th>剩余可用</th>
+                                        <th>匹配状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding: 6px;">3</td>
+                                        <td>¥76,840</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥76,840</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-active">已完全匹配</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 6px;">4</td>
+                                        <td>¥76,840</td>
+                                        <td style="color: #27ae60; font-weight: bold;">¥76,840</td>
+                                        <td>¥0</td>
+                                        <td><span class="status status-active">已完全匹配</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div style="margin-top: 15px; background: #fff; padding: 12px; border-radius: 6px;">
+                            <p style="margin: 0; color: #27ae60; font-weight: bold;">✅ 匹配结果：</p>
+                            <p style="margin: 5px 0 0 0; color: #555;">
+                                待开票4（¥153,680）完全匹配，由进项发票3（¥76,840）和进项发票4（¥76,840）共同匹配。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 关键要点 -->
+                <div class="inventory-pool" style="margin-top: 30px;">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px; font-size: 18px;">💡 待开票管理关键要点</h3>
+                    <div
+                        style="background: #fff9e6; padding: 20px; border-radius: 8px; border-left: 4px solid #f39c12;">
+                        <ul style="margin: 0; padding-left: 25px; line-height: 2;">
+                            <li><strong>自动生成待开票：</strong>采购入库或退货时，系统自动在待开票列表中生成待开票需求记录</li>
+                            <li><strong>价税合计匹配：</strong>发票匹配按"价税合计"金额进行，包含不含税金额和税额（13%）</li>
+                            <li><strong>多对多关系：</strong>支持灵活的多对多匹配关系，一张进项发票可以匹配多个待开票记录，一个待开票记录也可以由多张进项发票匹配</li>
+                            <li><strong>合开发票场景：</strong>供应商可以将多个采购单合并开具1张发票，通过拆分匹配金额和比例实现</li>
+                            <li><strong>分开发票场景：</strong>供应商可以将1个采购单分多张发票开具，通过多次匹配操作完成</li>
+                            <li><strong>匹配状态跟踪：</strong>系统实时跟踪已匹配金额和剩余待匹配金额，支持部分匹配状态</li>
+                            <li><strong>税额抵扣：</strong>进项发票完全匹配后，财务可以进行增值税抵扣操作</li>
+                            <li><strong>全程可追溯：</strong>所有匹配记录都在"发票匹配记录"表中留痕，支持完整的审计追溯</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- 结束待开票流程区域 -->
+
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionName) {
+            // 隐藏所有section
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // 移除所有菜单项的active状态
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // 显示选中的section
+            const targetSection = document.getElementById(sectionName + '-section');
+            if (targetSection) {
+                targetSection.style.display = 'block';
+            }
+
+            // 设置当前菜单项为active
+            event.currentTarget.classList.add('active');
+
+            // 更新页面标题
+            const titles = {
+                'dashboard': '虚拟库存池管理',
+                'inventory-process': '虚拟库存池流程',
+                'cost': '库存成本核算',
+                'invoice': '待开票管理',
+                'invoice-process': '待开票流程'
+            };
+            document.getElementById('page-title').textContent = titles[sectionName] || '财务合规系统';
+        }
+
+        function showCostDetail(factory, sku) {
+            // 显示成本明细（可以弹出模态框或跳转到详情页）
+            if (arguments.length === 2) {
+                alert('查看 ' + factory + ' + ' + sku + ' 的成本明细\n\n此功能可以展示该工厂+SKU组合的完整成本计算历史记录，包括所有采购单的入库记录如何被加权平均合并计算。');
+            } else {
+                // 兼容旧的调用方式
+                alert('查看库存ID ' + factory + ' 的成本明细\n\n此功能可以展示该SKU的完整成本计算历史记录');
+            }
+            // 实际应用中，这里可以：
+            // 1. 弹出模态框显示详细的成本计算记录
+            // 2. 跳转到专门的成本详情页面
+            // 3. 在当前页面展开详细信息
+        }
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跨境电商财务合规系统</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>财务合规系统</h1>
+                <span>跨境电商管理平台</span>
+            </div>
+
+            <ul class="menu">
+                <li class="menu-item active" onclick="showSection('dashboard')">
+                    <i>📦</i> 虚拟库存池
+                </li>
+                <li class="menu-item" onclick="showSection('inventory-process')">
+                    <i>📋</i> 虚拟库存池流程
+                </li>
+                <li class="menu-item" onclick="showSection('cost')">
+                    <i>💰</i> 库存成本核算
+                </li>
+                <li class="menu-item" onclick="showSection('invoice')">
+                    <i>🧾</i> 待开票管理
+                </li>
+                <li class="menu-item" onclick="showSection('invoice-process')">
+                    <i>📋</i> 待开票流程
+                </li>
+            </ul>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <header class="header">
+                <h2 id="page-title">虚拟库存池管理</h2>
+                <div class="user-info">
+                    <div class="user-avatar">👤</div>
+                    <div>
+                        <div style="font-weight: 600;">管理员</div>
+                        <div style="font-size: 12px; color: #7f8c8d;">Admin</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 动态内容容器 -->
+            <div id="content-container"></div>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+
+</html>
+

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>采销合同</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航 -->
+        <div class="top-nav">
+            <button class="nav-btn" onclick="goBack()">< 首页</button>
+            <div class="page-title">采销合同 <span class="close-btn" onclick="goBack()">×</span></div>
+            <div class="nav-right">
+                <button class="search-btn">🔍 Ctrl+K 搜索菜单</button>
+                <button class="icon-btn">📷</button>
+                <button class="icon-btn">⬆</button>
+                <button class="icon-btn">⚙</button>
+                <div class="user-info">
+                    <span class="user-avatar">👤</span>
+                    <span class="user-name">XXX</span>
+                    <span class="system-name">系统</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 警告提示 -->
+        <div class="warning-banner">
+            参考仓库系统-ERP管理-采购合同列表页面，签署完成时支持上传发票。
+        </div>
+
+        <!-- 标签页导航 -->
+        <div class="tabs-navigation">
+            <div class="tab-item active" data-status="pending" onclick="switchTab('pending')">
+                待审核<span class="tab-badge">12</span>
+            </div>
+            <div class="tab-item" data-status="rejected" onclick="switchTab('rejected')">
+                审核不通过<span class="tab-badge">8</span>
+            </div>
+            <div class="tab-item" data-status="signing" onclick="switchTab('signing')">
+                签署中<span class="tab-badge">8</span>
+            </div>
+            <div class="tab-item" data-status="completed" onclick="switchTab('completed')">
+                签署完成<span class="tab-badge">8</span>
+            </div>
+            <div class="tab-item" data-status="refused" onclick="switchTab('refused')">
+                已拒签<span class="tab-badge">8</span>
+            </div>
+            <div class="tab-item" data-status="cancelled" onclick="switchTab('cancelled')">
+                已撤销<span class="tab-badge">8</span>
+            </div>
+            <div class="tab-item" data-status="terminating" onclick="switchTab('terminating')">
+                解约中<span class="tab-badge">8</span>
+            </div>
+            <div class="tab-item" data-status="terminated" onclick="switchTab('terminated')">
+                已解约<span class="tab-badge">8</span>
+            </div>
+            <div class="tab-item" data-status="expired" onclick="switchTab('expired')">
+                已过期<span class="tab-badge">8</span>
+            </div>
+            <div class="tab-item" data-status="all" onclick="switchTab('all')">所有</div>
+        </div>
+
+        <!-- 筛选区域 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label>合同编号</label>
+                    <input type="text" placeholder="请输入" class="filter-input" id="contractNoInput">
+                </div>
+                <div class="filter-item">
+                    <label>供方名称</label>
+                    <select class="filter-select" id="supplierSelect">
+                        <option value="">请选择</option>
+                        <option value="supplier1">供应商A</option>
+                        <option value="supplier2">供应商B</option>
+                    </select>
+                    <span class="badge">14</span>
+                </div>
+                <div class="filter-item">
+                    <label>需方名称</label>
+                    <select class="filter-select" id="buyerSelect">
+                        <option value="">请选择</option>
+                        <option value="buyer1">采购方A</option>
+                        <option value="buyer2">采购方B</option>
+                    </select>
+                    <span class="badge">13</span>
+                </div>
+                <div class="filter-item">
+                    <label>状态</label>
+                    <select class="filter-select" id="statusSelect">
+                        <option value="">请选择</option>
+                        <option value="pending">待审核</option>
+                        <option value="signing">签署中</option>
+                        <option value="completed">签署完成</option>
+                    </select>
+                    <span class="badge">15</span>
+                </div>
+                <div class="filter-item">
+                    <label>待审核</label>
+                    <select class="filter-select" id="auditSelect">
+                        <option value="">待审核</option>
+                        <option value="yes">是</option>
+                        <option value="no">否</option>
+                    </select>
+                    <span class="badge">3</span>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-primary" onclick="queryContracts()">查询</button>
+                    <button class="btn btn-default" onclick="resetContractFilter()">重置</button>
+                    <button class="btn btn-link" onclick="clearContractFilter()">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮区域 -->
+        <div class="action-section">
+            <div class="action-buttons">
+                <button class="btn btn-action" onclick="approveContracts()">
+                    审核通过
+                    <span class="badge">1</span>
+                </button>
+                <button class="btn btn-action" onclick="rejectContracts()">
+                    审核不通过
+                    <span class="badge">11</span>
+                </button>
+                <button class="btn btn-action" onclick="exportContractFiles()">
+                    合同文件导出
+                    <span class="badge">12</span>
+                </button>
+            </div>
+            <button class="btn btn-icon" onclick="showContractSettings()">⚙</button>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="checkAllContracts" onchange="toggleSelectAllContracts(this)"></th>
+                        <th>合同编号<span class="badge-sm">5</span></th>
+                        <th>签署链接<span class="badge-sm">6</span></th>
+                        <th>状态</th>
+                        <th>供方名称<span class="badge-sm">7</span></th>
+                        <th>需方名称<span class="badge-sm">8</span></th>
+                        <th>数量<span class="badge-sm">9</span></th>
+                        <th>不含税总额<span class="badge-sm">10</span></th>
+                        <th>税额</th>
+                        <th>含税金额</th>
+                        <th>工厂签署合同</th>
+                        <th>公司签署合同</th>
+                        <th>创建时间</th>
+                        <th>审核时间</th>
+                        <th class="highlight-column">我司签署时间</th>
+                        <th class="highlight-column">关联发票编号</th>
+                        <th class="highlight-column">发票附件</th>
+                        <th class="highlight-column">关联往来对账单ID</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="contractTableBody">
+                    <!-- 数据行将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination">
+            <span class="page-info">共 <span id="totalRecords">3</span> 条记录</span>
+            <div class="page-controls">
+                <button class="page-btn" onclick="prevContractPage()">上一页</button>
+                <span class="page-current" id="currentPage">1</span>
+                <button class="page-btn" onclick="nextContractPage()">下一页</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/purchase-contract.js"></script>
+</body>
+</html>
+

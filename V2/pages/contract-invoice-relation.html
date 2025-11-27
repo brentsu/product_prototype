@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>合同-发票关联关系</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航 -->
+        <div class="top-nav">
+            <button class="nav-btn" onclick="goBack()">< 首页</button>
+            <div class="page-title">合同-发票关联关系 <span class="close-btn" onclick="goBack()">×</span></div>
+            <div class="nav-right">
+                <button class="search-btn">🔍 Ctrl+K 搜索菜单</button>
+                <button class="icon-btn">📷</button>
+                <button class="icon-btn">⬆</button>
+                <button class="icon-btn">⚙</button>
+                <div class="user-info">
+                    <span class="user-avatar">👤</span>
+                    <span class="user-name">XXX</span>
+                    <span class="system-name">系统</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-content">
+            <h2 style="margin-bottom: 20px; padding: 0 20px;">合同与发票关联管理</h2>
+
+            <!-- 关系说明 -->
+            <div class="info-box info-primary" style="margin: 0 20px 30px;">
+                <p style="margin-bottom: 15px;"><strong>📋 关联关系说明：</strong></p>
+                <ul style="margin: 0; padding-left: 25px; line-height: 2;">
+                    <li><strong>一对一关系：</strong>一张合同对应一张进项发票（常规场景）</li>
+                    <li><strong>多对一关系：</strong>多张合同合并开具一张进项发票（供应商合并开票场景）</li>
+                    <li>合同签署完成后，需要关联对应的进项发票才能完成整个采购流程</li>
+                    <li>一张发票可以被多个合同引用，但每个合同只能关联一张发票</li>
+                </ul>
+            </div>
+
+            <!-- 关联关系列表 -->
+            <div class="invoice-section">
+                <div class="invoice-section-header">
+                    <div class="section-title">合同-发票关联记录</div>
+                    <div>
+                        <button class="btn btn-primary" onclick="addRelation()">新增关联</button>
+                        <button class="btn btn-success" onclick="exportRelationData()">导出数据</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>关联ID</th>
+                                <th>关系类型</th>
+                                <th>合同编号</th>
+                                <th>合同金额</th>
+                                <th>合同状态</th>
+                                <th>关联发票编号</th>
+                                <th>发票金额</th>
+                                <th>发票状态</th>
+                                <th>关联时间</th>
+                                <th>关联人</th>
+                                <th>备注</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="relationTableBody">
+                            <!-- 数据将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 按发票分组视图 -->
+            <div class="invoice-section">
+                <div class="invoice-section-header">
+                    <div class="section-title">按发票分组查看（展示多对一关系）</div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>发票编号</th>
+                                <th>发票金额</th>
+                                <th>发票状态</th>
+                                <th>关联合同数量</th>
+                                <th>关联合同列表</th>
+                                <th>合同金额汇总</th>
+                                <th>金额匹配状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoiceGroupBody">
+                            <!-- 数据将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="info-box info-success">
+                    <p><strong>说明：</strong>此视图展示了每张发票关联了哪些合同，便于识别"多对一"关系的发票。</p>
+                </div>
+            </div>
+
+            <!-- 业务场景示例 -->
+            <div class="invoice-section">
+                <div class="invoice-section-header">
+                    <div class="section-title">业务场景示例</div>
+                </div>
+
+                <div class="scenario-examples">
+                    <!-- 场景1：一对一 -->
+                    <div class="scenario-card">
+                        <div class="scenario-header">
+                            <span class="scenario-icon">📄</span>
+                            <h3>场景1：一对一关系</h3>
+                            <span class="relation-badge">一对一</span>
+                        </div>
+                        <div class="scenario-content">
+                            <div class="scenario-item">
+                                <strong>合同：</strong>HT202511210001
+                                <span class="amount-text">金额: ¥226,000</span>
+                            </div>
+                            <div class="scenario-arrow">↓ 对应 ↓</div>
+                            <div class="scenario-item">
+                                <strong>发票：</strong>25352000
+                                <span class="amount-text">金额: ¥226,000</span>
+                            </div>
+                            <div class="scenario-desc">
+                                <p>💡 最常见的场景：一个采购订单签订一份合同，供应商开具一张对应金额的发票。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 场景2：多对一 -->
+                    <div class="scenario-card">
+                        <div class="scenario-header">
+                            <span class="scenario-icon">📑</span>
+                            <h3>场景2：多对一关系（合并开票）</h3>
+                            <span class="relation-badge">多对一</span>
+                        </div>
+                        <div class="scenario-content">
+                            <div class="scenario-item">
+                                <strong>合同1：</strong>HT202511210002
+                                <span class="amount-text">金额: ¥124,300</span>
+                            </div>
+                            <div class="scenario-item">
+                                <strong>合同2：</strong>HT202511210003
+                                <span class="amount-text">金额: ¥101,700</span>
+                            </div>
+                            <div class="scenario-arrow">↓ 合并开具 ↓</div>
+                            <div class="scenario-item">
+                                <strong>发票：</strong>25352001
+                                <span class="amount-text">总金额: ¥226,000</span>
+                            </div>
+                            <div class="scenario-desc">
+                                <p>💡 供应商合并开票：同一供应商的多个采购订单，供应商选择开具一张合并发票，发票金额等于多个合同金额之和。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box info-warning">
+                    <p><strong>⚠️ 注意事项：</strong></p>
+                    <ul style="margin: 10px 0 0 25px; padding: 0; line-height: 1.8;">
+                        <li>多对一关系中，发票金额应等于所有关联合同金额之和</li>
+                        <li>关联关系建立后，系统会自动校验金额是否匹配</li>
+                        <li>解除关联前需确认是否有其他业务依赖</li>
+                        <li>合同变更时，需重新确认发票关联关系</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/contract-invoice-relation.js"></script>
+</body>
+</html>
+
+
