@@ -1,0 +1,36 @@
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 编辑器和 IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 临时文件
+*.tmp
+*.log
+
+# Vercel
+.vercel
+
+# 备份文件
+*.bak
+*.backup
+*.old
+
+# 依赖目录（如果后续添加）
+node_modules/
+bower_components/
+
+# 构建输出（如果后续添加）
+dist/
+build/
+
+# 环境变量文件
+.env
+.env.local
+.env.production
+

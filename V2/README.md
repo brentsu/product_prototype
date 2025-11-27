@@ -133,11 +133,66 @@ V2/
     └── statement.html                  # 对账单管理（占位）
 ```
 
-## 使用说明
+## 快速开始
+
+### 本地运行
+
+#### 方式一：使用启动脚本（推荐）
+
+```bash
+cd V2
+./start.sh
+```
+
+然后访问：http://localhost:8000
+
+#### 方式二：直接使用 Python
+
+```bash
+# Python 3
+python3 -m http.server 8000
+
+# Python 2
+python -m SimpleHTTPServer 8000
+```
+
+#### 方式三：使用 Node.js
+
+```bash
+npx http-server -p 8000
+```
+
+### 使用说明
 
 1. 打开 `index.html` 进入系统首页
 2. 点击相应的功能模块卡片进入对应页面
 3. 各页面支持筛选、查询、导出等操作
+
+## 🚀 部署到 Vercel
+
+### 方式一：通过 Git 部署（推荐）
+
+1. 将代码推送到 GitHub/GitLab
+2. 访问 https://vercel.com/new
+3. 导入仓库，选择 `V2` 目录
+4. 点击 Deploy
+
+### 方式二：通过 CLI 部署
+
+```bash
+# 安装 Vercel CLI
+npm install -g vercel
+
+# 在 V2 目录下运行
+cd V2
+vercel
+```
+
+### 配置说明
+
+项目已包含 `vercel.json` 配置文件，无需额外配置即可部署。
+
+详细部署指南请查看：[DEPLOYMENT.md](./DEPLOYMENT.md)
 
 ## 核心业务流程
 
