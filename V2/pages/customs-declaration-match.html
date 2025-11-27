@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报关匹配管理</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航 -->
+        <div class="top-nav">
+            <button class="nav-btn" onclick="goBack()">< 首页</button>
+            <div class="page-title">报关匹配管理 <span class="close-btn" onclick="goBack()">×</span></div>
+            <div class="nav-right">
+                <button class="search-btn">🔍 Ctrl+K 搜索菜单</button>
+                <button class="icon-btn">📷</button>
+                <button class="icon-btn">⬆</button>
+                <button class="icon-btn">⚙</button>
+                <div class="user-info">
+                    <span class="user-avatar">👤</span>
+                    <span class="user-name">XXX</span>
+                    <span class="system-name">系统</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-content">
+            <h2 style="margin-bottom: 20px; padding: 0 20px;">报关匹配采销SKU明细</h2>
+
+            <!-- 业务流程说明 -->
+            <div class="info-box info-primary" style="margin: 0 20px 30px;">
+                <p style="margin-bottom: 15px;"><strong>📋 业务流程说明：</strong></p>
+                <ol style="margin: 0; padding-left: 25px; line-height: 2;">
+                    <li><strong>库存出库：</strong>货物从仓库出库准备发往海外（FBA/客户）</li>
+                    <li><strong>生成报关单：</strong>根据出库货物生成报关单据，包含报关品名、数量、面料等信息</li>
+                    <li><strong>匹配SKU明细：</strong>系统根据报关单中的SKU信息，自动匹配到采销SKU明细</li>
+                    <li><strong>核对数量：</strong>确认报关数量与采购明细数量一致</li>
+                    <li><strong>生成报关记录：</strong>完成匹配后生成完整的报关记录，用于后续核算</li>
+                </ol>
+            </div>
+
+            <!-- 报关单信息 -->
+            <div class="invoice-section">
+                <div class="invoice-section-header">
+                    <div class="section-title">报关单信息</div>
+                    <div>
+                        <button class="btn btn-primary" onclick="createDeclaration()">新建报关单</button>
+                        <button class="btn btn-success" onclick="exportDeclarationData()">导出数据</button>
+                    </div>
+                </div>
+
+                <div class="declaration-info-box">
+                    <div class="info-row">
+                        <div class="info-label">报关单号：</div>
+                        <div class="info-value" id="declarationNo">FBA194287Y1B</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">出库日期：</div>
+                        <div class="info-value">2025-11-28</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">目的地：</div>
+                        <div class="info-value">美国 FBA仓库</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">报关状态：</div>
+                        <div class="info-value"><span class="status-badge status-signing">匹配中</span></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">总项数：</div>
+                        <div class="info-value"><strong>2 项</strong></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">总SKU数：</div>
+                        <div class="info-value"><strong>4 个</strong></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">总数量：</div>
+                        <div class="info-value"><strong class="amount-highlight">21 件</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 报关项列表 -->
+            <div class="invoice-section">
+                <div class="invoice-section-header">
+                    <div class="section-title">报关项明细（Aggregated Items）</div>
+                    <div>
+                        <button class="btn btn-primary" onclick="addDeclarationItem()">添加报关项</button>
+                    </div>
+                </div>
+
+                <div id="declarationItemsContainer">
+                    <!-- 报关项将通过JavaScript动态生成 -->
+                </div>
+            </div>
+
+            <!-- 匹配结果 -->
+            <div class="invoice-section">
+                <div class="invoice-section-header">
+                    <div class="section-title">SKU匹配结果</div>
+                    <div>
+                        <button class="btn btn-primary" onclick="autoMatch()">自动匹配</button>
+                        <button class="btn btn-success" onclick="confirmMatch()">确认匹配</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>报关项号</th>
+                                <th>报关SKU</th>
+                                <th>报关数量</th>
+                                <th>匹配状态</th>
+                                <th>匹配到的SKU明细ID</th>
+                                <th>合同编号</th>
+                                <th>供应商</th>
+                                <th>可用数量</th>
+                                <th>匹配数量</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matchResultBody">
+                            <!-- 数据将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="info-box info-success">
+                    <p><strong>说明：</strong>系统根据报关单中的SKU编号，自动匹配到采销SKU明细记录。匹配成功后，报关数量将从可用数量中扣减。</p>
+                </div>
+            </div>
+
+            <!-- 匹配规则说明 -->
+            <div class="invoice-section">
+                <div class="invoice-section-header">
+                    <div class="section-title">匹配规则与流程</div>
+                </div>
+
+                <div class="scenario-examples">
+                    <!-- 匹配规则 -->
+                    <div class="scenario-card">
+                        <div class="scenario-header">
+                            <span class="scenario-icon">📌</span>
+                            <h3>匹配规则</h3>
+                        </div>
+                        <div class="scenario-content">
+                            <ul style="line-height: 2; margin: 0;">
+                                <li><strong>SKU精确匹配：</strong>根据SKU编号精确匹配采销明细</li>
+                                <li><strong>可用数量检查：</strong>确保采销明细有足够的可用数量</li>
+                                <li><strong>FIFO原则：</strong>优先匹配最早的采购明细（先进先出）</li>
+                                <li><strong>合同状态：</strong>只匹配签署完成的合同对应的明细</li>
+                                <li><strong>数量扣减：</strong>匹配成功后，从"报关可用数量"中扣减</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 匹配流程 -->
+                    <div class="scenario-card">
+                        <div class="scenario-header">
+                            <span class="scenario-icon">🔄</span>
+                            <h3>匹配流程</h3>
+                        </div>
+                        <div class="scenario-content">
+                            <div class="flow-step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <strong>读取报关单</strong><br>
+                                    解析报关单JSON数据，提取SKU列表和数量
+                                </div>
+                            </div>
+                            <div class="flow-arrow">↓</div>
+                            <div class="flow-step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <strong>查询采销明细</strong><br>
+                                    在采销SKU明细表中查找匹配的SKU记录
+                                </div>
+                            </div>
+                            <div class="flow-arrow">↓</div>
+                            <div class="flow-step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <strong>检查可用数量</strong><br>
+                                    验证"报关可用数量"是否满足报关需求
+                                </div>
+                            </div>
+                            <div class="flow-arrow">↓</div>
+                            <div class="flow-step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <strong>建立匹配关系</strong><br>
+                                    创建报关单-SKU明细的关联记录
+                                </div>
+                            </div>
+                            <div class="flow-arrow">↓</div>
+                            <div class="flow-step">
+                                <div class="step-number">5</div>
+                                <div class="step-content">
+                                    <strong>更新库存数量</strong><br>
+                                    从"报关可用数量"中扣减已报关数量
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JSON数据示例 -->
+            <div class="invoice-section">
+                <div class="invoice-section-header">
+                    <div class="section-title">报关单JSON数据结构</div>
+                </div>
+
+                <div class="code-block">
+                    <pre id="jsonExample"></pre>
+                </div>
+
+                <div class="info-box info-warning">
+                    <p><strong>字段说明：</strong></p>
+                    <ul style="margin: 10px 0 0 25px; padding: 0; line-height: 1.8;">
+                        <li><strong>declare_document_no:</strong> 报关单号</li>
+                        <li><strong>g_no:</strong> 报关项号（对应报关单中的项次）</li>
+                        <li><strong>spin_type:</strong> 纺织类型（梭织/针织）</li>
+                        <li><strong>customs_declare_cn:</strong> 中文报关品名</li>
+                        <li><strong>customs_declare_en:</strong> 英文报关品名</li>
+                        <li><strong>fabric_type:</strong> 面料成分（用于海关申报）</li>
+                        <li><strong>skus:</strong> SKU列表，包含sku编号和qty数量</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 匹配异常处理 -->
+            <div class="invoice-section">
+                <div class="invoice-section-header">
+                    <div class="section-title">异常情况处理</div>
+                </div>
+
+                <div class="exception-handling">
+                    <div class="exception-item">
+                        <div class="exception-title">❌ SKU不存在</div>
+                        <div class="exception-desc">
+                            <strong>原因：</strong>报关单中的SKU在采销明细中找不到对应记录<br>
+                            <strong>处理：</strong>提示需要先录入该SKU的采购记录，或检查SKU编号是否正确
+                        </div>
+                    </div>
+                    <div class="exception-item">
+                        <div class="exception-title">⚠️ 可用数量不足</div>
+                        <div class="exception-desc">
+                            <strong>原因：</strong>采销明细的"报关可用数量"小于报关数量<br>
+                            <strong>处理：</strong>检查是否有重复报关，或联系采购补充库存
+                        </div>
+                    </div>
+                    <div class="exception-item">
+                        <div class="exception-title">⏸️ 合同未签署</div>
+                        <div class="exception-desc">
+                            <strong>原因：</strong>对应的采购合同尚未完成签署流程<br>
+                            <strong>处理：</strong>等待合同签署完成，或使用其他已签署合同的库存
+                        </div>
+                    </div>
+                    <div class="exception-item">
+                        <div class="exception-title">🔄 部分匹配</div>
+                        <div class="exception-desc">
+                            <strong>原因：</strong>单个采销明细数量不足，需要匹配多条记录<br>
+                            <strong>处理：</strong>系统自动按FIFO原则匹配多条采销明细记录
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/customs-declaration-match.js"></script>
+</body>
+</html>
+
