@@ -130,17 +130,16 @@ function renderContractTable() {
             <td>${item.companySignDoc ? `<a href="#" class="action-link" onclick="viewDocument('${item.companySignDoc}')">查看</a>` : '-'}</td>
             <td>${item.createTime || '-'}</td>
             <td>${item.auditTime || '-'}</td>
-            <td class="highlight-column">${item.companySignTime || '-'}</td>
-            <td class="highlight-column">
+            <td>${item.companySignTime || '-'}</td>
+            <td>
                 ${item.relatedInvoiceNo ? `<a href="#" class="action-link" onclick="viewRelatedInvoice('${item.relatedInvoiceNo}')">
                     ${item.relatedInvoiceNo}
-                    ${item.relationshipType ? `<span class="relation-badge">${item.relationshipType}</span>` : ''}
                 </a>` : '<button class="btn btn-sm btn-primary" onclick="linkInvoice(${item.id})">关联发票</button>'}
             </td>
-            <td class="highlight-column">
+            <td>
                 ${item.invoiceAttachment ? `<a href="#" class="action-link" onclick="viewInvoice('${item.invoiceAttachment}')">查看附件</a>` : '-'}
             </td>
-            <td class="highlight-column">${item.relatedStatementId || '-'}</td>
+            <td>${item.relatedStatementId || '-'}</td>
             <td>
                 <a href="#" class="action-link" onclick="handleContractAction(${item.id})">预览</a>
             </td>
