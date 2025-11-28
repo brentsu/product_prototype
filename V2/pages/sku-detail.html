@@ -43,7 +43,6 @@
                 <div class="filter-item">
                     <label>SPU</label>
                     <input type="text" placeholder="请输入商品编号" class="filter-input">
-                    <span class="badge">3</span>
                 </div>
                 <div class="filter-item">
                     <label>明细状态</label>
@@ -53,7 +52,6 @@
                         <option value="签署中">合同签署中</option>
                         <option value="已完成">合同签署完成</option>
                     </select>
-                    <span class="badge">14</span>
                 </div>
                 <div class="filter-item">
                     <label>上架日期</label>
@@ -64,7 +62,6 @@
                     <select class="filter-select">
                         <option value="">请选择</option>
                     </select>
-                    <span class="badge">8</span>
                 </div>
                 <div class="filter-actions">
                     <button class="btn btn-primary" onclick="queryData()">查询</button>
@@ -79,15 +76,12 @@
             <div class="action-buttons">
                 <button class="btn btn-action active" onclick="autoGenerateContract()">
                     自动生成合同
-                    <span class="badge">1</span>
                 </button>
                 <button class="btn btn-action" onclick="manualGenerateContract()">
                     手动生成合同
-                    <span class="badge">17</span>
                 </button>
                 <button class="btn btn-action" onclick="exportData()">
                     导出
-                    <span class="badge">19</span>
                 </button>
             </div>
             <button class="btn btn-icon" onclick="showSettings()">⚙</button>
@@ -99,9 +93,9 @@
                 <thead>
                     <tr>
                         <th><input type="checkbox" id="checkAll" onchange="toggleSelectAll(this)"></th>
-                        <th>图片<span class="badge-sm">2</span></th>
-                        <th>商品编码<span class="badge-sm">4</span></th>
-                        <th>商品品类<span class="badge-sm">19</span></th>
+                        <th>图片</th>
+                        <th>商品编码</th>
+                        <th>商品品类</th>
                         <th>商品类关分类</th>
                         <th>上架日期</th>
                         <th>采购单号</th>
@@ -110,10 +104,9 @@
                         <th>合同单价(元)</th>
                         <th>合同数量</th>
                         <th>总金额</th>
-                        <th>已提货数量<span class="badge-sm">12</span></th>
-                        <th>退货数<span class="badge-sm">10</span></th>
-                        <th>报关可用数量<span class="badge-sm">13</span></th>
-                        <th class="highlight-column">合同编号<span class="badge-sm">5</span></th>
+                        <th>退货数</th>
+                        <th>报关可用数量</th>
+                        <th class="highlight-column">合同编号</th>
                         <th class="highlight-column">明细状态</th>
                         <th class="highlight-column">是否开票</th>
                         <th class="highlight-column">关联往来对账单ID</th>

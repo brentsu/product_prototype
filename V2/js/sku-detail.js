@@ -160,7 +160,6 @@ function renderTable() {
             <td>${item.unitPrice}</td>
             <td>${item.quantity}</td>
             <td>${item.totalAmount}</td>
-            <td>${item.deliveredQty}</td>
             <td class="highlight-value">${item.returnQty}</td>
             <td class="highlight-value">${item.availableQty}</td>
             <td class="highlight-column">
