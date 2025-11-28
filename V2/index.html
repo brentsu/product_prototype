@@ -9,105 +9,181 @@
 </head>
 
 <body>
-    <div class="container">
-        <!-- 顶部导航 -->
-        <div class="top-nav">
-            <div class="page-title">财务合规管理系统 V2</div>
-            <div class="nav-right">
-                <button class="search-btn">🔍 Ctrl+K 搜索菜单</button>
-                <button class="icon-btn">📷</button>
-                <button class="icon-btn">⬆</button>
-                <button class="icon-btn">⚙</button>
-                <div class="user-info">
-                    <span class="user-avatar">👤</span>
-                    <span class="user-name">XXX</span>
-                    <span class="system-name">系统</span>
-                </div>
-            </div>
+    <!-- 顶部导航栏 -->
+    <div class="top-header">
+        <div class="header-left">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <div class="system-logo">财务合规管理系统 V2</div>
         </div>
-
-        <!-- 主导航区域 -->
-        <div class="main-navigation">
-            <h1 class="welcome-title">欢迎使用财务合规管理系统</h1>
-            <p class="welcome-subtitle">选择下方功能模块开始工作</p>
-
-            <!-- 功能模块卡片 -->
-            <div class="module-grid">
-                <!-- 采销SKU明细 -->
-                <div class="module-card" onclick="navigateTo('pages/sku-detail.html')">
-                    <div class="module-icon">📦</div>
-                    <h3 class="module-title">采销SKU明细</h3>
-                    <p class="module-desc">管理采购SKU明细，生成合同，跟踪状态</p>
-                    <div class="module-stats">
-                        <span class="stat-badge">数量: 600</span>
-                        <span class="stat-badge">总金额: ¥42290</span>
-                    </div>
-                </div>
-
-                <!-- 采销合同 -->
-                <div class="module-card" onclick="navigateTo('pages/purchase-contract.html')">
-                    <div class="module-icon">📄</div>
-                    <h3 class="module-title">采销合同</h3>
-                    <p class="module-desc">管理采购合同，支持审核、签署流程</p>
-                    <div class="module-stats">
-                        <span class="stat-badge">待审核: 1</span>
-                        <span class="stat-badge">已完成: 3</span>
-                    </div>
-                </div>
-
-                <!-- 合同-发票关联 -->
-                <div class="module-card" onclick="navigateTo('pages/contract-invoice-relation.html')">
-                    <div class="module-icon">🔗</div>
-                    <h3 class="module-title">合同-发票关联</h3>
-                    <p class="module-desc">管理合同与发票的关联关系（一对一/多对一）</p>
-                    <div class="module-stats">
-                        <span class="stat-badge">已关联: 3</span>
-                        <span class="stat-badge">待关联: 1</span>
-                    </div>
-                </div>
-
-                <!-- 进项发票管理 -->
-                <div class="module-card" onclick="navigateTo('pages/invoice-management.html')">
-                    <div class="module-icon">🧾</div>
-                    <h3 class="module-title">进项发票管理</h3>
-                    <p class="module-desc">管理进项发票列表</p>
-                    <div class="module-stats">
-                        <span class="stat-badge">已认证: 3</span>
-                        <span class="stat-badge">待认证: 1</span>
-                    </div>
-                </div>
-
-                <!-- 报关匹配管理 -->
-                <div class="module-card" onclick="navigateTo('pages/customs-declaration-match.html')">
-                    <div class="module-icon">🚢</div>
-                    <h3 class="module-title">报关匹配管理</h3>
-                    <p class="module-desc">报关单匹配采销SKU明细，跟踪出库报关流程</p>
-                    <div class="module-stats">
-                        <span class="stat-badge">报关单: 2</span>
-                        <span class="stat-badge">已匹配SKU: 5</span>
-                    </div>
-                </div>
-
-                <!-- 报关-SKU-合同映射 -->
-                <div class="module-card" onclick="navigateTo('pages/declaration-sku-contract-mapping.html')">
-                    <div class="module-icon">🔀</div>
-                    <h3 class="module-title">三方映射关系</h3>
-                    <p class="module-desc">展示报关-SKU明细-合同-发票的完整映射关系</p>
-                    <div class="module-stats">
-                        <span class="stat-badge">全链路追溯</span>
-                        <span class="stat-badge">可视化</span>
-                    </div>
-                </div>
+        <div class="header-right">
+            <button class="search-btn">🔍 Ctrl+K 搜索</button>
+            <button class="icon-btn">📷</button>
+            <button class="icon-btn">⬆</button>
+            <button class="icon-btn">⚙</button>
+            <div class="user-info">
+                <span class="user-avatar">👤</span>
+                <span class="user-name">XXX</span>
             </div>
-        </div>
-
-        <!-- 底部信息 -->
-        <div class="footer">
-            <p>© 2025 财务合规管理系统 V2 | 技术支持</p>
         </div>
     </div>
 
-    <script src="js/main.js"></script>
+    <div class="layout-container">
+        <!-- 左侧菜单 -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">功能菜单</div>
+            </div>
+
+            <!-- 树状菜单 -->
+            <div class="tree-menu">
+                <!-- 采购管理 -->
+                <div class="menu-group">
+                    <div class="menu-group-title" onclick="toggleMenuGroup(this)">
+                        <span class="menu-icon">📦</span>
+                        <span class="menu-text">采购管理</span>
+                        <span class="menu-arrow">▼</span>
+                    </div>
+                    <div class="menu-group-content">
+                        <div class="menu-item" onclick="navigateTo('pages/sku-detail.html')">
+                            <span class="menu-dot">•</span>
+                            <span class="menu-text">采销SKU明细</span>
+                            <span class="menu-badge">600</span>
+                        </div>
+                        <div class="menu-item" onclick="navigateTo('pages/purchase-contract.html')">
+                            <span class="menu-dot">•</span>
+                            <span class="menu-text">采销合同</span>
+                            <span class="menu-badge">4</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 发票管理 -->
+                <div class="menu-group">
+                    <div class="menu-group-title" onclick="toggleMenuGroup(this)">
+                        <span class="menu-icon">🧾</span>
+                        <span class="menu-text">发票管理</span>
+                        <span class="menu-arrow">▼</span>
+                    </div>
+                    <div class="menu-group-content">
+                        <div class="menu-item" onclick="navigateTo('pages/invoice-management.html')">
+                            <span class="menu-dot">•</span>
+                            <span class="menu-text">进项发票列表</span>
+                            <span class="menu-badge">4</span>
+                        </div>
+                        <div class="menu-item" onclick="navigateTo('pages/contract-invoice-relation.html')">
+                            <span class="menu-dot">•</span>
+                            <span class="menu-text">合同-发票关联</span>
+                            <span class="menu-badge">3</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 报关管理 -->
+                <div class="menu-group">
+                    <div class="menu-group-title" onclick="toggleMenuGroup(this)">
+                        <span class="menu-icon">🚢</span>
+                        <span class="menu-text">报关管理</span>
+                        <span class="menu-arrow">▼</span>
+                    </div>
+                    <div class="menu-group-content">
+                        <div class="menu-item" onclick="navigateTo('pages/customs-declaration-match.html')">
+                            <span class="menu-dot">•</span>
+                            <span class="menu-text">报关匹配管理</span>
+                            <span class="menu-badge">2</span>
+                        </div>
+                        <div class="menu-item" onclick="navigateTo('pages/declaration-sku-contract-mapping.html')">
+                            <span class="menu-dot">•</span>
+                            <span class="menu-text">三方映射关系</span>
+                            <span class="menu-badge">5</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <div class="content-wrapper">
+                <h1 class="welcome-title">欢迎使用财务合规管理系统</h1>
+                <p class="welcome-subtitle">请从左侧菜单选择功能模块开始工作</p>
+
+                <!-- 功能模块卡片 -->
+                <div class="module-grid">
+                    <!-- 采销SKU明细 -->
+                    <div class="module-card" onclick="navigateTo('pages/sku-detail.html')">
+                        <div class="module-icon">📦</div>
+                        <h3 class="module-title">采销SKU明细</h3>
+                        <p class="module-desc">管理采购SKU明细，生成合同，跟踪状态</p>
+                        <div class="module-stats">
+                            <span class="stat-badge">数量: 600</span>
+                            <span class="stat-badge">总金额: ¥42290</span>
+                        </div>
+                    </div>
+
+                    <!-- 采销合同 -->
+                    <div class="module-card" onclick="navigateTo('pages/purchase-contract.html')">
+                        <div class="module-icon">📄</div>
+                        <h3 class="module-title">采销合同</h3>
+                        <p class="module-desc">管理采购合同，支持审核、签署流程</p>
+                        <div class="module-stats">
+                            <span class="stat-badge">待审核: 1</span>
+                            <span class="stat-badge">已完成: 3</span>
+                        </div>
+                    </div>
+
+                    <!-- 合同-发票关联 -->
+                    <div class="module-card" onclick="navigateTo('pages/contract-invoice-relation.html')">
+                        <div class="module-icon">🔗</div>
+                        <h3 class="module-title">合同-发票关联</h3>
+                        <p class="module-desc">管理合同与发票的关联关系（一对一/多对一）</p>
+                        <div class="module-stats">
+                            <span class="stat-badge">已关联: 3</span>
+                            <span class="stat-badge">待关联: 1</span>
+                        </div>
+                    </div>
+
+                    <!-- 进项发票管理 -->
+                    <div class="module-card" onclick="navigateTo('pages/invoice-management.html')">
+                        <div class="module-icon">🧾</div>
+                        <h3 class="module-title">进项发票管理</h3>
+                        <p class="module-desc">管理进项发票列表</p>
+                        <div class="module-stats">
+                            <span class="stat-badge">已认证: 3</span>
+                            <span class="stat-badge">待认证: 1</span>
+                        </div>
+                    </div>
+
+                    <!-- 报关匹配管理 -->
+                    <div class="module-card" onclick="navigateTo('pages/customs-declaration-match.html')">
+                        <div class="module-icon">🚢</div>
+                        <h3 class="module-title">报关匹配管理</h3>
+                        <p class="module-desc">报关单匹配采销SKU明细，跟踪出库报关流程</p>
+                        <div class="module-stats">
+                            <span class="stat-badge">报关单: 2</span>
+                            <span class="stat-badge">已匹配SKU: 5</span>
+                        </div>
+                    </div>
+
+                    <!-- 报关-SKU-合同映射 -->
+                    <div class="module-card" onclick="navigateTo('pages/declaration-sku-contract-mapping.html')">
+                        <div class="module-icon">🔀</div>
+                        <h3 class="module-title">三方映射关系</h3>
+                        <p class="module-desc">展示报关-SKU明细-合同-发票的完整映射关系</p>
+                        <div class="module-stats">
+                            <span class="stat-badge">全链路追溯</span>
+                            <span class="stat-badge">可视化</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 底部信息 -->
+                <div class="footer">
+                    <p>© 2025 财务合规管理系统 V2 | 技术支持</p>
+                </div>
+            </div>
+        </div>
+
+        <script src="js/main.js"></script>
 </body>
 
 </html>

@@ -4,132 +4,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>采销SKU明细</title>
+    <title>采销SKU明细 - 财务合规管理系统</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
 
 <body>
-    <div class="container">
-        <!-- 顶部导航 -->
-        <div class="top-nav">
-            <button class="nav-btn" onclick="goBack()">
-                < 首页</button>
-                    <div class="page-title">采销SKU明细 <span class="close-btn" onclick="goBack()">×</span></div>
-                    <div class="nav-right">
-                        <button class="search-btn">🔍 Ctrl+K 搜索菜单</button>
-                        <button class="icon-btn">📷</button>
-                        <button class="icon-btn">⬆</button>
-                        <button class="icon-btn">⚙</button>
-                        <div class="user-info">
-                            <span class="user-avatar">👤</span>
-                            <span class="user-name">XXX</span>
-                            <span class="system-name">系统</span>
-                        </div>
-                    </div>
+    <!-- 顶部导航栏 -->
+    <div class="top-header">
+        <div class="header-left">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <div class="system-logo">财务合规管理系统 V2</div>
+            <span style="color: rgba(255,255,255,0.6); margin-left: 15px;">/ 采销SKU明细</span>
         </div>
-
-        <!-- 统计数据 -->
-        <div class="statistics">
-            <span class="stat-item">总数量：<span class="stat-value">600</span></span>
-            <span class="stat-item">总金额：<span class="stat-value">42290</span></span>
-        </div>
-
-        <!-- 筛选区域 -->
-        <div class="filter-section">
-            <div class="filter-row">
-                <div class="filter-item">
-                    <label>SPU</label>
-                    <input type="text" placeholder="请输入商品编号" class="filter-input">
-                </div>
-                <div class="filter-item">
-                    <label>明细状态</label>
-                    <select class="filter-select">
-                        <option value="">请选择</option>
-                        <option value="待生成">合同待生成</option>
-                        <option value="签署中">合同签署中</option>
-                        <option value="已完成">合同签署完成</option>
-                    </select>
-                </div>
-                <div class="filter-item">
-                    <label>上架日期</label>
-                    <input type="text" placeholder="开始日期 至 结束时间日期" class="filter-input date-input">
-                </div>
-                <div class="filter-item">
-                    <label>供应商</label>
-                    <select class="filter-select">
-                        <option value="">请选择</option>
-                    </select>
-                </div>
-                <div class="filter-actions">
-                    <button class="btn btn-primary" onclick="queryData()">查询</button>
-                    <button class="btn btn-default" onclick="resetFilter()">重置</button>
-                    <button class="btn btn-link" onclick="clearFilter()">取消</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 操作按钮区域 -->
-        <div class="action-section">
-            <div class="action-buttons">
-                <button class="btn btn-action active" onclick="autoGenerateContract()">
-                    自动生成合同
-                </button>
-                <button class="btn btn-action" onclick="manualGenerateContract()">
-                    手动生成合同
-                </button>
-                <button class="btn btn-action" onclick="exportData()">
-                    导出
-                </button>
-            </div>
-            <button class="btn btn-icon" onclick="showSettings()">⚙</button>
-        </div>
-
-        <!-- 数据表格 -->
-        <div class="table-container">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th><input type="checkbox" id="checkAll" onchange="toggleSelectAll(this)"></th>
-                        <th>图片</th>
-                        <th>商品编码</th>
-                        <th>商品品类</th>
-                        <th>商品类关分类</th>
-                        <th>上架日期</th>
-                        <th>采购单号</th>
-                        <th>接收单号</th>
-                        <th>规格编码</th>
-                        <th>合同单价(元)</th>
-                        <th>合同数量</th>
-                        <th>总金额</th>
-                        <th>退货数</th>
-                        <th>报关可用数量</th>
-                        <th>合同编号</th>
-                        <th>明细状态</th>
-                        <th>是否开票</th>
-                        <th>关联往来对账单ID</th>
-                        <th>供应商编码</th>
-                        <th>采购主体</th>
-                        <th>明细生成时间</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody id="dataTableBody">
-                    <!-- 数据行将通过JavaScript动态生成 -->
-                </tbody>
-            </table>
-        </div>
-
-        <!-- 分页 -->
-        <div class="pagination">
-            <span class="page-info">共 6 条记录</span>
-            <div class="page-controls">
-                <button class="page-btn" onclick="prevPage()">上一页</button>
-                <span class="page-current">1</span>
-                <button class="page-btn" onclick="nextPage()">下一页</button>
+        <div class="header-right">
+            <button class="search-btn">🔍 Ctrl+K 搜索</button>
+            <button class="icon-btn">📷</button>
+            <button class="icon-btn">⬆</button>
+            <button class="icon-btn">⚙</button>
+            <div class="user-info">
+                <span class="user-avatar">👤</span>
+                <span class="user-name">XXX</span>
             </div>
         </div>
     </div>
 
+    <div class="layout-container">
+        <!-- 左侧菜单 -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">功能菜单</div>
+            </div>
+
+            <!-- 树状菜单 -->
+            <div class="tree-menu">
+                <!-- 采购管理 -->
+                <div class="menu-group">
+                    <div class="menu-group-title" onclick="toggleMenuGroup(this)">
+                        <span class="menu-icon">📦</span>
+                        <span class="menu-text">采购管理</span>
+                        <span class="menu-arrow">▼</span>
+                    </div>
+                    <div class="menu-group-content">
+                        <div class="menu-item active" onclick="navigateTo('sku-detail.html')" data-page="sku-detail">
+                            <span class="menu-dot">•</span>
+                            <span class="menu-text">采销SKU明细</span>
+                            <span class="menu-badge">600</span>
+                        </div>
+                        <div class="menu-item" onclick="navigateTo('purchase-contract.html')"
+                            data-page="purchase-contract">
+                            <span class="menu-dot">•</span>
+                            <span class="menu-text">采销合同</span>
+                            <span class="menu-badge">4</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 发票管理 -->
+                <div class="menu-group">
+                    <div class="menu-group-title" onclick="toggleMenuGroup(this)">
+                        <span class="menu-icon">🧾</span>
+                        <span class="menu-text">发票管理</span>
+                        <span class="menu-arrow">▼</span>
+                    </div>
+                    <div class="menu-group-content">
+                        <div class="menu-item" onclick="navigateTo('invoice-management.html')"
+                            data-page="invoice-management">
+                            <span class="menu-dot">•</span>
+                            <span class="menu-text">进项发票列表</span>
+                            <span class="menu-badge">4</span>
+                        </div>
+                        <div class="menu-item" onclick="navigateTo('contract-invoice-relation.html')"
+                            data-page="contract-invoice-relation">
+                            <span class="menu-dot">•</span>
+                            <span class="menu-text">合同-发票关联</span>
+                            <span class="menu-badge">3</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 报关管理 -->
+                <div class="menu-group">
+                    <div class="menu-group-title" onclick="toggleMenuGroup(this)">
+                        <span class="menu-icon">🚢</span>
+                        <span class="menu-text">报关管理</span>
+                        <span class="menu-arrow">▼</span>
+                    </div>
+                    <div class="menu-group-content">
+                        <div class="menu-item" onclick="navigateTo('customs-declaration-match.html')"
+                            data-page="customs-declaration-match">
+                            <span class="menu-dot">•</span>
+                            <span class="menu-text">报关匹配管理</span>
+                            <span class="menu-badge">2</span>
+                        </div>
+                        <div class="menu-item" onclick="navigateTo('declaration-sku-contract-mapping.html')"
+                            data-page="declaration-sku-contract-mapping">
+                            <span class="menu-dot">•</span>
+                            <span class="menu-text">三方映射关系</span>
+                            <span class="menu-badge">5</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 返回首页 -->
+                <div class="menu-group">
+                    <div class="menu-item" onclick="navigateTo('../index.html')" data-page="home"
+                        style="border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 15px;">
+                        <span class="menu-icon">🏠</span>
+                        <span class="menu-text">返回首页</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <div class="content-wrapper">
+
+                <!-- 统计数据 -->
+                <div class="statistics">
+                    <span class="stat-item">总数量：<span class="stat-value">600</span></span>
+                    <span class="stat-item">总金额：<span class="stat-value">42290</span></span>
+                </div>
+
+                <!-- 筛选区域 -->
+                <div class="filter-section">
+                    <div class="filter-row">
+                        <div class="filter-item">
+                            <label>SPU</label>
+                            <input type="text" placeholder="请输入商品编号" class="filter-input">
+                        </div>
+                        <div class="filter-item">
+                            <label>明细状态</label>
+                            <select class="filter-select">
+                                <option value="">请选择</option>
+                                <option value="待生成">合同待生成</option>
+                                <option value="签署中">合同签署中</option>
+                                <option value="已完成">合同签署完成</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label>上架日期</label>
+                            <input type="text" placeholder="开始日期 至 结束时间日期" class="filter-input date-input">
+                        </div>
+                        <div class="filter-item">
+                            <label>供应商</label>
+                            <select class="filter-select">
+                                <option value="">请选择</option>
+                            </select>
+                        </div>
+                        <div class="filter-actions">
+                            <button class="btn btn-primary" onclick="queryData()">查询</button>
+                            <button class="btn btn-default" onclick="resetFilter()">重置</button>
+                            <button class="btn btn-link" onclick="clearFilter()">取消</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作按钮区域 -->
+                <div class="action-section">
+                    <div class="action-buttons">
+                        <button class="btn btn-action active" onclick="autoGenerateContract()">
+                            自动生成合同
+                        </button>
+                        <button class="btn btn-action" onclick="manualGenerateContract()">
+                            手动生成合同
+                        </button>
+                        <button class="btn btn-action" onclick="exportData()">
+                            导出
+                        </button>
+                    </div>
+                    <button class="btn btn-icon" onclick="showSettings()">⚙</button>
+                </div>
+
+                <!-- 数据表格 -->
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="checkAll" onchange="toggleSelectAll(this)"></th>
+                                <th>图片</th>
+                                <th>商品编码</th>
+                                <th>商品品类</th>
+                                <th>商品类关分类</th>
+                                <th>上架日期</th>
+                                <th>采购单号</th>
+                                <th>接收单号</th>
+                                <th>规格编码</th>
+                                <th>合同单价(元)</th>
+                                <th>合同数量</th>
+                                <th>总金额</th>
+                                <th>退货数</th>
+                                <th>报关可用数量</th>
+                                <th>合同编号</th>
+                                <th>明细状态</th>
+                                <th>是否开票</th>
+                                <th>关联往来对账单ID</th>
+                                <th>供应商编码</th>
+                                <th>采购主体</th>
+                                <th>明细生成时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTableBody">
+                            <!-- 数据行将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 分页 -->
+                <div class="pagination">
+                    <span class="page-info">共 6 条记录</span>
+                    <div class="page-controls">
+                        <button class="page-btn" onclick="prevPage()">上一页</button>
+                        <span class="page-current">1</span>
+                        <button class="page-btn" onclick="nextPage()">下一页</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/main.js"></script>
     <script src="../js/sku-detail.js"></script>
 </body>
 
