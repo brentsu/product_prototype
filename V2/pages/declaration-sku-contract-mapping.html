@@ -1,28 +1,31 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>报关-SKU-合同映射关系</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
+
 <body>
     <div class="container">
         <!-- 顶部导航 -->
         <div class="top-nav">
-            <button class="nav-btn" onclick="goBack()">< 首页</button>
-            <div class="page-title">报关-SKU-合同映射关系 <span class="close-btn" onclick="goBack()">×</span></div>
-            <div class="nav-right">
-                <button class="search-btn">🔍 Ctrl+K 搜索菜单</button>
-                <button class="icon-btn">📷</button>
-                <button class="icon-btn">⬆</button>
-                <button class="icon-btn">⚙</button>
-                <div class="user-info">
-                    <span class="user-avatar">👤</span>
-                    <span class="user-name">XXX</span>
-                    <span class="system-name">系统</span>
-                </div>
-            </div>
+            <button class="nav-btn" onclick="goBack()">
+                < 首页</button>
+                    <div class="page-title">报关-SKU-合同映射关系 <span class="close-btn" onclick="goBack()">×</span></div>
+                    <div class="nav-right">
+                        <button class="search-btn">🔍 Ctrl+K 搜索菜单</button>
+                        <button class="icon-btn">📷</button>
+                        <button class="icon-btn">⬆</button>
+                        <button class="icon-btn">⚙</button>
+                        <div class="user-info">
+                            <span class="user-avatar">👤</span>
+                            <span class="user-name">XXX</span>
+                            <span class="system-name">系统</span>
+                        </div>
+                    </div>
         </div>
 
         <div class="page-content">
@@ -76,12 +79,16 @@
                         <div class="stat-label">报关单总数</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number">4</div>
+                        <div class="stat-number">5</div>
                         <div class="stat-label">报关SKU数</div>
+                    </div>
+                    <div class="stat-card" style="background-color: #fff1f0;">
+                        <div class="stat-number" style="color: #ff4d4f;">1</div>
+                        <div class="stat-label">未匹配SKU</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-number">5</div>
-                        <div class="stat-label">匹配明细数</div>
+                        <div class="stat-label">已匹配明细数</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-number">3</div>
@@ -152,6 +159,30 @@
             <div class="invoice-section view-content" id="view-declaration" style="display: none;">
                 <div class="info-box info-warning" style="margin-bottom: 20px;">
                     <strong>📋 报关单维度说明：</strong>展示每个报关单的详细匹配情况，包括已匹配和未匹配的SKU
+                    <ul style="margin: 10px 0 0 25px; line-height: 1.8;">
+                        <li><span style="background-color: #f6ffed; padding: 2px 8px; border-radius: 3px;">✅
+                                绿色背景</span>：SKU已成功匹配到采销明细</li>
+                        <li><span style="background-color: #fff1f0; padding: 2px 8px; border-radius: 3px;">❌
+                                红色背景</span>：SKU未找到对应的采销明细（需要补充采购订单）</li>
+                        <li><strong>未匹配原因：</strong>可能是采购明细尚未生成、合同未签署或SKU编号不匹配</li>
+                    </ul>
+                </div>
+
+                <div class="info-box info-primary" style="margin: 0 0 20px 0;">
+                    <p><strong>💡 未匹配数据示例：</strong></p>
+                    <div style="background: white; padding: 15px; border-radius: 6px; margin-top: 10px;">
+                        <p><strong>场景：</strong>报关单 FBA194287Y1B 中包含 SKU: LC788786-P3010-M（50件）</p>
+                        <p style="margin: 10px 0;"><strong>问题：</strong>该SKU在采销明细中找不到对应记录</p>
+                        <p style="margin: 10px 0;"><strong>可能原因：</strong></p>
+                        <ul style="margin: 5px 0 0 25px; line-height: 1.8;">
+                            <li>采购订单尚未生成，需要先创建采购单</li>
+                            <li>合同尚未签署，无法进行报关匹配</li>
+                            <li>SKU编号有误，需要核对正确的SKU编号</li>
+                            <li>该SKU属于样品或赠品，无需匹配采购明细</li>
+                        </ul>
+                        <p style="margin: 10px 0 0 0; color: #ff4d4f;"><strong>⚠️
+                                处理建议：</strong>联系采购部门补充该SKU的采购合同和明细，或核实报关单SKU信息是否准确</p>
+                    </div>
                 </div>
 
                 <div id="declarationGroupContainer">
@@ -358,5 +389,5 @@
 
     <script src="../js/declaration-sku-contract-mapping.js"></script>
 </body>
-</html>
 
+</html>

@@ -9,7 +9,8 @@ const declarationRawData = {
                 skus: [
                     { sku: "LC788786-P3010-XL", qty: 120 },
                     { sku: "LC788786-P3010-2XL", qty: 100 },
-                    { sku: "LC788786-P3010-S", qty: 1 }
+                    { sku: "LC788786-P3010-S", qty: 1 },
+                    { sku: "LC788786-P3010-M", qty: 50 }  // 未匹配的SKU
                 ]
             },
             {
