@@ -120,6 +120,9 @@
                     <div class="tab-item" data-view="contract" onclick="switchView('contract')">
                         📄 按合同维度
                     </div>
+                    <div class="tab-item" data-view="invoice" onclick="switchView('invoice')">
+                        🧾 按发票维度
+                    </div>
                 </div>
             </div>
 
@@ -247,6 +250,34 @@
                             </tr>
                         </thead>
                         <tbody id="contractGroupBody">
+                            <!-- 数据将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 视图5: 按发票维度 -->
+            <div class="invoice-section view-content" id="view-invoice" style="display: none;">
+                <div class="info-box info-success" style="margin-bottom: 20px;">
+                    <strong>🧾 发票维度说明：</strong>展示每张发票关联的合同、SKU明细和报关情况
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>发票编号</th>
+                                <th>发票金额</th>
+                                <th>发票日期</th>
+                                <th>供应商</th>
+                                <th>关联合同</th>
+                                <th>关联SKU数</th>
+                                <th>报关单数</th>
+                                <th>已报关数量</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoiceGroupBody">
                             <!-- 数据将通过JavaScript动态生成 -->
                         </tbody>
                     </table>

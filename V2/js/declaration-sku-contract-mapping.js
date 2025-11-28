@@ -1,3 +1,10 @@
+// 发票基础数据（从进项发票管理页面引用）
+const invoiceBaseData = {
+    '25352000': { date: '2025-11-24', supplier: '广州XX服饰有限公司' },
+    '25352001': { date: '2025-11-24', supplier: '广州XX服饰有限公司' },
+    '25352002': { date: '2025-11-25', supplier: '深圳YY制衣厂' }
+};
+
 // 报关单原始数据（包含所有报关SKU）
 const declarationRawData = {
     "FBA194287Y1B": {
@@ -26,21 +33,21 @@ const declarationRawData = {
 
 // 完整映射关系数据
 const mappingData = [
-    // 报关项1：女士外套 - LC788786-P3010-XL (120件，LIFO多明细匹配)
+    // 报关项1：女士外套 - LC788786-P3010-XL (120件，FIFO多明细匹配)
     {
         declarationNo: 'FBA194287Y1B',
         gNo: 1,
         declareName: '女士外套',
         declareSku: 'LC788786-P3010-XL',
         declareQty: 120,
-        skuDetailId: 'SKU003',
+        skuDetailId: 'SKU001',
         contractItemNo: '1',
         availableQty: 100,
         matchQty: 100,
-        contractNo: 'HT202511210002',
+        contractNo: 'HT202511210001',
         supplier: '广州XX服饰有限公司',
         contractAmount: '¥15,060',
-        invoiceNo: '25352001',
+        invoiceNo: '25352000',
         invoiceAmount: '¥15,060',
         matchStatus: '完全匹配',
         isMultiMatch: true
@@ -51,14 +58,14 @@ const mappingData = [
         declareName: '女士外套',
         declareSku: 'LC788786-P3010-XL',
         declareQty: 120,
-        skuDetailId: 'SKU001',
+        skuDetailId: 'SKU003',
         contractItemNo: '1',
         availableQty: 100,
         matchQty: 20,
-        contractNo: 'HT202511210001',
+        contractNo: 'HT202511210002',
         supplier: '广州XX服饰有限公司',
         contractAmount: '¥15,060',
-        invoiceNo: '25352000',
+        invoiceNo: '25352001',
         invoiceAmount: '¥15,060',
         matchStatus: '完全匹配',
         isMultiMatch: true
@@ -164,6 +171,9 @@ function switchView(view) {
             break;
         case 'contract':
             renderContractGroups();
+            break;
+        case 'invoice':
+            renderInvoiceGroups();
             break;
     }
 }
@@ -524,6 +534,76 @@ function renderContractGroups() {
     });
 }
 
+// 渲染按发票分组
+function renderInvoiceGroups() {
+    const tbody = document.getElementById('invoiceGroupBody');
+    if (!tbody) return;
+
+    // 按发票号分组
+    const grouped = {};
+    mappingData.forEach(item => {
+        if (item.invoiceNo) {
+            if (!grouped[item.invoiceNo]) {
+                grouped[item.invoiceNo] = {
+                    invoiceNo: item.invoiceNo,
+                    invoiceAmount: item.invoiceAmount,
+                    supplier: item.supplier,
+                    contracts: new Set(),
+                    skus: new Set(),
+                    declarations: new Set(),
+                    skuQtyMap: {},
+                    items: []
+                };
+            }
+            grouped[item.invoiceNo].contracts.add(item.contractNo);
+            grouped[item.invoiceNo].skus.add(item.declareSku);
+            grouped[item.invoiceNo].declarations.add(item.declarationNo);
+            grouped[item.invoiceNo].items.push(item);
+
+            // 避免相同SKU重复计算报关数量
+            if (!grouped[item.invoiceNo].skuQtyMap[item.declareSku]) {
+                grouped[item.invoiceNo].skuQtyMap[item.declareSku] = item.declareQty;
+            }
+        }
+    });
+
+    tbody.innerHTML = '';
+
+    Object.values(grouped).forEach(group => {
+        const row = document.createElement('tr');
+
+        // 从发票基础数据中获取日期
+        const invoiceDate = invoiceBaseData[group.invoiceNo] ? invoiceBaseData[group.invoiceNo].date : '-';
+
+        const contractDisplay = Array.from(group.contracts).map(c =>
+            `<a href="#" class="action-link" onclick="viewContract('${c}')">${c}</a>`
+        ).join(', ');
+
+        const declarationList = Array.from(group.declarations).map(d =>
+            `<a href="#" class="action-link" onclick="viewDeclaration('${d}')">${d}</a>`
+        ).join(', ');
+
+        // 计算总报关数量（去重）
+        const totalQty = Object.values(group.skuQtyMap).reduce((sum, qty) => sum + qty, 0);
+
+        row.innerHTML = `
+            <td><a href="#" class="action-link" onclick="viewInvoice('${group.invoiceNo}')">${group.invoiceNo}</a></td>
+            <td class="amount-highlight">${group.invoiceAmount}</td>
+            <td>${invoiceDate}</td>
+            <td>${group.supplier}</td>
+            <td>${contractDisplay}</td>
+            <td><strong>${group.skus.size}</strong> 个</td>
+            <td>${declarationList}</td>
+            <td class="amount-highlight"><strong>${totalQty}</strong> 件</td>
+            <td>
+                <button class="btn btn-sm" onclick="viewInvoiceDetail('${group.invoiceNo}')">查看详情</button>
+            </td>
+        `;
+
+        tbody.appendChild(row);
+    });
+}
+
 // 导出映射数据
 function exportMappingData() {
     console.log('导出映射数据');
@@ -655,6 +735,45 @@ function viewInvoice(invoiceNo) {
     console.log('查看发票:', invoiceNo);
     alert(`查看发票详情：${invoiceNo}\n点击确定跳转到发票管理页面`);
     return false;
+}
+
+// 查看发票详情（带映射信息）
+function viewInvoiceDetail(invoiceNo) {
+    const relatedItems = mappingData.filter(item => item.invoiceNo === invoiceNo);
+
+    if (relatedItems.length === 0) {
+        alert('未找到该发票的映射记录');
+        return;
+    }
+
+    const firstItem = relatedItems[0];
+    const uniqueContracts = [...new Set(relatedItems.map(item => item.contractNo))];
+    const uniqueSkus = [...new Set(relatedItems.map(item => item.declareSku))];
+    const totalQty = relatedItems.reduce((sum, item) => {
+        if (!sum.skuMap) sum.skuMap = {};
+        if (!sum.skuMap[item.declareSku]) {
+            sum.skuMap[item.declareSku] = item.declareQty;
+            sum.total += item.declareQty;
+        }
+        return sum;
+    }, { total: 0, skuMap: {} }).total;
+
+    let message = `发票编号：${invoiceNo}\n`;
+    message += `发票金额：${firstItem.invoiceAmount}\n`;
+    message += `供应商：${firstItem.supplier}\n`;
+    message += `关联合同：${uniqueContracts.join(', ')}\n`;
+    message += `关联SKU数：${uniqueSkus.length} 个\n`;
+    message += `已报关数量：${totalQty} 件\n\n`;
+    message += `详细SKU清单（${relatedItems.length}条）：\n\n`;
+
+    relatedItems.forEach((item, index) => {
+        message += `${index + 1}. SKU: ${item.declareSku}\n`;
+        message += `   明细ID: ${item.skuDetailId}\n`;
+        message += `   合同: ${item.contractNo}-项${item.contractItemNo}\n`;
+        message += `   报关: ${item.declarationNo}(${item.matchQty}件)\n\n`;
+    });
+
+    alert(message);
 }
 
 // 返回首页
