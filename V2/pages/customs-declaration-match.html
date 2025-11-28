@@ -1,28 +1,31 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>报关匹配管理</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
+
 <body>
     <div class="container">
         <!-- 顶部导航 -->
         <div class="top-nav">
-            <button class="nav-btn" onclick="goBack()">< 首页</button>
-            <div class="page-title">报关匹配管理 <span class="close-btn" onclick="goBack()">×</span></div>
-            <div class="nav-right">
-                <button class="search-btn">🔍 Ctrl+K 搜索菜单</button>
-                <button class="icon-btn">📷</button>
-                <button class="icon-btn">⬆</button>
-                <button class="icon-btn">⚙</button>
-                <div class="user-info">
-                    <span class="user-avatar">👤</span>
-                    <span class="user-name">XXX</span>
-                    <span class="system-name">系统</span>
-                </div>
-            </div>
+            <button class="nav-btn" onclick="goBack()">
+                < 首页</button>
+                    <div class="page-title">报关匹配管理 <span class="close-btn" onclick="goBack()">×</span></div>
+                    <div class="nav-right">
+                        <button class="search-btn">🔍 Ctrl+K 搜索菜单</button>
+                        <button class="icon-btn">📷</button>
+                        <button class="icon-btn">⬆</button>
+                        <button class="icon-btn">⚙</button>
+                        <div class="user-info">
+                            <span class="user-avatar">👤</span>
+                            <span class="user-name">XXX</span>
+                            <span class="system-name">系统</span>
+                        </div>
+                    </div>
         </div>
 
         <div class="page-content">
@@ -150,7 +153,7 @@
                             <ul style="line-height: 2; margin: 0;">
                                 <li><strong>SKU精确匹配：</strong>根据SKU编号精确匹配采销明细</li>
                                 <li><strong>可用数量检查：</strong>确保采销明细有足够的可用数量</li>
-                                <li><strong>FIFO原则：</strong>优先匹配最早的采购明细（先进先出）</li>
+                                <li><strong>FIFO原则：</strong>优先匹配最早的采购明细（先进后出）</li>
                                 <li><strong>合同状态：</strong>只匹配签署完成的合同对应的明细</li>
                                 <li><strong>数量扣减：</strong>匹配成功后，从"报关可用数量"中扣减</li>
                             </ul>
@@ -274,5 +277,5 @@
 
     <script src="../js/customs-declaration-match.js"></script>
 </body>
-</html>
 
+</html>

@@ -3,16 +3,16 @@ const mockData = [
     {
         id: 1,
         checked: false,
-        productCode: 'LC25001',
-        productType: '女装->女士上衣->T恤',
-        category: '女士T恤',
+        productCode: 'LC788786',
+        productType: '女装->女士上衣->外套',
+        category: '女士外套',
         launchDate: '2025-11-24',
         purchaseNo: 'PO00000001',
         receiveNo: 'JH200000011',
-        skuCode: 'LC25001-P2-2XL',
-        unitPrice: 33.79,
+        skuCode: 'LC788786-P3010-XL',
+        unitPrice: 75.30,
         quantity: 100,
-        totalAmount: 3379,
+        totalAmount: 7530,
         deliveredQty: 0,
         returnQty: 0,
         availableQty: 100,
@@ -27,16 +27,16 @@ const mockData = [
     {
         id: 2,
         checked: false,
-        productCode: 'LC25001',
-        productType: '女装->女士上衣->T恤',
-        category: '女士T恤',
+        productCode: 'LC788786',
+        productType: '女装->女士上衣->外套',
+        category: '女士外套',
         launchDate: '2025-11-24',
         purchaseNo: 'PO00000001',
         receiveNo: 'JH200000011',
-        skuCode: 'LC25001-P2-2XL',
-        unitPrice: 32.7,
+        skuCode: 'LC788786-P3010-2XL',
+        unitPrice: 75.30,
         quantity: 200,
-        totalAmount: 6540,
+        totalAmount: 15060,
         deliveredQty: 100,
         returnQty: 20,
         availableQty: 80,
@@ -51,20 +51,20 @@ const mockData = [
     {
         id: 3,
         checked: false,
-        productCode: 'MC25002',
-        productType: '男装->男士上衣->T恤',
-        category: '男士T恤',
+        productCode: 'LC788786',
+        productType: '女装->女士上衣->外套',
+        category: '女士外套',
         launchDate: '2025-11-23',
         purchaseNo: 'PO00000002',
         receiveNo: 'JH200000022',
-        skuCode: 'MC25002-P2-L',
-        unitPrice: 32.7,
+        skuCode: 'LC788786-P3010-S',
+        unitPrice: 75.30,
         quantity: 100,
-        totalAmount: 3270,
+        totalAmount: 7530,
         deliveredQty: 0,
         returnQty: 0,
         availableQty: 100,
-        contractNo: 'HT202511210001',
+        contractNo: 'HT202511210002',
         detailStatus: '合同签署完成',
         isInvoiced: '已开票',
         relatedStatementId: '100001',
@@ -75,21 +75,21 @@ const mockData = [
     {
         id: 4,
         checked: false,
-        productCode: 'LC25003',
-        productType: '女装->女士上衣->套头衫',
-        category: '女士套头衫',
+        productCode: 'LC628573',
+        productType: '女装->女士下装->裤装',
+        category: '裤装套装',
         launchDate: '2025-11-23',
         purchaseNo: 'PO00000003',
         receiveNo: 'JH200000033',
-        skuCode: 'LC25003-P1-S',
-        unitPrice: 109,
-        quantity: 10,
-        totalAmount: 1090,
+        skuCode: 'LC628573-P105-M',
+        unitPrice: 89,
+        quantity: 500,
+        totalAmount: 44500,
         deliveredQty: 0,
         returnQty: 0,
-        availableQty: 10,
-        contractNo: 'HT202511210002',
-        detailStatus: '合同签署中',
+        availableQty: 500,
+        contractNo: 'HT202511210003',
+        detailStatus: '合同签署完成',
         isInvoiced: '未开票',
         relatedStatementId: '100002',
         supplierCode: 'SYC0002',
@@ -99,20 +99,20 @@ const mockData = [
     {
         id: 5,
         checked: false,
-        productCode: 'LC25004',
-        productType: '女装->女士上衣->套头衫',
-        category: '女士套头衫',
+        productCode: 'MC25002',
+        productType: '男装->男士上衣->T恤',
+        category: '男士T恤',
         launchDate: '2025-11-21',
         purchaseNo: 'PO00000004',
         receiveNo: 'JH200000044',
-        skuCode: 'LC25004-P1-L',
-        unitPrice: 109,
-        quantity: 10,
-        totalAmount: 1090,
+        skuCode: 'MC25002-P2-L',
+        unitPrice: 32.7,
+        quantity: 100,
+        totalAmount: 3270,
         deliveredQty: 0,
         returnQty: 0,
-        availableQty: 0,
-        contractNo: '',
+        availableQty: 100,
+        contractNo: 'HT202511210004',
         detailStatus: '合同待生成',
         isInvoiced: '',
         relatedStatementId: '100003',
@@ -162,15 +162,15 @@ function renderTable() {
             <td>${item.totalAmount}</td>
             <td class="highlight-value">${item.returnQty}</td>
             <td class="highlight-value">${item.availableQty}</td>
-            <td class="highlight-column">
+            <td>
                 ${item.contractNo ? `<a href="#" class="action-link" onclick="viewContract('${item.contractNo}')">${item.contractNo}</a>` : '-'}
             </td>
-            <td class="highlight-column">${item.detailStatus}</td>
-            <td class="highlight-column">${item.isInvoiced || '-'}</td>
-            <td class="highlight-column">${item.relatedStatementId}</td>
-            <td class="highlight-column">${item.supplierCode}</td>
-            <td class="highlight-column">${item.purchaseEntity}</td>
-            <td class="highlight-column">${item.detailCreateTime}</td>
+            <td>${item.detailStatus}</td>
+            <td>${item.isInvoiced || '-'}</td>
+            <td>${item.relatedStatementId}</td>
+            <td>${item.supplierCode}</td>
+            <td>${item.purchaseEntity}</td>
+            <td>${item.detailCreateTime}</td>
             <td><a href="#" class="action-link" onclick="viewDetail(${item.id})">日志</a></td>
         `;
         tbody.appendChild(row);
