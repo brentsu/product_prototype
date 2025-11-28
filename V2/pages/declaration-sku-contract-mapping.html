@@ -4,29 +4,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>报关-SKU-合同映射关系</title>
+    <title>三方映射关系 - 财务合规管理系统</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
 
 <body>
-    <div class="container">
-        <!-- 顶部导航 -->
-        <div class="top-nav">
-            <button class="nav-btn" onclick="goBack()">
-                < 首页</button>
-                    <div class="page-title">报关-SKU-合同映射关系 <span class="close-btn" onclick="goBack()">×</span></div>
-                    <div class="nav-right">
-                        <button class="search-btn">🔍 Ctrl+K 搜索菜单</button>
-                        <button class="icon-btn">📷</button>
-                        <button class="icon-btn">⬆</button>
-                        <button class="icon-btn">⚙</button>
-                        <div class="user-info">
-                            <span class="user-avatar">👤</span>
-                            <span class="user-name">XXX</span>
-                            <span class="system-name">系统</span>
+    <!-- 顶部导航栏 -->
+    <div class="top-header">
+        <div class="header-left">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <div class="system-logo">财务合规管理系统 V2</div>
+            <span style="color: rgba(255,255,255,0.6); margin-left: 15px;">/ 三方映射关系</span>
+        </div>
+        <div class="header-right">
+            <button class="search-btn">🔍 Ctrl+K 搜索</button>
+            <button class="icon-btn">📷</button>
+            <button class="icon-btn">⬆</button>
+            <button class="icon-btn">⚙</button>
+            <div class="user-info">
+                <span class="user-avatar">👤</span>
+                <span class="user-name">XXX</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="layout-container">
+        <!-- 左侧菜单 -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">功能菜单</div>
+            </div>
+
+            <!-- 树状菜单 -->
+            <div class="tree-menu">
+                <!-- 采购管理 -->
+                <div class="menu-group">
+                    <div class="menu-group-title" onclick="toggleMenuGroup(this)">
+                        <span class="menu-icon">📦</span>
+                        <span class="menu-text">采购管理</span>
+                        <span class="menu-arrow">▼</span>
+                    </div>
+                    <div class="menu-group-content">
+                        <div class="menu-item" onclick="navigateTo('sku-detail.html')" data-page="sku-detail">
+                            <span class="menu-dot">•</span>
+                            <span class="menu-text">采销SKU明细</span>
+                            <span class="menu-badge">600</span>
+                        </div>
+                        <div class="menu-item" onclick="navigateTo('purchase-contract.html')" data-page="purchase-contract">
+                            <span class="menu-dot">•</span>
+                            <span class="menu-text">采销合同</span>
+                            <span class="menu-badge">4</span>
                         </div>
                     </div>
+                </div>
+
+                <!-- 发票管理 -->
+                <div class="menu-group">
+                    <div class="menu-group-title" onclick="toggleMenuGroup(this)">
+                        <span class="menu-icon">🧾</span>
+                        <span class="menu-text">发票管理</span>
+                        <span class="menu-arrow">▼</span>
+                    </div>
+                    <div class="menu-group-content">
+                        <div class="menu-item" onclick="navigateTo('invoice-management.html')" data-page="invoice-management">
+                            <span class="menu-dot">•</span>
+                            <span class="menu-text">进项发票列表</span>
+                            <span class="menu-badge">4</span>
+                        </div>
+                        <div class="menu-item" onclick="navigateTo('contract-invoice-relation.html')" data-page="contract-invoice-relation">
+                            <span class="menu-dot">•</span>
+                            <span class="menu-text">合同-发票关联</span>
+                            <span class="menu-badge">3</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 报关管理 -->
+                <div class="menu-group">
+                    <div class="menu-group-title" onclick="toggleMenuGroup(this)">
+                        <span class="menu-icon">🚢</span>
+                        <span class="menu-text">报关管理</span>
+                        <span class="menu-arrow">▼</span>
+                    </div>
+                    <div class="menu-group-content">
+                        <div class="menu-item" onclick="navigateTo('customs-declaration-match.html')" data-page="customs-declaration-match">
+                            <span class="menu-dot">•</span>
+                            <span class="menu-text">报关匹配管理</span>
+                            <span class="menu-badge">2</span>
+                        </div>
+                        <div class="menu-item active" onclick="navigateTo('declaration-sku-contract-mapping.html')" data-page="declaration-sku-contract-mapping">
+                            <span class="menu-dot">•</span>
+                            <span class="menu-text">三方映射关系</span>
+                            <span class="menu-badge">5</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 返回首页 -->
+                <div class="menu-group">
+                    <div class="menu-item" onclick="navigateTo('../index.html')" data-page="home" style="border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 15px;">
+                        <span class="menu-icon">🏠</span>
+                        <span class="menu-text">返回首页</span>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <div class="content-wrapper">
 
         <div class="page-content">
             <h2 style="margin-bottom: 20px; padding: 0 20px;">报关-SKU明细-合同 三方映射关系</h2>
@@ -418,11 +504,13 @@
                         <input type="text" class="query-input" id="queryByInvoice" placeholder="输入发票编号">
                         <button class="btn btn-primary" onclick="queryByInvoice()">查询</button>
                     </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="../js/main.js"></script>
     <script src="../js/declaration-sku-contract-mapping.js"></script>
 </body>
 
