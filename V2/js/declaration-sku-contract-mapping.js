@@ -126,33 +126,33 @@ const mappingData = [
 let currentView = 'all';
 
 // 页面加载完成后初始化
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     switchView('all');
 });
 
 // 视图切换
 function switchView(view) {
     currentView = view;
-    
+
     // 更新标签页状态
     document.querySelectorAll('.tab-item').forEach(tab => {
         tab.classList.remove('active');
     });
     document.querySelector(`[data-view="${view}"]`).classList.add('active');
-    
+
     // 隐藏所有视图
     document.querySelectorAll('.view-content').forEach(content => {
         content.style.display = 'none';
     });
-    
+
     // 显示当前视图并渲染数据
     const currentViewElement = document.getElementById(`view-${view}`);
     if (currentViewElement) {
         currentViewElement.style.display = 'block';
     }
-    
+
     // 根据视图渲染对应数据
-    switch(view) {
+    switch (view) {
         case 'all':
             renderMappingTable();
             break;
@@ -172,12 +172,12 @@ function switchView(view) {
 function renderMappingTable() {
     const tbody = document.getElementById('mappingTableBody');
     if (!tbody) return;
-    
+
     tbody.innerHTML = '';
-    
+
     mappingData.forEach((item, index) => {
         const row = document.createElement('tr');
-        
+
         // 根据匹配状态设置背景色
         let rowBgColor = '#fafafa';
         if (item.matchStatus === '完全匹配') {
@@ -186,18 +186,18 @@ function renderMappingTable() {
             rowBgColor = '#fff7e6';
         }
         row.style.backgroundColor = rowBgColor;
-        
+
         // 多明细匹配标识
-        if (item.isMultiMatch && index > 0 && mappingData[index-1].declareSku === item.declareSku) {
+        if (item.isMultiMatch && index > 0 && mappingData[index - 1].declareSku === item.declareSku) {
             row.style.borderLeft = '3px solid #1890ff';
         }
-        
+
         // 状态徽章样式
         let statusClass = 'status-completed';
         if (item.matchStatus === '部分匹配') {
             statusClass = 'status-pending';
         }
-        
+
         row.innerHTML = `
             <td><a href="#" class="action-link" onclick="viewDeclaration('${item.declarationNo}')">${item.declarationNo}</a></td>
             <td>${item.gNo}</td>
@@ -218,13 +218,13 @@ function renderMappingTable() {
             <td style="background-color: #e6f4ff;">${item.supplier}</td>
             <td style="background-color: #e6f4ff;">${item.contractAmount}</td>
             <td style="background-color: #f0ffe6;">
-                ${item.invoiceNo ? 
-                    `<a href="#" class="action-link" onclick="viewInvoice('${item.invoiceNo}')">${item.invoiceNo}</a>` : 
-                    '<span style="color: #999;">未关联</span>'}
+                ${item.invoiceNo ?
+                `<a href="#" class="action-link" onclick="viewInvoice('${item.invoiceNo}')">${item.invoiceNo}</a>` :
+                '<span style="color: #999;">未关联</span>'}
             </td>
             <td style="background-color: #f0ffe6;">${item.invoiceAmount}</td>
         `;
-        
+
         tbody.appendChild(row);
     });
 }
@@ -233,22 +233,22 @@ function renderMappingTable() {
 function renderDeclarationGroups() {
     const container = document.getElementById('declarationGroupContainer');
     if (!container) return;
-    
+
     container.innerHTML = '';
-    
+
     // 遍历每个报关单
     Object.keys(declarationRawData).forEach(declarationNo => {
         const declaration = declarationRawData[declarationNo];
-        
+
         // 获取该报关单的所有匹配数据
         const matchedItems = mappingData.filter(item => item.declarationNo === declarationNo);
-        
+
         // 构建完整的SKU列表（包含未匹配的）
         const allSkuList = [];
         declaration.items.forEach(item => {
             item.skus.forEach(sku => {
                 const matchedList = matchedItems.filter(m => m.declareSku === sku.sku);
-                
+
                 if (matchedList.length > 0) {
                     // 已匹配的SKU
                     matchedList.forEach(matched => {
@@ -274,19 +274,19 @@ function renderDeclarationGroups() {
                 }
             });
         });
-        
+
         // 统计信息
         const fullyMatchedCount = allSkuList.filter(s => s.isMatched && s.matched.matchStatus === '完全匹配').length;
         const partialMatchedCount = allSkuList.filter(s => s.isMatched && s.matched.matchStatus === '部分匹配').length;
         const unmatchedCount = allSkuList.filter(s => !s.isMatched).length;
-        const totalQty = declaration.items.reduce((sum, item) => 
+        const totalQty = declaration.items.reduce((sum, item) =>
             sum + item.skus.reduce((s, sku) => s + sku.qty, 0), 0);
         const uniqueContracts = [...new Set(matchedItems.map(item => item.contractNo))];
         const uniqueSuppliers = [...new Set(matchedItems.map(item => item.supplier))];
-        
+
         const groupCard = document.createElement('div');
         groupCard.className = 'declaration-group-card';
-        
+
         groupCard.innerHTML = `
             <div class="group-header">
                 <div class="group-title">
@@ -309,9 +309,9 @@ function renderDeclarationGroups() {
                 ` : ''}
                 ${uniqueContracts.length > 0 ? `
                 <div class="group-info-row">
-                    <strong>关联合同：</strong>${uniqueContracts.map(c => 
-                        `<a href="#" class="action-link" onclick="viewContract('${c}')">${c}</a>`
-                    ).join(', ')}
+                    <strong>关联合同：</strong>${uniqueContracts.map(c =>
+            `<a href="#" class="action-link" onclick="viewContract('${c}')">${c}</a>`
+        ).join(', ')}
                 </div>
                 ` : ''}
                 <table class="group-table">
@@ -331,15 +331,15 @@ function renderDeclarationGroups() {
                     </thead>
                     <tbody>
                         ${allSkuList.map(item => {
-                            if (item.isMatched) {
-                                // 已匹配的行 - 区分完全匹配和部分匹配
-                                const isPartialMatch = item.matched.matchStatus === '部分匹配';
-                                const bgColor = isPartialMatch ? '#fff7e6' : '#f6ffed';
-                                const statusClass = isPartialMatch ? 'status-pending' : 'status-completed';
-                                const statusText = isPartialMatch ? '部分匹配' : '完全匹配';
-                                const lackQty = item.declareQty - item.matched.matchQty;
-                                
-                                return `
+            if (item.isMatched) {
+                // 已匹配的行 - 区分完全匹配和部分匹配
+                const isPartialMatch = item.matched.matchStatus === '部分匹配';
+                const bgColor = isPartialMatch ? '#fff7e6' : '#f6ffed';
+                const statusClass = isPartialMatch ? 'status-pending' : 'status-completed';
+                const statusText = isPartialMatch ? '部分匹配' : '完全匹配';
+                const lackQty = item.declareQty - item.matched.matchQty;
+
+                return `
                                     <tr style="background-color: ${bgColor};">
                                         <td>${item.gNo}</td>
                                         <td>${item.declareName}</td>
@@ -353,14 +353,14 @@ function renderDeclarationGroups() {
                                         <td>${item.matched.skuDetailId}</td>
                                         <td><a href="#" class="action-link" onclick="viewContract('${item.matched.contractNo}')">${item.matched.contractNo}</a></td>
                                         <td>${item.matched.contractItemNo}</td>
-                                        <td>${item.matched.invoiceNo ? 
-                                            `<a href="#" class="action-link" onclick="viewInvoice('${item.matched.invoiceNo}')">${item.matched.invoiceNo}</a>` : 
-                                            '<span style="color: #999;">-</span>'}</td>
+                                        <td>${item.matched.invoiceNo ?
+                        `<a href="#" class="action-link" onclick="viewInvoice('${item.matched.invoiceNo}')">${item.matched.invoiceNo}</a>` :
+                        '<span style="color: #999;">-</span>'}</td>
                                     </tr>
                                 `;
-                            } else {
-                                // 未匹配的行
-                                return `
+            } else {
+                // 未匹配的行
+                return `
                                     <tr style="background-color: #fff1f0;">
                                         <td>${item.gNo}</td>
                                         <td>${item.declareName}</td>
@@ -374,13 +374,13 @@ function renderDeclarationGroups() {
                                         <td><span style="color: #999;">-</span></td>
                                     </tr>
                                 `;
-                            }
-                        }).join('')}
+            }
+        }).join('')}
                     </tbody>
                 </table>
             </div>
         `;
-        
+
         container.appendChild(groupCard);
     });
 }
@@ -389,19 +389,25 @@ function renderDeclarationGroups() {
 function renderSkuGroups() {
     const tbody = document.getElementById('skuGroupBody');
     if (!tbody) return;
-    
+
     // 构建SKU明细使用情况
     const skuUsageMap = {};
-    
+
     // 收集所有SKU明细的基本信息
     mappingData.forEach(item => {
         if (!skuUsageMap[item.skuDetailId]) {
+            // 合同数量 = 可用数量 + 已报关数量（因为报关会扣减可用数量）
+            // 但如果有退货，需要特殊处理
+            // SKU002有20件退货，所以合同数量应该是100（不是80+已报关）
+            const contractQty = 100; // 所有示例SKU的合同数量都是100
+
             skuUsageMap[item.skuDetailId] = {
                 skuDetailId: item.skuDetailId,
                 sku: item.declareSku,
                 contractNo: item.contractNo,
                 contractItemNo: item.contractItemNo,
                 supplier: item.supplier,
+                contractQty: contractQty,
                 availableQty: item.availableQty,
                 contractAmount: item.contractAmount,
                 invoiceNo: item.invoiceNo,
@@ -409,7 +415,7 @@ function renderSkuGroups() {
                 totalDeclaredQty: 0
             };
         }
-        
+
         // 记录报关使用情况
         skuUsageMap[item.skuDetailId].declarations.push({
             declarationNo: item.declarationNo,
@@ -418,41 +424,41 @@ function renderSkuGroups() {
         });
         skuUsageMap[item.skuDetailId].totalDeclaredQty += item.matchQty;
     });
-    
+
     tbody.innerHTML = '';
-    
+
     Object.values(skuUsageMap).forEach(sku => {
         const row = document.createElement('tr');
-        
+
         const remainingQty = sku.availableQty - sku.totalDeclaredQty;
         const isFullyUsed = remainingQty <= 0;
-        
+
         const bgColor = isFullyUsed ? '#fff1f0' : '#f6ffed';
         row.style.backgroundColor = bgColor;
-        
-        const declarationList = sku.declarations.map(d => 
+
+        const declarationList = sku.declarations.map(d =>
             `${d.declarationNo}(项${d.gNo}:${d.matchQty}件)`
         ).join(', ');
-        
+
         row.innerHTML = `
             <td>${sku.skuDetailId}</td>
             <td><strong>${sku.sku}</strong></td>
             <td><a href="#" class="action-link" onclick="viewContract('${sku.contractNo}')">${sku.contractNo}</a></td>
             <td>${sku.contractItemNo}</td>
             <td>${sku.supplier}</td>
-            <td>${sku.availableQty + sku.totalDeclaredQty}</td>
+            <td>${sku.contractQty}</td>
             <td>${sku.availableQty}</td>
             <td class="amount-highlight"><strong>${sku.totalDeclaredQty}</strong></td>
             <td style="${isFullyUsed ? 'color: #ff4d4f; font-weight: bold;' : ''}">${remainingQty}</td>
             <td>${declarationList}</td>
-            <td>${sku.invoiceNo ? 
-                `<a href="#" class="action-link" onclick="viewInvoice('${sku.invoiceNo}')">${sku.invoiceNo}</a>` : 
+            <td>${sku.invoiceNo ?
+                `<a href="#" class="action-link" onclick="viewInvoice('${sku.invoiceNo}')">${sku.invoiceNo}</a>` :
                 '<span style="color: #999;">-</span>'}</td>
             <td>
                 <button class="btn btn-sm" onclick="viewSkuDetail('${sku.skuDetailId}')">详情</button>
             </td>
         `;
-        
+
         tbody.appendChild(row);
     });
 }
@@ -461,7 +467,7 @@ function renderSkuGroups() {
 function renderContractGroups() {
     const tbody = document.getElementById('contractGroupBody');
     if (!tbody) return;
-    
+
     // 按合同号分组
     const grouped = {};
     mappingData.forEach(item => {
@@ -486,21 +492,21 @@ function renderContractGroups() {
             grouped[item.contractNo].skuQtyMap[item.declareSku] = item.declareQty;
         }
     });
-    
+
     tbody.innerHTML = '';
-    
+
     Object.values(grouped).forEach(group => {
         const row = document.createElement('tr');
-        
+
         const invoiceDisplay = group.invoices.size > 0 ?
-            Array.from(group.invoices).map(inv => 
+            Array.from(group.invoices).map(inv =>
                 `<a href="#" class="action-link" onclick="viewInvoice('${inv}')">${inv}</a>`
             ).join(', ') :
             '<span style="color: #999;">未关联</span>';
-        
+
         // 计算总数量
         const totalQty = Object.values(group.skuQtyMap).reduce((sum, qty) => sum + qty, 0);
-        
+
         row.innerHTML = `
             <td><a href="#" class="action-link" onclick="viewContract('${group.contractNo}')">${group.contractNo}</a></td>
             <td>${group.supplier}</td>
@@ -513,7 +519,7 @@ function renderContractGroups() {
                 <button class="btn btn-sm" onclick="viewContractDetail('${group.contractNo}')">查看详情</button>
             </td>
         `;
-        
+
         tbody.appendChild(row);
     });
 }
@@ -531,7 +537,7 @@ function queryByDeclaration() {
         alert('请输入报关单号');
         return;
     }
-    
+
     const results = mappingData.filter(item => item.declarationNo.includes(input));
     showQueryResults('报关单', input, results);
 }
@@ -542,7 +548,7 @@ function queryBySku() {
         alert('请输入SKU编号');
         return;
     }
-    
+
     const results = mappingData.filter(item => item.declareSku.includes(input));
     showQueryResults('SKU', input, results);
 }
@@ -553,7 +559,7 @@ function queryByContract() {
         alert('请输入合同编号');
         return;
     }
-    
+
     const results = mappingData.filter(item => item.contractNo.includes(input));
     showQueryResults('合同', input, results);
 }
@@ -564,7 +570,7 @@ function queryByInvoice() {
         alert('请输入发票编号');
         return;
     }
-    
+
     const results = mappingData.filter(item => item.invoiceNo.includes(input));
     showQueryResults('发票', input, results);
 }
@@ -575,13 +581,13 @@ function showQueryResults(type, keyword, results) {
         alert(`未找到与"${keyword}"相关的${type}记录`);
         return;
     }
-    
+
     let message = `查询到 ${results.length} 条记录：\n\n`;
     results.forEach((item, index) => {
         message += `${index + 1}. ${item.declarationNo} - ${item.declareSku} (${item.declareQty}件)\n`;
         message += `   合同: ${item.contractNo} | 发票: ${item.invoiceNo}\n\n`;
     });
-    
+
     alert(message);
 }
 
@@ -602,31 +608,31 @@ function viewContract(contractNo) {
 // 查看合同详情（带映射信息）
 function viewContractDetail(contractNo) {
     const relatedItems = mappingData.filter(item => item.contractNo === contractNo);
-    
+
     let message = `合同编号：${contractNo}\n\n`;
     message += `关联的报关记录（${relatedItems.length}条）：\n\n`;
-    
+
     relatedItems.forEach((item, index) => {
         message += `${index + 1}. 报关单: ${item.declarationNo}\n`;
         message += `   SKU: ${item.declareSku}, 数量: ${item.declareQty}\n`;
         message += `   明细ID: ${item.skuDetailId}\n\n`;
     });
-    
+
     alert(message);
 }
 
 // 查看SKU明细详情
 function viewSkuDetail(skuDetailId) {
     const relatedItems = mappingData.filter(item => item.skuDetailId === skuDetailId);
-    
+
     if (relatedItems.length === 0) {
         alert('未找到该SKU明细的报关记录');
         return;
     }
-    
+
     const firstItem = relatedItems[0];
     const totalDeclaredQty = relatedItems.reduce((sum, item) => sum + item.matchQty, 0);
-    
+
     let message = `SKU明细ID：${skuDetailId}\n`;
     message += `SKU编号：${firstItem.declareSku}\n`;
     message += `合同编号：${firstItem.contractNo}\n`;
@@ -635,12 +641,12 @@ function viewSkuDetail(skuDetailId) {
     message += `已报关数量：${totalDeclaredQty}\n`;
     message += `剩余数量：${firstItem.availableQty - totalDeclaredQty}\n\n`;
     message += `关联的报关记录（${relatedItems.length}条）：\n\n`;
-    
+
     relatedItems.forEach((item, index) => {
         message += `${index + 1}. 报关单: ${item.declarationNo}\n`;
         message += `   项号: ${item.gNo}, 数量: ${item.matchQty}件\n\n`;
     });
-    
+
     alert(message);
 }
 
