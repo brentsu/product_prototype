@@ -82,13 +82,17 @@
                         <div class="stat-number">5</div>
                         <div class="stat-label">报关SKU数</div>
                     </div>
+                    <div class="stat-card" style="background-color: #f6ffed;">
+                        <div class="stat-number" style="color: #52c41a;">3</div>
+                        <div class="stat-label">完全匹配</div>
+                    </div>
+                    <div class="stat-card" style="background-color: #fff7e6;">
+                        <div class="stat-number" style="color: #fa8c16;">1</div>
+                        <div class="stat-label">部分匹配</div>
+                    </div>
                     <div class="stat-card" style="background-color: #fff1f0;">
                         <div class="stat-number" style="color: #ff4d4f;">1</div>
-                        <div class="stat-label">未匹配SKU</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">5</div>
-                        <div class="stat-label">已匹配明细数</div>
+                        <div class="stat-label">未匹配</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-number">3</div>
@@ -158,13 +162,14 @@
             <!-- 视图2: 按报关单维度 -->
             <div class="invoice-section view-content" id="view-declaration" style="display: none;">
                 <div class="info-box info-warning" style="margin-bottom: 20px;">
-                    <strong>📋 报关单维度说明：</strong>展示每个报关单的详细匹配情况，包括已匹配和未匹配的SKU
+                    <strong>📋 报关单维度说明：</strong>展示每个报关单的详细匹配情况，包括完全匹配、部分匹配和未匹配的SKU
                     <ul style="margin: 10px 0 0 25px; line-height: 1.8;">
-                        <li><span style="background-color: #f6ffed; padding: 2px 8px; border-radius: 3px;">✅
-                                绿色背景</span>：SKU已成功匹配到采销明细</li>
-                        <li><span style="background-color: #fff1f0; padding: 2px 8px; border-radius: 3px;">❌
-                                红色背景</span>：SKU未找到对应的采销明细（需要补充采购订单）</li>
-                        <li><strong>未匹配原因：</strong>可能是采购明细尚未生成、合同未签署或SKU编号不匹配</li>
+                        <li><span style="background-color: #f6ffed; padding: 2px 8px; border-radius: 3px;">✅ 绿色背景 -
+                                完全匹配</span>：报关数量全部匹配成功</li>
+                        <li><span style="background-color: #fff7e6; padding: 2px 8px; border-radius: 3px;">⚠️ 橙色背景 -
+                                部分匹配</span>：报关数量大于可用数量，仅匹配部分（如有退货导致可用数量不足）</li>
+                        <li><span style="background-color: #fff1f0; padding: 2px 8px; border-radius: 3px;">❌ 红色背景 -
+                                未匹配</span>：SKU未找到对应的采销明细（需要补充采购订单）</li>
                     </ul>
                 </div>
 

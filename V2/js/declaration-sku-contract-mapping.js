@@ -276,7 +276,8 @@ function renderDeclarationGroups() {
         });
         
         // 统计信息
-        const matchedCount = allSkuList.filter(s => s.isMatched).length;
+        const fullyMatchedCount = allSkuList.filter(s => s.isMatched && s.matched.matchStatus === '完全匹配').length;
+        const partialMatchedCount = allSkuList.filter(s => s.isMatched && s.matched.matchStatus === '部分匹配').length;
         const unmatchedCount = allSkuList.filter(s => !s.isMatched).length;
         const totalQty = declaration.items.reduce((sum, item) => 
             sum + item.skus.reduce((s, sku) => s + sku.qty, 0), 0);
@@ -293,7 +294,8 @@ function renderDeclarationGroups() {
                     报关单号：<strong>${declarationNo}</strong>
                 </div>
                 <div class="group-stats">
-                    <span class="group-badge" style="background-color: #52c41a; color: white;">已匹配: ${matchedCount}</span>
+                    ${fullyMatchedCount > 0 ? `<span class="group-badge" style="background-color: #52c41a; color: white;">完全匹配: ${fullyMatchedCount}</span>` : ''}
+                    ${partialMatchedCount > 0 ? `<span class="group-badge" style="background-color: #fa8c16; color: white;">部分匹配: ${partialMatchedCount}</span>` : ''}
                     ${unmatchedCount > 0 ? `<span class="group-badge" style="background-color: #ff4d4f; color: white;">未匹配: ${unmatchedCount}</span>` : ''}
                     <span class="group-badge">总计 ${totalQty} 件</span>
                     <span class="group-badge">${uniqueContracts.length} 个合同</span>
@@ -330,14 +332,23 @@ function renderDeclarationGroups() {
                     <tbody>
                         ${allSkuList.map(item => {
                             if (item.isMatched) {
-                                // 已匹配的行
+                                // 已匹配的行 - 区分完全匹配和部分匹配
+                                const isPartialMatch = item.matched.matchStatus === '部分匹配';
+                                const bgColor = isPartialMatch ? '#fff7e6' : '#f6ffed';
+                                const statusClass = isPartialMatch ? 'status-pending' : 'status-completed';
+                                const statusText = isPartialMatch ? '部分匹配' : '完全匹配';
+                                const lackQty = item.declareQty - item.matched.matchQty;
+                                
                                 return `
-                                    <tr style="background-color: #f6ffed;">
+                                    <tr style="background-color: ${bgColor};">
                                         <td>${item.gNo}</td>
                                         <td>${item.declareName}</td>
                                         <td><strong>${item.declareSku}</strong></td>
                                         <td>${item.declareQty}</td>
-                                        <td><span class="status-badge status-completed">已匹配</span></td>
+                                        <td>
+                                            <span class="status-badge ${statusClass}">${statusText}</span>
+                                            ${isPartialMatch ? `<br><small style="color: #fa8c16;">缺${lackQty}件</small>` : ''}
+                                        </td>
                                         <td class="amount-highlight">${item.matched.matchQty}</td>
                                         <td>${item.matched.skuDetailId}</td>
                                         <td><a href="#" class="action-link" onclick="viewContract('${item.matched.contractNo}')">${item.matched.contractNo}</a></td>
