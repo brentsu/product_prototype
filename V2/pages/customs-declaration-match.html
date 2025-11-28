@@ -235,6 +235,47 @@
                 </div>
             </div>
 
+            <!-- 实际匹配案例说明 -->
+            <div class="invoice-section">
+                <div class="invoice-section-header">
+                    <div class="section-title">💡 实际匹配案例说明</div>
+                </div>
+
+                <div class="info-box info-success" style="margin-bottom: 15px;">
+                    <p><strong>案例1: 多明细匹配（LC788786-P3010-XL 出库 120件）</strong></p>
+                    <div style="margin: 10px 0 0 20px; line-height: 1.8;">
+                        <p><strong>场景：</strong>报关单需要出库 120 件，但单个采销SKU明细只有 100 件</p>
+                        <p><strong>解决方案：</strong></p>
+                        <ul style="margin: 5px 0 0 20px;">
+                            <li>✅ 从 SKU001（合同HT202511210001）匹配 100 件</li>
+                            <li>✅ 从 SKU003（合同HT202511210002）匹配 20 件</li>
+                            <li>✅ 总计匹配 120 件，状态：<span style="color: #52c41a; font-weight: bold;">完全匹配</span></li>
+                        </ul>
+                        <p style="margin-top: 10px; color: #1890ff;">
+                            <strong>💡 关键点：</strong>系统自动从多个采销明细中按顺序匹配，无需手动干预
+                        </p>
+                    </div>
+                </div>
+
+                <div class="info-box info-warning">
+                    <p><strong>案例2: 部分匹配（LC788786-P3010-2XL 出库 100件）</strong></p>
+                    <div style="margin: 10px 0 0 20px; line-height: 1.8;">
+                        <p><strong>场景：</strong>报关单需要出库 100 件，但采销明细中有 20 件退货，实际可用只有 80 件</p>
+                        <p><strong>详细情况：</strong></p>
+                        <ul style="margin: 5px 0 0 20px;">
+                            <li>📦 SKU002 合同数量：100 件</li>
+                            <li>↩️ 已退货数量：20 件</li>
+                            <li>✅ 报关可用数量：80 件</li>
+                            <li>⚠️ 实际匹配：80 件（还缺 20 件）</li>
+                            <li>📊 匹配状态：<span style="color: #fa8c16; font-weight: bold;">部分匹配</span></li>
+                        </ul>
+                        <p style="margin-top: 10px; color: #fa8c16;">
+                            <strong>⚠️ 需要处理：</strong>缺少的 20 件需要联系采购补货，或调整报关数量
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             <!-- 匹配异常处理 -->
             <div class="invoice-section">
                 <div class="invoice-section-header">

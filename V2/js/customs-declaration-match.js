@@ -11,11 +11,11 @@ const declarationData = {
             "skus": [
                 {
                     "sku": "LC788786-P3010-XL",
-                    "qty": 3
+                    "qty": 120
                 },
                 {
                     "sku": "LC788786-P3010-2XL",
-                    "qty": 3
+                    "qty": 100
                 },
                 {
                     "sku": "LC788786-P3010-S",
@@ -47,7 +47,6 @@ const mockSkuDetails = [
         contractNo: 'HT202511210001',
         supplier: '广州XX服饰有限公司',
         quantity: 100,
-        deliveredQty: 0,
         returnQty: 0,
         availableQty: 100,
         contractStatus: '签署完成'
@@ -58,7 +57,6 @@ const mockSkuDetails = [
         contractNo: 'HT202511210001',
         supplier: '广州XX服饰有限公司',
         quantity: 100,
-        deliveredQty: 0,
         returnQty: 20,
         availableQty: 80,
         contractStatus: '签署完成'
@@ -69,7 +67,6 @@ const mockSkuDetails = [
         contractNo: 'HT202511210002',
         supplier: '广州XX服饰有限公司',
         quantity: 100,
-        deliveredQty: 0,
         returnQty: 0,
         availableQty: 100,
         contractStatus: '签署完成'
@@ -80,7 +77,6 @@ const mockSkuDetails = [
         contractNo: 'HT202511210002',
         supplier: '广州XX服饰有限公司',
         quantity: 100,
-        deliveredQty: 0,
         returnQty: 0,
         availableQty: 100,
         contractStatus: '签署完成'
@@ -91,7 +87,6 @@ const mockSkuDetails = [
         contractNo: 'HT202511210003',
         supplier: '深圳YY制衣厂',
         quantity: 100,
-        deliveredQty: 0,
         returnQty: 0,
         availableQty: 100,
         contractStatus: '签署完成'
@@ -161,27 +156,74 @@ function performAutoMatch() {
     
     declarationData.declare_document_aggregated_item.forEach(item => {
         item.skus.forEach(declareSku => {
-            // 在采销明细中查找匹配的SKU
-            const matchedDetail = mockSkuDetails.find(detail => 
+            // 查找所有符合条件的采销SKU明细
+            // 匹配规则：1. SKU相同 2. 合同状态为"签署完成" 3. 可用数量 > 0
+            const matchableDetails = mockSkuDetails.filter(detail => 
                 detail.sku === declareSku.sku && 
                 detail.contractStatus === '签署完成' &&
-                detail.availableQty >= declareSku.qty
+                detail.availableQty > 0
             );
             
-            const result = {
-                gNo: item.g_no,
-                declareSku: declareSku.sku,
-                declareQty: declareSku.qty,
-                matchStatus: matchedDetail ? '匹配成功' : '匹配失败',
-                matchedDetailId: matchedDetail ? matchedDetail.id : '-',
-                contractNo: matchedDetail ? matchedDetail.contractNo : '-',
-                supplier: matchedDetail ? matchedDetail.supplier : '-',
-                availableQty: matchedDetail ? matchedDetail.availableQty : 0,
-                matchQty: matchedDetail ? declareSku.qty : 0,
-                failReason: matchedDetail ? '' : getFailReason(declareSku.sku, declareSku.qty)
-            };
-            
-            matchResults.push(result);
+            if (matchableDetails.length === 0) {
+                // 无可匹配明细
+                const result = {
+                    gNo: item.g_no,
+                    declareSku: declareSku.sku,
+                    declareQty: declareSku.qty,
+                    matchStatus: '匹配失败',
+                    matchedDetailId: '-',
+                    contractNo: '-',
+                    supplier: '-',
+                    availableQty: 0,
+                    matchQty: 0,
+                    failReason: getFailReason(declareSku.sku, declareSku.qty),
+                    isMultiMatch: false
+                };
+                matchResults.push(result);
+            } else {
+                // 有可匹配明细，进行分配（支持从多个明细中匹配）
+                let remainingQty = declareSku.qty;
+                let matchedDetailsList = [];
+                
+                for (let detail of matchableDetails) {
+                    if (remainingQty <= 0) break;
+                    
+                    const matchQty = Math.min(remainingQty, detail.availableQty);
+                    matchedDetailsList.push({
+                        detailId: detail.id,
+                        contractNo: detail.contractNo,
+                        availableQty: detail.availableQty,
+                        matchQty: matchQty,
+                        supplier: detail.supplier
+                    });
+                    remainingQty -= matchQty;
+                }
+                
+                const totalMatched = declareSku.qty - remainingQty;
+                const matchStatus = remainingQty > 0 ? '部分匹配' : '完全匹配';
+                
+                // 创建结果记录（可能需要多条，每个匹配的明细一条）
+                matchedDetailsList.forEach((matched, idx) => {
+                    const result = {
+                        gNo: item.g_no,
+                        declareSku: declareSku.sku,
+                        declareQty: idx === 0 ? declareSku.qty : '', // 只在第一行显示总数
+                        matchStatus: idx === 0 ? matchStatus : '',  // 只在第一行显示状态
+                        matchedDetailId: matched.detailId,
+                        contractNo: matched.contractNo,
+                        supplier: matched.supplier,
+                        availableQty: matched.availableQty,
+                        matchQty: matched.matchQty,
+                        failReason: idx === 0 && remainingQty > 0 ? `还缺${remainingQty}件，需手动处理` : '',
+                        isMultiMatch: matchedDetailsList.length > 1,
+                        multiMatchIndex: idx,
+                        multiMatchTotal: matchedDetailsList.length,
+                        totalDeclareQty: declareSku.qty,
+                        totalMatchedQty: totalMatched
+                    };
+                    matchResults.push(result);
+                });
+            }
         });
     });
     
@@ -216,18 +258,47 @@ function renderMatchResults() {
     
     matchResults.forEach((result, index) => {
         const row = document.createElement('tr');
-        const bgColor = result.matchStatus === '匹配成功' ? '#f6ffed' : '#fff1f0';
+        
+        // 根据匹配状态设置背景色
+        let bgColor = '#f6ffed'; // 完全匹配 - 绿色
+        if (result.matchStatus === '部分匹配') {
+            bgColor = '#fff7e6'; // 部分匹配 - 橙色
+        } else if (result.matchStatus === '匹配失败') {
+            bgColor = '#fff1f0'; // 匹配失败 - 红色
+        }
         row.style.backgroundColor = bgColor;
         
-        const statusClass = result.matchStatus === '匹配成功' ? 'status-completed' : 'status-rejected';
+        // 多明细匹配的样式
+        if (result.isMultiMatch && result.multiMatchIndex > 0) {
+            row.style.borderLeft = '3px solid #1890ff';
+        }
+        
+        let statusClass = 'status-completed';
+        if (result.matchStatus === '部分匹配') {
+            statusClass = 'status-pending';
+        } else if (result.matchStatus === '匹配失败') {
+            statusClass = 'status-rejected';
+        }
         
         row.innerHTML = `
-            <td>${result.gNo}</td>
-            <td><strong>${result.declareSku}</strong></td>
-            <td>${result.declareQty}</td>
+            <td>${result.gNo || ''}</td>
             <td>
-                <span class="status-badge ${statusClass}">${result.matchStatus}</span>
-                ${result.failReason ? `<br><small style="color: #ff4d4f;">${result.failReason}</small>` : ''}
+                <strong>${result.declareSku}</strong>
+                ${result.isMultiMatch && result.multiMatchIndex > 0 ? 
+                    '<br><small style="color: #1890ff;">↳ 续上</small>' : ''}
+            </td>
+            <td>
+                ${result.declareQty !== '' ? 
+                    `<strong>${result.declareQty}</strong>` : 
+                    '<span style="color: #999;">-</span>'}
+            </td>
+            <td>
+                ${result.matchStatus ? `
+                    <span class="status-badge ${statusClass}">${result.matchStatus}</span>
+                    ${result.isMultiMatch && result.multiMatchIndex === 0 ? 
+                        `<br><small style="color: #1890ff;">从${result.multiMatchTotal}个明细匹配</small>` : ''}
+                    ${result.failReason ? `<br><small style="color: #ff4d4f;">${result.failReason}</small>` : ''}
+                ` : ''}
             </td>
             <td>${result.matchedDetailId}</td>
             <td>
@@ -236,13 +307,15 @@ function renderMatchResults() {
                     '-'}
             </td>
             <td>${result.supplier}</td>
-            <td>${result.availableQty}</td>
-            <td class="amount-highlight">${result.matchQty}</td>
+            <td>${result.availableQty || 0}</td>
+            <td class="amount-highlight"><strong>${result.matchQty}</strong></td>
             <td>
-                <button class="btn btn-sm" onclick="viewMatchDetail(${index})">详情</button>
-                ${result.matchStatus === '匹配失败' ? 
-                    `<button class="btn btn-primary btn-sm" onclick="manualMatch(${index})">手动匹配</button>` : 
-                    ''}
+                ${result.multiMatchIndex === 0 || !result.isMultiMatch ? `
+                    <button class="btn btn-sm" onclick="viewMatchDetail(${index})">详情</button>
+                    ${result.matchStatus === '匹配失败' || result.matchStatus === '部分匹配' ? 
+                        `<button class="btn btn-primary btn-sm" onclick="manualMatch(${index})">手动处理</button>` : 
+                        ''}
+                ` : ''}
             </td>
         `;
         

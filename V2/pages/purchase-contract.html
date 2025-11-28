@@ -1,34 +1,33 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>采销合同</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
+
 <body>
     <div class="container">
         <!-- 顶部导航 -->
         <div class="top-nav">
-            <button class="nav-btn" onclick="goBack()">< 首页</button>
-            <div class="page-title">采销合同 <span class="close-btn" onclick="goBack()">×</span></div>
-            <div class="nav-right">
-                <button class="search-btn">🔍 Ctrl+K 搜索菜单</button>
-                <button class="icon-btn">📷</button>
-                <button class="icon-btn">⬆</button>
-                <button class="icon-btn">⚙</button>
-                <div class="user-info">
-                    <span class="user-avatar">👤</span>
-                    <span class="user-name">XXX</span>
-                    <span class="system-name">系统</span>
-                </div>
-            </div>
+            <button class="nav-btn" onclick="goBack()">
+                < 首页</button>
+                    <div class="page-title">采销合同 <span class="close-btn" onclick="goBack()">×</span></div>
+                    <div class="nav-right">
+                        <button class="search-btn">🔍 Ctrl+K 搜索菜单</button>
+                        <button class="icon-btn">📷</button>
+                        <button class="icon-btn">⬆</button>
+                        <button class="icon-btn">⚙</button>
+                        <div class="user-info">
+                            <span class="user-avatar">👤</span>
+                            <span class="user-name">XXX</span>
+                            <span class="system-name">系统</span>
+                        </div>
+                    </div>
         </div>
 
-        <!-- 警告提示 -->
-        <div class="warning-banner">
-            参考仓库系统-ERP管理-采购合同列表页面，签署完成时支持上传发票。
-        </div>
 
         <!-- 标签页导航 -->
         <div class="tabs-navigation">
@@ -131,7 +130,8 @@
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th><input type="checkbox" id="checkAllContracts" onchange="toggleSelectAllContracts(this)"></th>
+                        <th><input type="checkbox" id="checkAllContracts" onchange="toggleSelectAllContracts(this)">
+                        </th>
                         <th>合同编号</th>
                         <th>签署链接</th>
                         <th>状态</th>
@@ -171,5 +171,5 @@
 
     <script src="../js/purchase-contract.js"></script>
 </body>
-</html>
 
+</html>
