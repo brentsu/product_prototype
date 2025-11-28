@@ -94,11 +94,26 @@
                 </div>
             </div>
 
-            <!-- 完整映射表 -->
+            <!-- 多维度视图切换 -->
             <div class="invoice-section">
-                <div class="invoice-section-header">
-                    <div class="section-title">完整映射关系表</div>
+                <div class="tabs-navigation">
+                    <div class="tab-item active" data-view="all" onclick="switchView('all')">
+                        完整映射表
+                    </div>
+                    <div class="tab-item" data-view="declaration" onclick="switchView('declaration')">
+                        📋 按报关单维度
+                    </div>
+                    <div class="tab-item" data-view="sku" onclick="switchView('sku')">
+                        📦 按SKU明细维度
+                    </div>
+                    <div class="tab-item" data-view="contract" onclick="switchView('contract')">
+                        📄 按合同维度
+                    </div>
                 </div>
+            </div>
+
+            <!-- 视图1: 完整映射表 -->
+            <div class="invoice-section view-content" id="view-all">
 
                 <div class="table-container">
                     <table class="data-table mapping-table">
@@ -133,10 +148,10 @@
                 </div>
             </div>
 
-            <!-- 按报关单分组视图 -->
-            <div class="invoice-section">
-                <div class="invoice-section-header">
-                    <div class="section-title">按报关单分组查看</div>
+            <!-- 视图2: 按报关单维度 -->
+            <div class="invoice-section view-content" id="view-declaration" style="display: none;">
+                <div class="info-box info-warning" style="margin-bottom: 20px;">
+                    <strong>📋 报关单维度说明：</strong>展示每个报关单的详细匹配情况，包括已匹配和未匹配的SKU
                 </div>
 
                 <div id="declarationGroupContainer">
@@ -144,10 +159,41 @@
                 </div>
             </div>
 
-            <!-- 按合同分组视图 -->
-            <div class="invoice-section">
-                <div class="invoice-section-header">
-                    <div class="section-title">按合同分组查看</div>
+            <!-- 视图3: 按SKU明细维度 -->
+            <div class="invoice-section view-content" id="view-sku" style="display: none;">
+                <div class="info-box info-success" style="margin-bottom: 20px;">
+                    <strong>📦 SKU明细维度说明：</strong>展示每个采销SKU明细的报关使用情况
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>SKU明细ID</th>
+                                <th>SKU编号</th>
+                                <th>合同编号</th>
+                                <th>合同项号</th>
+                                <th>供应商</th>
+                                <th>合同数量</th>
+                                <th>可用数量</th>
+                                <th>已报关数量</th>
+                                <th>剩余可用</th>
+                                <th>关联报关单</th>
+                                <th>关联发票</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="skuGroupBody">
+                            <!-- 数据将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 视图4: 按合同维度 -->
+            <div class="invoice-section view-content" id="view-contract" style="display: none;">
+                <div class="info-box info-primary" style="margin-bottom: 20px;">
+                    <strong>📄 合同维度说明：</strong>展示每个合同下的所有SKU报关情况
                 </div>
 
                 <div class="table-container">
