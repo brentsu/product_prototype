@@ -119,9 +119,9 @@
                                 <th>匹配状态</th>
                                 <th>匹配到的SKU明细ID</th>
                                 <th>合同编号</th>
+                                <th>合同项号</th>
+                                <th>关联发票</th>
                                 <th>供应商</th>
-                                <th>可用数量</th>
-                                <th>匹配数量</th>
                                 <th>操作</th>
                             </tr>
                         </thead>
@@ -153,7 +153,7 @@
                             <ul style="line-height: 2; margin: 0;">
                                 <li><strong>SKU精确匹配：</strong>根据SKU编号精确匹配采销明细</li>
                                 <li><strong>可用数量检查：</strong>确保采销明细有足够的可用数量</li>
-                                <li><strong>FIFO原则：</strong>优先匹配最早的采购明细（先进后出）</li>
+                                <li><strong>LIFO原则：</strong>优先匹配最新的采购明细（后进先出）</li>
                                 <li><strong>合同状态：</strong>只匹配签署完成的合同对应的明细</li>
                                 <li><strong>数量扣减：</strong>匹配成功后，从"报关可用数量"中扣减</li>
                             </ul>
@@ -245,14 +245,14 @@
                     <p><strong>案例1: 多明细匹配（LC788786-P3010-XL 出库 120件）</strong></p>
                     <div style="margin: 10px 0 0 20px; line-height: 1.8;">
                         <p><strong>场景：</strong>报关单需要出库 120 件，但单个采销SKU明细只有 100 件</p>
-                        <p><strong>解决方案：</strong></p>
+                        <p><strong>解决方案（LIFO - 后进先出）：</strong></p>
                         <ul style="margin: 5px 0 0 20px;">
-                            <li>✅ 从 SKU001（合同HT202511210001）匹配 100 件</li>
-                            <li>✅ 从 SKU003（合同HT202511210002）匹配 20 件</li>
-                            <li>✅ 总计匹配 120 件，状态：<span style="color: #52c41a; font-weight: bold;">完全匹配</span></li>
+                            <li>📤 从 SKU003（合同HT202511210002-项1，发票25352001，最新）出库 100 件</li>
+                            <li>📤 从 SKU001（合同HT202511210001-项1，发票25352000，较早）出库 20 件</li>
+                            <li>✅ 总计出库 120 件，状态：<span style="color: #52c41a; font-weight: bold;">完全匹配</span></li>
                         </ul>
                         <p style="margin-top: 10px; color: #1890ff;">
-                            <strong>💡 关键点：</strong>系统自动从多个采销明细中按顺序匹配，无需手动干预
+                            <strong>💡 关键点：</strong>采用LIFO策略，优先使用最新的采购明细，系统自动匹配出库并关联合同项号和发票，无需手动干预
                         </p>
                     </div>
                 </div>
@@ -263,10 +263,10 @@
                         <p><strong>场景：</strong>报关单需要出库 100 件，但采销明细中有 20 件退货，实际可用只有 80 件</p>
                         <p><strong>详细情况：</strong></p>
                         <ul style="margin: 5px 0 0 20px;">
-                            <li>📦 SKU002 合同数量：100 件</li>
+                            <li>📦 SKU002（合同HT202511210001-项2，发票25352000）合同数量：100 件</li>
                             <li>↩️ 已退货数量：20 件</li>
                             <li>✅ 报关可用数量：80 件</li>
-                            <li>⚠️ 实际匹配：80 件（还缺 20 件）</li>
+                            <li>📤 实际匹配出库：80 件（还缺 20 件）</li>
                             <li>📊 匹配状态：<span style="color: #fa8c16; font-weight: bold;">部分匹配</span></li>
                         </ul>
                         <p style="margin-top: 10px; color: #fa8c16;">
@@ -308,7 +308,7 @@
                         <div class="exception-title">🔄 部分匹配</div>
                         <div class="exception-desc">
                             <strong>原因：</strong>单个采销明细数量不足，需要匹配多条记录<br>
-                            <strong>处理：</strong>系统自动按FIFO原则匹配多条采销明细记录
+                            <strong>处理：</strong>系统自动按LIFO原则（后进先出）匹配多条采销明细记录
                         </div>
                     </div>
                 </div>

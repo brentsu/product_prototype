@@ -1,35 +1,62 @@
 // 完整映射关系数据
 const mappingData = [
+    // 报关项1：女士外套 - LC788786-P3010-XL (120件，LIFO多明细匹配)
     {
         declarationNo: 'FBA194287Y1B',
         gNo: 1,
         declareName: '女士外套',
         declareSku: 'LC788786-P3010-XL',
-        declareQty: 3,
-        skuDetailId: 'SKU001',
+        declareQty: 120,
+        skuDetailId: 'SKU003',
+        contractItemNo: '1',
         availableQty: 100,
-        matchQty: 3,
-        contractNo: 'HT202511210001',
+        matchQty: 100,
+        contractNo: 'HT202511210002',
         supplier: '广州XX服饰有限公司',
         contractAmount: '¥15,060',
-        invoiceNo: '25352000',
-        invoiceAmount: '¥15,060'
+        invoiceNo: '25352001',
+        invoiceAmount: '¥15,060',
+        matchStatus: '完全匹配',
+        isMultiMatch: true
     },
     {
         declarationNo: 'FBA194287Y1B',
         gNo: 1,
         declareName: '女士外套',
-        declareSku: 'LC788786-P3010-2XL',
-        declareQty: 3,
-        skuDetailId: 'SKU002',
-        availableQty: 80,
-        matchQty: 3,
+        declareSku: 'LC788786-P3010-XL',
+        declareQty: 120,
+        skuDetailId: 'SKU001',
+        contractItemNo: '1',
+        availableQty: 100,
+        matchQty: 20,
         contractNo: 'HT202511210001',
         supplier: '广州XX服饰有限公司',
         contractAmount: '¥15,060',
         invoiceNo: '25352000',
-        invoiceAmount: '¥15,060'
+        invoiceAmount: '¥15,060',
+        matchStatus: '完全匹配',
+        isMultiMatch: true
     },
+    // 报关项1：女士外套 - LC788786-P3010-2XL (100件，部分匹配80件)
+    {
+        declarationNo: 'FBA194287Y1B',
+        gNo: 1,
+        declareName: '女士外套',
+        declareSku: 'LC788786-P3010-2XL',
+        declareQty: 100,
+        skuDetailId: 'SKU002',
+        contractItemNo: '2',
+        availableQty: 80,
+        matchQty: 80,
+        contractNo: 'HT202511210001',
+        supplier: '广州XX服饰有限公司',
+        contractAmount: '¥15,060',
+        invoiceNo: '25352000',
+        invoiceAmount: '¥15,060',
+        matchStatus: '部分匹配',
+        isMultiMatch: false
+    },
+    // 报关项1：女士外套 - LC788786-P3010-S (1件)
     {
         declarationNo: 'FBA194287Y1B',
         gNo: 1,
@@ -37,14 +64,18 @@ const mappingData = [
         declareSku: 'LC788786-P3010-S',
         declareQty: 1,
         skuDetailId: 'SKU004',
+        contractItemNo: '2',
         availableQty: 100,
         matchQty: 1,
         contractNo: 'HT202511210002',
         supplier: '广州XX服饰有限公司',
         contractAmount: '¥15,060',
         invoiceNo: '25352001',
-        invoiceAmount: '¥15,060'
+        invoiceAmount: '¥15,060',
+        matchStatus: '完全匹配',
+        isMultiMatch: false
     },
+    // 报关项2：裤装套装 - LC628573-P105-M (14件)
     {
         declarationNo: 'FBA194287Y1B',
         gNo: 2,
@@ -52,28 +83,16 @@ const mappingData = [
         declareSku: 'LC628573-P105-M',
         declareQty: 14,
         skuDetailId: 'SKU005',
+        contractItemNo: '1',
         availableQty: 100,
         matchQty: 14,
         contractNo: 'HT202511210003',
         supplier: '深圳YY制衣厂',
         contractAmount: '¥8,900',
         invoiceNo: '25352002',
-        invoiceAmount: '¥8,900'
-    },
-    {
-        declarationNo: 'FBA195328Z2C',
-        gNo: 1,
-        declareName: '男士T恤',
-        declareSku: 'MC25002-P2-L',
-        declareQty: 10,
-        skuDetailId: 'SKU006',
-        availableQty: 100,
-        matchQty: 10,
-        contractNo: 'HT202511210004',
-        supplier: '东莞ZZ服装厂',
-        contractAmount: '¥3,270',
-        invoiceNo: '',
-        invoiceAmount: ''
+        invoiceAmount: '¥8,900',
+        matchStatus: '完全匹配',
+        isMultiMatch: false
     }
 ];
 
@@ -94,9 +113,24 @@ function renderMappingTable() {
     mappingData.forEach((item, index) => {
         const row = document.createElement('tr');
         
-        // 交替背景色
-        if (index % 2 === 0) {
-            row.style.backgroundColor = '#fafafa';
+        // 根据匹配状态设置背景色
+        let rowBgColor = '#fafafa';
+        if (item.matchStatus === '完全匹配') {
+            rowBgColor = '#f6ffed';
+        } else if (item.matchStatus === '部分匹配') {
+            rowBgColor = '#fff7e6';
+        }
+        row.style.backgroundColor = rowBgColor;
+        
+        // 多明细匹配标识
+        if (item.isMultiMatch && index > 0 && mappingData[index-1].declareSku === item.declareSku) {
+            row.style.borderLeft = '3px solid #1890ff';
+        }
+        
+        // 状态徽章样式
+        let statusClass = 'status-completed';
+        if (item.matchStatus === '部分匹配') {
+            statusClass = 'status-pending';
         }
         
         row.innerHTML = `
@@ -105,16 +139,21 @@ function renderMappingTable() {
             <td>${item.declareName}</td>
             <td><strong>${item.declareSku}</strong></td>
             <td>${item.declareQty}</td>
+            <td>
+                <span class="status-badge ${statusClass}">${item.matchStatus}</span>
+                ${item.isMultiMatch ? '<br><small style="color: #1890ff;">多明细</small>' : ''}
+            </td>
             <td style="background-color: #fffaec;">${item.skuDetailId}</td>
             <td style="background-color: #fffaec;">${item.availableQty}</td>
             <td style="background-color: #fffaec;" class="amount-highlight">${item.matchQty}</td>
             <td style="background-color: #e6f4ff;">
                 <a href="#" class="action-link" onclick="viewContract('${item.contractNo}')">${item.contractNo}</a>
             </td>
+            <td style="background-color: #e6f4ff;">${item.contractItemNo}</td>
             <td style="background-color: #e6f4ff;">${item.supplier}</td>
             <td style="background-color: #e6f4ff;">${item.contractAmount}</td>
             <td style="background-color: #f0ffe6;">
-                ${item.invoiceNo !== '-' ? 
+                ${item.invoiceNo ? 
                     `<a href="#" class="action-link" onclick="viewInvoice('${item.invoiceNo}')">${item.invoiceNo}</a>` : 
                     '<span style="color: #999;">未关联</span>'}
             </td>
@@ -143,7 +182,14 @@ function renderDeclarationGroups() {
     
     Object.keys(grouped).forEach(declarationNo => {
         const items = grouped[declarationNo];
-        const totalQty = items.reduce((sum, item) => sum + item.declareQty, 0);
+        // 计算总数量：对于相同SKU，只计算一次报关数量（避免多明细重复计算）
+        const skuQtyMap = {};
+        items.forEach(item => {
+            if (!skuQtyMap[item.declareSku]) {
+                skuQtyMap[item.declareSku] = item.declareQty;
+            }
+        });
+        const totalQty = Object.values(skuQtyMap).reduce((sum, qty) => sum + qty, 0);
         const uniqueContracts = [...new Set(items.map(item => item.contractNo))];
         const uniqueSuppliers = [...new Set(items.map(item => item.supplier))];
         
@@ -177,9 +223,11 @@ function renderDeclarationGroups() {
                             <th>项号</th>
                             <th>报关品名</th>
                             <th>SKU</th>
-                            <th>数量</th>
+                            <th>报关数量</th>
+                            <th>匹配数量</th>
                             <th>明细ID</th>
                             <th>合同</th>
+                            <th>合同项号</th>
                             <th>发票</th>
                         </tr>
                     </thead>
@@ -190,9 +238,11 @@ function renderDeclarationGroups() {
                                 <td>${item.declareName}</td>
                                 <td><strong>${item.declareSku}</strong></td>
                                 <td>${item.declareQty}</td>
+                                <td class="amount-highlight">${item.matchQty}</td>
                                 <td>${item.skuDetailId}</td>
                                 <td><a href="#" class="action-link" onclick="viewContract('${item.contractNo}')">${item.contractNo}</a></td>
-                                <td>${item.invoiceNo !== '-' ? 
+                                <td>${item.contractItemNo}</td>
+                                <td>${item.invoiceNo ? 
                                     `<a href="#" class="action-link" onclick="viewInvoice('${item.invoiceNo}')">${item.invoiceNo}</a>` : 
                                     '<span style="color: #999;">-</span>'}</td>
                             </tr>
@@ -222,15 +272,18 @@ function renderContractGroups() {
                 invoices: new Set(),
                 skus: new Set(),
                 declarations: new Set(),
-                totalQty: 0
+                skuQtyMap: {}
             };
         }
         grouped[item.contractNo].skus.add(item.declareSku);
         grouped[item.contractNo].declarations.add(item.declarationNo);
-        if (item.invoiceNo !== '-') {
+        if (item.invoiceNo && item.invoiceNo !== '-') {
             grouped[item.contractNo].invoices.add(item.invoiceNo);
         }
-        grouped[item.contractNo].totalQty += item.declareQty;
+        // 避免相同SKU重复计算报关数量
+        if (!grouped[item.contractNo].skuQtyMap[item.declareSku]) {
+            grouped[item.contractNo].skuQtyMap[item.declareSku] = item.declareQty;
+        }
     });
     
     tbody.innerHTML = '';
@@ -244,6 +297,9 @@ function renderContractGroups() {
             ).join(', ') :
             '<span style="color: #999;">未关联</span>';
         
+        // 计算总数量
+        const totalQty = Object.values(group.skuQtyMap).reduce((sum, qty) => sum + qty, 0);
+        
         row.innerHTML = `
             <td><a href="#" class="action-link" onclick="viewContract('${group.contractNo}')">${group.contractNo}</a></td>
             <td>${group.supplier}</td>
@@ -251,7 +307,7 @@ function renderContractGroups() {
             <td>${invoiceDisplay}</td>
             <td><strong>${group.skus.size}</strong> 个</td>
             <td><strong>${group.declarations.size}</strong> 个</td>
-            <td class="amount-highlight"><strong>${group.totalQty}</strong> 件</td>
+            <td class="amount-highlight"><strong>${totalQty}</strong> 件</td>
             <td>
                 <button class="btn btn-sm" onclick="viewContractDetail('${group.contractNo}')">查看详情</button>
             </td>

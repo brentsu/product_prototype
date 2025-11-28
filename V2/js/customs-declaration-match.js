@@ -45,6 +45,8 @@ const mockSkuDetails = [
         id: 'SKU001',
         sku: 'LC788786-P3010-XL',
         contractNo: 'HT202511210001',
+        contractItemNo: '1',
+        invoiceNo: '25352000',
         supplier: '广州XX服饰有限公司',
         quantity: 100,
         returnQty: 0,
@@ -55,6 +57,8 @@ const mockSkuDetails = [
         id: 'SKU002',
         sku: 'LC788786-P3010-2XL',
         contractNo: 'HT202511210001',
+        contractItemNo: '2',
+        invoiceNo: '25352000',
         supplier: '广州XX服饰有限公司',
         quantity: 100,
         returnQty: 20,
@@ -65,6 +69,8 @@ const mockSkuDetails = [
         id: 'SKU003',
         sku: 'LC788786-P3010-XL',
         contractNo: 'HT202511210002',
+        contractItemNo: '1',
+        invoiceNo: '25352001',
         supplier: '广州XX服饰有限公司',
         quantity: 100,
         returnQty: 0,
@@ -75,6 +81,8 @@ const mockSkuDetails = [
         id: 'SKU004',
         sku: 'LC788786-P3010-S',
         contractNo: 'HT202511210002',
+        contractItemNo: '2',
+        invoiceNo: '25352001',
         supplier: '广州XX服饰有限公司',
         quantity: 100,
         returnQty: 0,
@@ -85,6 +93,8 @@ const mockSkuDetails = [
         id: 'SKU005',
         sku: 'LC628573-P105-M',
         contractNo: 'HT202511210003',
+        contractItemNo: '1',
+        invoiceNo: '25352002',
         supplier: '深圳YY制衣厂',
         quantity: 100,
         returnQty: 0,
@@ -158,11 +168,12 @@ function performAutoMatch() {
         item.skus.forEach(declareSku => {
             // 查找所有符合条件的采销SKU明细
             // 匹配规则：1. SKU相同 2. 合同状态为"签署完成" 3. 可用数量 > 0
+            // 匹配策略：LIFO（Last In First Out）后进先出，优先使用最新的明细
             const matchableDetails = mockSkuDetails.filter(detail => 
                 detail.sku === declareSku.sku && 
                 detail.contractStatus === '签署完成' &&
                 detail.availableQty > 0
-            );
+            ).reverse(); // LIFO: 反转数组，从最新的明细开始匹配
             
             if (matchableDetails.length === 0) {
                 // 无可匹配明细
@@ -173,6 +184,8 @@ function performAutoMatch() {
                     matchStatus: '匹配失败',
                     matchedDetailId: '-',
                     contractNo: '-',
+                    contractItemNo: '-',
+                    invoiceNo: '-',
                     supplier: '-',
                     availableQty: 0,
                     matchQty: 0,
@@ -192,6 +205,8 @@ function performAutoMatch() {
                     matchedDetailsList.push({
                         detailId: detail.id,
                         contractNo: detail.contractNo,
+                        contractItemNo: detail.contractItemNo,
+                        invoiceNo: detail.invoiceNo,
                         availableQty: detail.availableQty,
                         matchQty: matchQty,
                         supplier: detail.supplier
@@ -211,6 +226,8 @@ function performAutoMatch() {
                         matchStatus: idx === 0 ? matchStatus : '',  // 只在第一行显示状态
                         matchedDetailId: matched.detailId,
                         contractNo: matched.contractNo,
+                        contractItemNo: matched.contractItemNo,
+                        invoiceNo: matched.invoiceNo,
                         supplier: matched.supplier,
                         availableQty: matched.availableQty,
                         matchQty: matched.matchQty,
@@ -243,7 +260,7 @@ function getFailReason(sku, qty) {
     }
     
     if (detail.availableQty < qty) {
-        return `可用数量不足（可用: ${detail.availableQty}，需要: ${qty}）`;
+        return `数量不足（明细可用: ${detail.availableQty}，报关需要: ${qty}）`;
     }
     
     return '未知原因';
@@ -306,9 +323,13 @@ function renderMatchResults() {
                     `<a href="#" class="action-link" onclick="viewContract('${result.contractNo}')">${result.contractNo}</a>` : 
                     '-'}
             </td>
+            <td>${result.contractItemNo || '-'}</td>
+            <td>
+                ${result.invoiceNo ? 
+                    `<a href="#" class="action-link" onclick="viewInvoice('${result.invoiceNo}')">${result.invoiceNo}</a>` : 
+                    '-'}
+            </td>
             <td>${result.supplier}</td>
-            <td>${result.availableQty || 0}</td>
-            <td class="amount-highlight"><strong>${result.matchQty}</strong></td>
             <td>
                 ${result.multiMatchIndex === 0 || !result.isMultiMatch ? `
                     <button class="btn btn-sm" onclick="viewMatchDetail(${index})">详情</button>
@@ -392,6 +413,13 @@ function viewContract(contractNo) {
     return false;
 }
 
+// 查看发票
+function viewInvoice(invoiceNo) {
+    console.log('查看发票:', invoiceNo);
+    alert(`查看发票详情：${invoiceNo}`);
+    return false;
+}
+
 // 查看匹配详情
 function viewMatchDetail(index) {
     const result = matchResults[index];
@@ -401,12 +429,18 @@ function viewMatchDetail(index) {
     message += `报关数量: ${result.declareQty}\n`;
     message += `匹配状态: ${result.matchStatus}\n\n`;
     
-    if (result.matchStatus === '匹配成功') {
+    if (result.matchStatus === '完全匹配' || result.matchStatus === '部分匹配') {
         message += `匹配的SKU明细ID: ${result.matchedDetailId}\n`;
         message += `合同编号: ${result.contractNo}\n`;
-        message += `供应商: ${result.supplier}\n`;
-        message += `可用数量: ${result.availableQty}\n`;
-        message += `匹配数量: ${result.matchQty}`;
+        message += `合同项号: ${result.contractItemNo || '-'}\n`;
+        message += `关联发票: ${result.invoiceNo || '-'}\n`;
+        message += `供应商: ${result.supplier}`;
+        if (result.isMultiMatch && result.multiMatchIndex === 0) {
+            message += `\n从${result.multiMatchTotal}个明细中匹配`;
+        }
+        if (result.failReason) {
+            message += `\n\n${result.failReason}`;
+        }
     } else {
         message += `失败原因: ${result.failReason}`;
     }
