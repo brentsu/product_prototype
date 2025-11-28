@@ -11,9 +11,9 @@ const mappingData = [
         matchQty: 3,
         contractNo: 'HT202511210001',
         supplier: '广州XX服饰有限公司',
-        contractAmount: '¥226,000',
+        contractAmount: '¥15,060',
         invoiceNo: '25352000',
-        invoiceAmount: '¥226,000'
+        invoiceAmount: '¥15,060'
     },
     {
         declarationNo: 'FBA194287Y1B',
@@ -26,9 +26,9 @@ const mappingData = [
         matchQty: 3,
         contractNo: 'HT202511210001',
         supplier: '广州XX服饰有限公司',
-        contractAmount: '¥226,000',
+        contractAmount: '¥15,060',
         invoiceNo: '25352000',
-        invoiceAmount: '¥226,000'
+        invoiceAmount: '¥15,060'
     },
     {
         declarationNo: 'FBA194287Y1B',
@@ -36,14 +36,14 @@ const mappingData = [
         declareName: '女士外套',
         declareSku: 'LC788786-P3010-S',
         declareQty: 1,
-        skuDetailId: 'SKU003',
+        skuDetailId: 'SKU004',
         availableQty: 100,
         matchQty: 1,
         contractNo: 'HT202511210002',
         supplier: '广州XX服饰有限公司',
-        contractAmount: '¥124,300',
+        contractAmount: '¥15,060',
         invoiceNo: '25352001',
-        invoiceAmount: '¥226,000'
+        invoiceAmount: '¥15,060'
     },
     {
         declarationNo: 'FBA194287Y1B',
@@ -51,14 +51,14 @@ const mappingData = [
         declareName: '裤装套装',
         declareSku: 'LC628573-P105-M',
         declareQty: 14,
-        skuDetailId: 'SKU004',
-        availableQty: 500,
+        skuDetailId: 'SKU005',
+        availableQty: 100,
         matchQty: 14,
         contractNo: 'HT202511210003',
         supplier: '深圳YY制衣厂',
-        contractAmount: '¥101,700',
-        invoiceNo: '25352001',
-        invoiceAmount: '¥226,000'
+        contractAmount: '¥8,900',
+        invoiceNo: '25352002',
+        invoiceAmount: '¥8,900'
     },
     {
         declarationNo: 'FBA195328Z2C',
@@ -66,59 +66,14 @@ const mappingData = [
         declareName: '男士T恤',
         declareSku: 'MC25002-P2-L',
         declareQty: 10,
-        skuDetailId: 'SKU005',
+        skuDetailId: 'SKU006',
         availableQty: 100,
         matchQty: 10,
         contractNo: 'HT202511210004',
         supplier: '东莞ZZ服装厂',
-        contractAmount: '¥153,680',
-        invoiceNo: '25352002',
-        invoiceAmount: '¥76,840'
-    },
-    {
-        declarationNo: 'FBA195328Z2C',
-        gNo: 2,
-        declareName: '女士连衣裙',
-        declareSku: 'LC25003-P1-S',
-        declareQty: 5,
-        skuDetailId: 'SKU006',
-        availableQty: 10,
-        matchQty: 5,
-        contractNo: 'HT202511210005',
-        supplier: '广州XX服饰有限公司',
-        contractAmount: '¥1,090',
-        invoiceNo: '-',
-        invoiceAmount: '-'
-    },
-    {
-        declarationNo: 'FBA196439A3D',
-        gNo: 1,
-        declareName: '女士套头衫',
-        declareSku: 'LC25004-P1-L',
-        declareQty: 8,
-        skuDetailId: 'SKU007',
-        availableQty: 10,
-        matchQty: 8,
-        contractNo: 'HT202511210005',
-        supplier: '广州XX服饰有限公司',
-        contractAmount: '¥1,090',
-        invoiceNo: '-',
-        invoiceAmount: '-'
-    },
-    {
-        declarationNo: 'FBA196439A3D',
-        gNo: 2,
-        declareName: '男士衬衫',
-        declareSku: 'MC25005-P2-XL',
-        declareQty: 12,
-        skuDetailId: 'SKU008',
-        availableQty: 50,
-        matchQty: 12,
-        contractNo: 'HT202511210004',
-        supplier: '东莞ZZ服装厂',
-        contractAmount: '¥153,680',
-        invoiceNo: '25352002',
-        invoiceAmount: '¥76,840'
+        contractAmount: '¥3,270',
+        invoiceNo: '',
+        invoiceAmount: ''
     }
 ];
 

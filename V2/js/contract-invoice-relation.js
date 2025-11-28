@@ -4,43 +4,43 @@ const mockRelationData = [
         id: 1,
         relationType: '一对一',
         contractNo: 'HT202511210001',
-        contractAmount: '¥226,000',
+        contractAmount: '¥15,060',
         contractStatus: '签署完成',
         invoiceNo: '25352000',
-        invoiceAmount: '¥226,000',
+        invoiceAmount: '¥15,060',
         invoiceStatus: '已认证',
-        relationTime: '2025-09-05 14:30',
+        relationTime: '2025-11-24 16:00',
         relationUser: '张三',
         remark: '正常一对一关联',
         bgColor: '#f0f8ff'
     },
     {
         id: 2,
-        relationType: '多对一',
+        relationType: '一对一',
         contractNo: 'HT202511210002',
-        contractAmount: '¥124,300',
+        contractAmount: '¥15,060',
         contractStatus: '签署完成',
         invoiceNo: '25352001',
-        invoiceAmount: '¥226,000',
+        invoiceAmount: '¥15,060',
         invoiceStatus: '已认证',
-        relationTime: '2025-11-16 15:20',
+        relationTime: '2025-11-24 17:00',
         relationUser: '张三',
-        remark: '与合同HT202511210003共用发票',
-        bgColor: '#fffacd'
+        remark: '正常一对一关联',
+        bgColor: '#f0f8ff'
     },
     {
         id: 3,
-        relationType: '多对一',
+        relationType: '一对一',
         contractNo: 'HT202511210003',
-        contractAmount: '¥101,700',
+        contractAmount: '¥8,900',
         contractStatus: '签署完成',
-        invoiceNo: '25352001',
-        invoiceAmount: '¥226,000',
+        invoiceNo: '25352002',
+        invoiceAmount: '¥8,900',
         invoiceStatus: '已认证',
-        relationTime: '2025-11-16 15:21',
+        relationTime: '2025-11-25 16:00',
         relationUser: '张三',
-        remark: '与合同HT202511210002共用发票',
-        bgColor: '#fffacd'
+        remark: '正常一对一关联',
+        bgColor: '#f0f8ff'
     }
 ];
 
@@ -48,23 +48,33 @@ const mockRelationData = [
 const mockInvoiceGroupData = [
     {
         invoiceNo: '25352000',
-        invoiceAmount: '¥226,000',
+        invoiceAmount: '¥15,060',
         invoiceStatus: '已认证',
         contractCount: 1,
         contractList: ['HT202511210001'],
-        contractAmountSum: '¥226,000',
+        contractAmountSum: '¥15,060',
         matchStatus: '完全匹配',
         bgColor: '#f0f8ff'
     },
     {
         invoiceNo: '25352001',
-        invoiceAmount: '¥226,000',
+        invoiceAmount: '¥15,060',
         invoiceStatus: '已认证',
-        contractCount: 2,
-        contractList: ['HT202511210002', 'HT202511210003'],
-        contractAmountSum: '¥226,000',
+        contractCount: 1,
+        contractList: ['HT202511210002'],
+        contractAmountSum: '¥15,060',
         matchStatus: '完全匹配',
-        bgColor: '#fffacd'
+        bgColor: '#f0f8ff'
+    },
+    {
+        invoiceNo: '25352002',
+        invoiceAmount: '¥8,900',
+        invoiceStatus: '已认证',
+        contractCount: 1,
+        contractList: ['HT202511210003'],
+        contractAmountSum: '¥8,900',
+        matchStatus: '完全匹配',
+        bgColor: '#f0f8ff'
     }
 ];
 

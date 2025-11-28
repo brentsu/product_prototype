@@ -57,15 +57,15 @@ const mockSkuDetails = [
         sku: 'LC788786-P3010-2XL',
         contractNo: 'HT202511210001',
         supplier: '广州XX服饰有限公司',
-        quantity: 200,
-        deliveredQty: 100,
+        quantity: 100,
+        deliveredQty: 0,
         returnQty: 20,
         availableQty: 80,
         contractStatus: '签署完成'
     },
     {
         id: 'SKU003',
-        sku: 'LC788786-P3010-S',
+        sku: 'LC788786-P3010-XL',
         contractNo: 'HT202511210002',
         supplier: '广州XX服饰有限公司',
         quantity: 100,
@@ -76,13 +76,24 @@ const mockSkuDetails = [
     },
     {
         id: 'SKU004',
+        sku: 'LC788786-P3010-S',
+        contractNo: 'HT202511210002',
+        supplier: '广州XX服饰有限公司',
+        quantity: 100,
+        deliveredQty: 0,
+        returnQty: 0,
+        availableQty: 100,
+        contractStatus: '签署完成'
+    },
+    {
+        id: 'SKU005',
         sku: 'LC628573-P105-M',
         contractNo: 'HT202511210003',
         supplier: '深圳YY制衣厂',
-        quantity: 500,
+        quantity: 100,
         deliveredQty: 0,
         returnQty: 0,
-        availableQty: 500,
+        availableQty: 100,
         contractStatus: '签署完成'
     }
 ];
