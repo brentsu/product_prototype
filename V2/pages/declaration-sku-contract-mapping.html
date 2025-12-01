@@ -90,17 +90,24 @@
                         <span class="menu-arrow">▼</span>
                     </div>
                     <div class="menu-group-content">
-                        <div class="menu-item" onclick="navigateTo('customs-declaration-match.html')"
+                        <div class="menu-item menu-item-helper" onclick="navigateTo('customs-declaration-match.html')"
                             data-page="customs-declaration-match">
-                            <span class="menu-dot">•</span>
+                            <span class="menu-dot">ℹ</span>
                             <span class="menu-text">报关匹配管理</span>
-                            <span class="menu-badge">2</span>
+                            <span class="menu-helper-label">说明</span>
                         </div>
                         <div class="menu-item active" onclick="navigateTo('declaration-sku-contract-mapping.html')"
                             data-page="declaration-sku-contract-mapping">
                             <span class="menu-dot">•</span>
                             <span class="menu-text">三方映射关系</span>
                             <span class="menu-badge">5</span>
+                        </div>
+                        <div class="menu-item menu-item-helper"
+                            onclick="navigateTo('declaration-sku-contract-mapping-helper.html')"
+                            data-page="declaration-sku-contract-mapping-helper">
+                            <span class="menu-dot">ℹ</span>
+                            <span class="menu-text">三方映射关系说明</span>
+                            <span class="menu-helper-label">说明</span>
                         </div>
                     </div>
                 </div>
@@ -123,46 +130,10 @@
                 <div class="page-content">
                     <h2 style="margin-bottom: 20px; padding: 0 20px;">报关-SKU明细-合同 三方映射关系</h2>
 
-                    <!-- 关系说明 -->
-                    <div class="info-box info-primary" style="margin: 0 20px 30px;">
-                        <p style="margin-bottom: 15px;"><strong>📋 三方关系说明：</strong></p>
-                        <div style="background: white; padding: 15px; border-radius: 6px; margin-top: 10px;">
-                            <div class="relationship-diagram">
-                                <div class="rel-box">
-                                    <div class="rel-title">报关单</div>
-                                    <div class="rel-desc">declare_document_no</div>
-                                </div>
-                                <div class="rel-arrow">↓ 包含</div>
-                                <div class="rel-box">
-                                    <div class="rel-title">报关项 + SKU</div>
-                                    <div class="rel-desc">aggregated_item + sku</div>
-                                </div>
-                                <div class="rel-arrow">↓ 匹配</div>
-                                <div class="rel-box">
-                                    <div class="rel-title">采销SKU明细</div>
-                                    <div class="rel-desc">SKU明细ID + 可用数量</div>
-                                </div>
-                                <div class="rel-arrow">↓ 关联</div>
-                                <div class="rel-box">
-                                    <div class="rel-title">采购合同</div>
-                                    <div class="rel-desc">合同编号 + 供应商</div>
-                                </div>
-                                <div class="rel-arrow">↓ 关联</div>
-                                <div class="rel-box">
-                                    <div class="rel-title">进项发票</div>
-                                    <div class="rel-desc">发票编号 + 税额</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- 映射关系总览 -->
                     <div class="invoice-section">
                         <div class="invoice-section-header">
                             <div class="section-title">映射关系总览</div>
-                            <div>
-                                <button class="btn btn-success" onclick="exportMappingData()">导出映射数据</button>
-                            </div>
                         </div>
 
                         <div class="mapping-stats">
@@ -197,28 +168,55 @@
                         </div>
                     </div>
 
-                    <!-- 多维度视图切换 -->
-                    <div class="invoice-section">
-                        <div class="tabs-navigation">
-                            <div class="tab-item active" data-view="all" onclick="switchView('all')">
-                                完整映射表
+                    <!-- 筛选区域 -->
+                    <div class="filter-section">
+                        <div class="filter-row">
+                            <div class="filter-item">
+                                <label>报关单号</label>
+                                <input type="text" placeholder="请输入报关单号" class="filter-input" id="filterDeclareNo">
                             </div>
-                            <div class="tab-item" data-view="declaration" onclick="switchView('declaration')">
-                                📋 按报关单维度
+                            <div class="filter-item">
+                                <label>匹配状态</label>
+                                <select class="filter-select" id="filterMatchStatus">
+                                    <option value="">全部</option>
+                                    <option value="完全匹配">完全匹配</option>
+                                    <option value="部分匹配">部分匹配</option>
+                                    <option value="未匹配">未匹配</option>
+                                </select>
                             </div>
-                            <div class="tab-item" data-view="sku" onclick="switchView('sku')">
-                                📦 按SKU明细维度
+                            <div class="filter-item">
+                                <label>合同编号</label>
+                                <input type="text" placeholder="请输入合同编号" class="filter-input" id="filterContractNo">
                             </div>
-                            <div class="tab-item" data-view="contract" onclick="switchView('contract')">
-                                📄 按合同维度
+                            <div class="filter-item">
+                                <label>发票编号</label>
+                                <input type="text" placeholder="请输入发票编号" class="filter-input" id="filterInvoiceNo">
                             </div>
-                            <div class="tab-item" data-view="invoice" onclick="switchView('invoice')">
-                                🧾 按发票维度
+                            <div class="filter-item">
+                                <label>匹配日期</label>
+                                <input type="text" placeholder="开始日期 至 结束日期" class="filter-input date-input"
+                                    id="filterMatchDate">
+                            </div>
+                            <div class="filter-actions">
+                                <button class="btn btn-primary" onclick="queryData()">查询</button>
+                                <button class="btn btn-default" onclick="resetFilter()">重置</button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 视图1: 完整映射表 -->
+                    <!-- 操作按钮区域 -->
+                    <div class="action-section">
+                        <div class="action-buttons">
+                            <button class="btn btn-action" onclick="exportData()">
+                                📥 导出数据
+                            </button>
+                            <button class="btn btn-action" onclick="exportExcel()">
+                                📊 导出Excel
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 完整映射表 -->
                     <div class="invoice-section view-content" id="view-all">
 
                         <div class="table-container">
@@ -251,268 +249,6 @@
                                     <!-- 数据将通过JavaScript动态生成 -->
                                 </tbody>
                             </table>
-                        </div>
-                    </div>
-
-                    <!-- 视图2: 按报关单维度 -->
-                    <div class="invoice-section view-content" id="view-declaration" style="display: none;">
-                        <div class="info-box info-warning" style="margin-bottom: 20px;">
-                            <strong>📋 报关单维度说明：</strong>展示每个报关单的详细匹配情况，包括完全匹配、部分匹配和未匹配的SKU
-                            <ul style="margin: 10px 0 0 25px; line-height: 1.8;">
-                                <li><span style="background-color: #f6ffed; padding: 2px 8px; border-radius: 3px;">✅
-                                        绿色背景 -
-                                        完全匹配</span>：报关数量全部匹配成功</li>
-                                <li><span style="background-color: #fff7e6; padding: 2px 8px; border-radius: 3px;">⚠️
-                                        橙色背景 -
-                                        部分匹配</span>：报关数量大于可用数量，仅匹配部分（如有退货导致可用数量不足）</li>
-                                <li><span style="background-color: #fff1f0; padding: 2px 8px; border-radius: 3px;">❌
-                                        红色背景 -
-                                        未匹配</span>：SKU未找到对应的采销明细（需要补充采购订单）</li>
-                            </ul>
-                        </div>
-
-                        <div class="info-box info-primary" style="margin: 0 0 20px 0;">
-                            <p><strong>💡 未匹配数据示例：</strong></p>
-                            <div style="background: white; padding: 15px; border-radius: 6px; margin-top: 10px;">
-                                <p><strong>场景：</strong>报关单 FBA194287Y1B 中包含 SKU: LC788786-P3010-M（50件）</p>
-                                <p style="margin: 10px 0;"><strong>问题：</strong>该SKU在采销明细中找不到对应记录</p>
-                                <p style="margin: 10px 0;"><strong>可能原因：</strong></p>
-                                <ul style="margin: 5px 0 0 25px; line-height: 1.8;">
-                                    <li>采购订单尚未生成，需要先创建采购单</li>
-                                    <li>合同尚未签署，无法进行报关匹配</li>
-                                    <li>SKU编号有误，需要核对正确的SKU编号</li>
-                                    <li>该SKU属于样品或赠品，无需匹配采购明细</li>
-                                </ul>
-                                <p style="margin: 10px 0 0 0; color: #ff4d4f;"><strong>⚠️
-                                        处理建议：</strong>联系采购部门补充该SKU的采购合同和明细，或核实报关单SKU信息是否准确</p>
-                            </div>
-                        </div>
-
-                        <div id="declarationGroupContainer">
-                            <!-- 分组数据将通过JavaScript动态生成 -->
-                        </div>
-                    </div>
-
-                    <!-- 视图3: 按SKU明细维度 -->
-                    <div class="invoice-section view-content" id="view-sku" style="display: none;">
-                        <div class="info-box info-success" style="margin-bottom: 20px;">
-                            <strong>📦 SKU明细维度说明：</strong>展示每个采销SKU明细的报关使用情况
-                        </div>
-
-                        <div class="table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>SKU明细ID</th>
-                                        <th>SKU编号</th>
-                                        <th>合同编号</th>
-                                        <th>合同项号</th>
-                                        <th>供应商</th>
-                                        <th>合同数量</th>
-                                        <th>可用数量</th>
-                                        <th>已报关数量</th>
-                                        <th>剩余可用</th>
-                                        <th>关联报关单</th>
-                                        <th>关联发票</th>
-                                        <th>操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="skuGroupBody">
-                                    <!-- 数据将通过JavaScript动态生成 -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- 视图4: 按合同维度 -->
-                    <div class="invoice-section view-content" id="view-contract" style="display: none;">
-                        <div class="info-box info-primary" style="margin-bottom: 20px;">
-                            <strong>📄 合同维度说明：</strong>展示每个合同下的所有SKU报关情况
-                        </div>
-
-                        <div class="table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>合同编号</th>
-                                        <th>供应商</th>
-                                        <th>合同金额</th>
-                                        <th>关联发票</th>
-                                        <th>关联SKU数</th>
-                                        <th>报关单数</th>
-                                        <th>已报关数量</th>
-                                        <th>操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="contractGroupBody">
-                                    <!-- 数据将通过JavaScript动态生成 -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- 视图5: 按发票维度 -->
-                    <div class="invoice-section view-content" id="view-invoice" style="display: none;">
-                        <div class="info-box info-success" style="margin-bottom: 20px;">
-                            <strong>🧾 发票维度说明：</strong>展示每张发票关联的合同、SKU明细和报关情况
-                        </div>
-
-                        <div class="table-container">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>发票编号</th>
-                                        <th>发票金额</th>
-                                        <th>发票日期</th>
-                                        <th>供应商</th>
-                                        <th>关联合同</th>
-                                        <th>关联SKU数</th>
-                                        <th>报关单数</th>
-                                        <th>已报关数量</th>
-                                        <th>操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="invoiceGroupBody">
-                                    <!-- 数据将通过JavaScript动态生成 -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- 数据流转示意图 -->
-                    <div class="invoice-section">
-                        <div class="invoice-section-header">
-                            <div class="section-title">数据流转示意图</div>
-                        </div>
-
-                        <div class="flow-diagram">
-                            <div class="flow-stage">
-                                <div class="stage-header">阶段 1：采购</div>
-                                <div class="stage-box">
-                                    <div class="stage-title">📝 签订合同</div>
-                                    <div class="stage-details">
-                                        • 合同编号: HT202511210001<br>
-                                        • 供应商: 广州XX服饰<br>
-                                        • SKU: LC788786-P3010-XL<br>
-                                        • 数量: 100件
-                                    </div>
-                                </div>
-                                <div class="flow-arrow-down">↓</div>
-                                <div class="stage-box">
-                                    <div class="stage-title">🧾 收到发票</div>
-                                    <div class="stage-details">
-                                        • 发票号: 25352000<br>
-                                        • 金额: ¥226,000<br>
-                                        • 关联合同: HT202511210001
-                                    </div>
-                                </div>
-                                <div class="flow-arrow-down">↓</div>
-                                <div class="stage-box">
-                                    <div class="stage-title">📦 生成SKU明细</div>
-                                    <div class="stage-details">
-                                        • 明细ID: SKU001<br>
-                                        • 可用数量: 100件<br>
-                                        • 关联合同: HT202511210001
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="flow-connector">⟹</div>
-
-                            <div class="flow-stage">
-                                <div class="stage-header">阶段 2：出库报关</div>
-                                <div class="stage-box">
-                                    <div class="stage-title">📋 库存出库</div>
-                                    <div class="stage-details">
-                                        • 出库SKU: LC788786-P3010-XL<br>
-                                        • 出库数量: 3件<br>
-                                        • 目的地: 美国FBA
-                                    </div>
-                                </div>
-                                <div class="flow-arrow-down">↓</div>
-                                <div class="stage-box">
-                                    <div class="stage-title">🚢 生成报关单</div>
-                                    <div class="stage-details">
-                                        • 报关单号: FBA194287Y1B<br>
-                                        • 项号: 1<br>
-                                        • SKU: LC788786-P3010-XL<br>
-                                        • 数量: 3件
-                                    </div>
-                                </div>
-                                <div class="flow-arrow-down">↓</div>
-                                <div class="stage-box">
-                                    <div class="stage-title">🔗 匹配SKU明细</div>
-                                    <div class="stage-details">
-                                        • 匹配到: SKU001<br>
-                                        • 扣减数量: 3件<br>
-                                        • 剩余可用: 97件
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="flow-connector">⟹</div>
-
-                            <div class="flow-stage">
-                                <div class="stage-header">阶段 3：追溯</div>
-                                <div class="stage-box">
-                                    <div class="stage-title">🔍 完整追溯链</div>
-                                    <div class="stage-details">
-                                        报关单 FBA194287Y1B<br>
-                                        ↓<br>
-                                        SKU明细 SKU001<br>
-                                        ↓<br>
-                                        合同 HT202511210001<br>
-                                        ↓<br>
-                                        发票 25352000<br>
-                                        ↓<br>
-                                        供应商 广州XX服饰
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="info-box info-success">
-                            <p><strong>💡 核心价值：</strong>通过建立报关-SKU-合同-发票的完整映射关系，可以实现：</p>
-                            <ul style="margin: 10px 0 0 25px; padding: 0; line-height: 1.8;">
-                                <li>快速追溯每批报关货物的采购来源</li>
-                                <li>准确核算报关货物的采购成本</li>
-                                <li>验证报关数量与采购数量的一致性</li>
-                                <li>关联发票信息，用于财务核算和税务申报</li>
-                                <li>支持供应商维度的采购和报关数据分析</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- 查询工具 -->
-                    <div class="invoice-section">
-                        <div class="invoice-section-header">
-                            <div class="section-title">映射关系查询工具</div>
-                        </div>
-
-                        <div class="query-tools">
-                            <div class="query-box">
-                                <h4>根据报关单查询</h4>
-                                <input type="text" class="query-input" id="queryByDeclaration" placeholder="输入报关单号">
-                                <button class="btn btn-primary" onclick="queryByDeclaration()">查询</button>
-                            </div>
-
-                            <div class="query-box">
-                                <h4>根据SKU查询</h4>
-                                <input type="text" class="query-input" id="queryBySku" placeholder="输入SKU编号">
-                                <button class="btn btn-primary" onclick="queryBySku()">查询</button>
-                            </div>
-
-                            <div class="query-box">
-                                <h4>根据合同查询</h4>
-                                <input type="text" class="query-input" id="queryByContract" placeholder="输入合同编号">
-                                <button class="btn btn-primary" onclick="queryByContract()">查询</button>
-                            </div>
-
-                            <div class="query-box">
-                                <h4>根据发票查询</h4>
-                                <input type="text" class="query-input" id="queryByInvoice" placeholder="输入发票编号">
-                                <button class="btn btn-primary" onclick="queryByInvoice()">查询</button>
-                            </div>
                         </div>
                     </div>
                 </div>

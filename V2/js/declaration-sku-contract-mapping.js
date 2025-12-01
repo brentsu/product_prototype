@@ -132,9 +132,25 @@ const mappingData = [
 // 当前视图
 let currentView = 'all';
 
+// 筛选条件
+let filterConditions = {
+    declareNo: '',
+    matchStatus: '',
+    contractNo: '',
+    invoiceNo: '',
+    matchDate: ''
+};
+
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', function () {
-    switchView('all');
+    // 检查是否有TAB导航（辅助说明页面有TAB，原型页面没有）
+    const hasTabs = document.querySelector('.tabs-navigation');
+    if (hasTabs) {
+        switchView('all');
+    } else {
+        // 原型页面直接渲染完整映射表
+        renderMappingTable();
+    }
 });
 
 // 视图切换
@@ -185,7 +201,24 @@ function renderMappingTable() {
 
     tbody.innerHTML = '';
 
-    mappingData.forEach((item, index) => {
+    // 应用筛选条件
+    const filteredData = mappingData.filter(item => {
+        if (filterConditions.declareNo && !item.declarationNo.includes(filterConditions.declareNo)) {
+            return false;
+        }
+        if (filterConditions.matchStatus && item.matchStatus !== filterConditions.matchStatus) {
+            return false;
+        }
+        if (filterConditions.contractNo && !item.contractNo.includes(filterConditions.contractNo)) {
+            return false;
+        }
+        if (filterConditions.invoiceNo && item.invoiceNo && !item.invoiceNo.includes(filterConditions.invoiceNo)) {
+            return false;
+        }
+        return true;
+    });
+
+    filteredData.forEach((item, index) => {
         const row = document.createElement('tr');
 
         // 根据匹配状态设置背景色
@@ -198,7 +231,7 @@ function renderMappingTable() {
         row.style.backgroundColor = rowBgColor;
 
         // 多明细匹配标识
-        if (item.isMultiMatch && index > 0 && mappingData[index - 1].declareSku === item.declareSku) {
+        if (item.isMultiMatch && index > 0 && filteredData[index - 1] && filteredData[index - 1].declareSku === item.declareSku) {
             row.style.borderLeft = '3px solid #1890ff';
         }
 
@@ -605,9 +638,107 @@ function renderInvoiceGroups() {
 }
 
 // 导出映射数据
+// 查询数据
+function queryData() {
+    // 获取筛选条件
+    filterConditions.declareNo = document.getElementById('filterDeclareNo')?.value.trim() || '';
+    filterConditions.matchStatus = document.getElementById('filterMatchStatus')?.value || '';
+    filterConditions.contractNo = document.getElementById('filterContractNo')?.value.trim() || '';
+    filterConditions.invoiceNo = document.getElementById('filterInvoiceNo')?.value.trim() || '';
+    filterConditions.matchDate = document.getElementById('filterMatchDate')?.value.trim() || '';
+
+    // 重新渲染表格
+    renderMappingTable();
+}
+
+// 重置筛选条件
+function resetFilter() {
+    filterConditions = {
+        declareNo: '',
+        matchStatus: '',
+        contractNo: '',
+        invoiceNo: '',
+        matchDate: ''
+    };
+
+    // 清空输入框
+    const filterDeclareNo = document.getElementById('filterDeclareNo');
+    const filterMatchStatus = document.getElementById('filterMatchStatus');
+    const filterContractNo = document.getElementById('filterContractNo');
+    const filterInvoiceNo = document.getElementById('filterInvoiceNo');
+    const filterMatchDate = document.getElementById('filterMatchDate');
+
+    if (filterDeclareNo) filterDeclareNo.value = '';
+    if (filterMatchStatus) filterMatchStatus.value = '';
+    if (filterContractNo) filterContractNo.value = '';
+    if (filterInvoiceNo) filterInvoiceNo.value = '';
+    if (filterMatchDate) filterMatchDate.value = '';
+
+    // 重新渲染表格
+    renderMappingTable();
+}
+
+// 导出数据
+function exportData() {
+    const filteredData = mappingData.filter(item => {
+        if (filterConditions.declareNo && !item.declarationNo.includes(filterConditions.declareNo)) {
+            return false;
+        }
+        if (filterConditions.matchStatus && item.matchStatus !== filterConditions.matchStatus) {
+            return false;
+        }
+        if (filterConditions.contractNo && !item.contractNo.includes(filterConditions.contractNo)) {
+            return false;
+        }
+        if (filterConditions.invoiceNo && item.invoiceNo && !item.invoiceNo.includes(filterConditions.invoiceNo)) {
+            return false;
+        }
+        return true;
+    });
+
+    // 转换为CSV格式
+    const headers = ['报关单号', '报关项号', '报关品名', '报关SKU', '报关数量', '匹配状态', '明细ID', '可用数量', '匹配数量', '合同编号', '合同项号', '供应商', '合同金额', '发票编号', '发票金额'];
+    const rows = filteredData.map(item => [
+        item.declarationNo,
+        item.gNo,
+        item.declareName,
+        item.declareSku,
+        item.declareQty,
+        item.matchStatus,
+        item.skuDetailId,
+        item.availableQty,
+        item.matchQty,
+        item.contractNo,
+        item.contractItemNo,
+        item.supplier,
+        item.contractAmount,
+        item.invoiceNo || '未关联',
+        item.invoiceAmount || ''
+    ]);
+
+    const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `三方映射关系_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    alert(`已导出 ${filteredData.length} 条数据`);
+}
+
+// 导出Excel
+function exportExcel() {
+    // 这里可以调用后端API导出Excel，或者使用前端库如SheetJS
+    alert('Excel导出功能需要后端支持，当前导出为CSV格式');
+    exportData(); // 暂时使用CSV导出
+}
+
 function exportMappingData() {
-    console.log('导出映射数据');
-    alert('正在导出报关-SKU-合同映射数据...');
+    exportData();
 }
 
 // 查询功能

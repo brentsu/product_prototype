@@ -105,10 +105,10 @@ async function initPageLayout() {
                                 <span class="menu-arrow">▼</span>
                             </div>
                             <div class="menu-group-content">
-                                <div class="menu-item" onclick="navigateTo('customs-declaration-match.html')" data-page="customs-declaration-match">
-                                    <span class="menu-dot">•</span>
+                                <div class="menu-item menu-item-helper" onclick="navigateTo('customs-declaration-match.html')" data-page="customs-declaration-match">
+                                    <span class="menu-dot">ℹ</span>
                                     <span class="menu-text">报关匹配管理</span>
-                                    <span class="menu-badge">2</span>
+                                    <span class="menu-helper-label">说明</span>
                                 </div>
                                 <div class="menu-item" onclick="navigateTo('declaration-sku-contract-mapping.html')" data-page="declaration-sku-contract-mapping">
                                     <span class="menu-dot">•</span>
