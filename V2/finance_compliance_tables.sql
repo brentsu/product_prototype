@@ -11,6 +11,7 @@
 -- ==========================================
 CREATE TABLE `purchase_sku_detail` (
   `sku_detail_id` int NOT NULL AUTO_INCREMENT COMMENT 'SKU明细ID',
+  `location` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '地区/租户',
   `sku` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'SKU编码',
   `product_id` int NOT NULL DEFAULT '0' COMMENT '商品ID',
   `spu` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'SPU编码',
@@ -27,33 +28,21 @@ CREATE TABLE `purchase_sku_detail` (
   
   -- 数量相关
   `quantity` int NOT NULL DEFAULT '0' COMMENT '采购数量',
-  `delivered_qty` int NOT NULL DEFAULT '0' COMMENT '已交货数量',
   `return_qty` int NOT NULL DEFAULT '0' COMMENT '退货数量',
-  `available_qty` int NOT NULL DEFAULT '0' COMMENT '报关可用数量(quantity - return_qty - 已报关数量)',
+  `available_qty` int NOT NULL DEFAULT '0' COMMENT '报关可用数量(quantity - return_qty - 已报关数量，通过sku_customs_declare_match表统计)',
   
   -- 价格相关
   `unit_price` decimal(18,4) NOT NULL DEFAULT '0.0000' COMMENT '单价',
   `total_amount` decimal(18,2) NOT NULL DEFAULT '0.00' COMMENT '总金额',
   `currency` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'CNY' COMMENT '币种',
   
-  -- 报关相关属性
-  `hs_code` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '海关编码',
-  `customs_declare_cn` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '报关品名(中文)',
-  `customs_declare_en` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '报关品名(英文)',
-  `spin_type` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '织造方式(针织/梭织)',
-  `fabric_type` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '成分',
-  
-  -- 合同相关
-  `contract_id` int DEFAULT NULL COMMENT '关联合同ID',
-  `contract_no` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '合同编号',
-  `contract_status` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '待生成' COMMENT '合同状态:待生成/签署中/签署完成',
-  
-  -- 发票相关
-  `is_invoiced` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已开票 0-否 1-是',
-  `invoice_no` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联发票号',
-  
   -- 对账单相关
   `statement_id` int DEFAULT NULL COMMENT '关联往来对账单ID',
+  
+  -- 说明: 合同、发票、报关相关信息通过关联表查询获取
+  -- 合同信息: 通过 purchase_contract_item 表关联查询（purchase_contract_item.sku_detail_id）
+  -- 发票信息: 通过 contract_invoice_match 表关联查询  
+  -- 报关信息: 通过 sku_customs_declare_match 表关联查询
   
   -- 业务状态
   `status` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '待处理' COMMENT '明细状态',
@@ -69,16 +58,14 @@ CREATE TABLE `purchase_sku_detail` (
   `version` bigint NOT NULL DEFAULT '0' COMMENT '版本号',
   
   PRIMARY KEY (`sku_detail_id`),
-  UNIQUE KEY `uk_sku_contract` (`sku`, `contract_no`, `is_deleted`),
+  KEY `idx_location` (`location`),
   KEY `idx_sku` (`sku`),
   KEY `idx_product_id` (`product_id`),
   KEY `idx_supplier_code` (`supplier_code`),
-  KEY `idx_contract_id` (`contract_id`),
-  KEY `idx_contract_no` (`contract_no`),
-  KEY `idx_contract_status` (`contract_status`),
   KEY `idx_status` (`status`),
   KEY `idx_is_deleted_create_date` (`is_deleted`, `create_date`),
-  KEY `idx_available_qty` (`available_qty`)
+  KEY `idx_available_qty` (`available_qty`),
+  KEY `idx_location_sku` (`location`, `sku`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采销SKU明细表';
 
 
@@ -88,6 +75,7 @@ CREATE TABLE `purchase_sku_detail` (
 -- ==========================================
 CREATE TABLE `purchase_contract` (
   `contract_id` int NOT NULL AUTO_INCREMENT COMMENT '合同ID',
+  `location` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '地区/租户',
   `contract_no` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同编号',
   
   -- 合同主体信息
@@ -144,7 +132,8 @@ CREATE TABLE `purchase_contract` (
   `version` bigint NOT NULL DEFAULT '0' COMMENT '版本号',
   
   PRIMARY KEY (`contract_id`),
-  UNIQUE KEY `uk_contract_no` (`contract_no`, `is_deleted`),
+  UNIQUE KEY `uk_contract_no` (`location`, `contract_no`, `is_deleted`),
+  KEY `idx_location` (`location`),
   KEY `idx_supplier_code` (`supplier_code`),
   KEY `idx_buyer_company_id` (`buyer_company_id`),
   KEY `idx_status` (`status`),
@@ -161,6 +150,7 @@ CREATE TABLE `purchase_contract` (
 -- ==========================================
 CREATE TABLE `purchase_contract_item` (
   `contract_item_id` int NOT NULL AUTO_INCREMENT COMMENT '合同项ID',
+  `location` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '地区/租户',
   `contract_id` int NOT NULL COMMENT '合同ID',
   `contract_no` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同编号',
   `item_no` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同项号',
@@ -187,6 +177,7 @@ CREATE TABLE `purchase_contract_item` (
   `version` bigint NOT NULL DEFAULT '0' COMMENT '版本号',
   
   PRIMARY KEY (`contract_item_id`),
+  KEY `idx_location` (`location`),
   KEY `idx_contract_id` (`contract_id`),
   KEY `idx_contract_no` (`contract_no`),
   KEY `idx_sku` (`sku`),
@@ -200,6 +191,7 @@ CREATE TABLE `purchase_contract_item` (
 -- ==========================================
 CREATE TABLE `input_invoice` (
   `invoice_id` int NOT NULL AUTO_INCREMENT COMMENT '发票ID',
+  `location` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '地区/租户',
   `invoice_code` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '发票代码',
   `invoice_no` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '发票号码',
   `invoice_type` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '增值税专用发票' COMMENT '发票类型',
@@ -220,9 +212,7 @@ CREATE TABLE `input_invoice` (
   `status` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '待认证' COMMENT '发票状态:待认证/已认证/已作废',
   `certification_status` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '未认证' COMMENT '认证状态',
   
-  -- 关联信息
-  `related_contract_count` int NOT NULL DEFAULT '0' COMMENT '关联合同数量',
-  `related_contracts` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联合同列表(JSON或逗号分隔)',
+  -- 说明: 关联合同信息通过 contract_invoice_match 表关联查询获取
   
   -- 附件
   `attachment_url` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '发票附件URL',
@@ -238,7 +228,8 @@ CREATE TABLE `input_invoice` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已删除 0-否 1-是',
   
   PRIMARY KEY (`invoice_id`),
-  UNIQUE KEY `uk_invoice_code_no` (`invoice_code`, `invoice_no`, `is_deleted`),
+  UNIQUE KEY `uk_invoice_code_no` (`location`, `invoice_code`, `invoice_no`, `is_deleted`),
+  KEY `idx_location` (`location`),
   KEY `idx_invoice_no` (`invoice_no`),
   KEY `idx_seller_tax_no` (`seller_tax_no`),
   KEY `idx_buyer_tax_no` (`buyer_tax_no`),
@@ -249,57 +240,16 @@ CREATE TABLE `input_invoice` (
 
 
 -- ==========================================
--- 5. SKU明细-合同匹配表
--- 说明: 记录SKU明细与合同的关联关系
--- ==========================================
-CREATE TABLE `sku_contract_match` (
-  `match_id` int NOT NULL AUTO_INCREMENT COMMENT '匹配ID',
-  `sku_detail_id` int NOT NULL COMMENT 'SKU明细ID',
-  `contract_id` int NOT NULL COMMENT '合同ID',
-  `contract_no` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同编号',
-  `contract_item_id` int NOT NULL COMMENT '合同项ID',
-  `contract_item_no` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同项号',
-  
-  -- SKU信息
-  `sku` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'SKU编码',
-  
-  -- 匹配数量
-  `matched_quantity` int NOT NULL DEFAULT '0' COMMENT '匹配数量',
-  
-  -- 匹配状态
-  `match_status` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '已匹配' COMMENT '匹配状态',
-  `match_type` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '自动匹配' COMMENT '匹配类型:自动匹配/手动匹配',
-  
-  -- 时间信息
-  `match_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '匹配时间',
-  `create_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '创建者',
-  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '更新者',
-  `version` bigint NOT NULL DEFAULT '0' COMMENT '版本号',
-  
-  PRIMARY KEY (`match_id`),
-  UNIQUE KEY `uk_sku_contract_item` (`sku_detail_id`, `contract_item_id`),
-  KEY `idx_sku_detail_id` (`sku_detail_id`),
-  KEY `idx_contract_id` (`contract_id`),
-  KEY `idx_contract_no` (`contract_no`),
-  KEY `idx_sku` (`sku`),
-  KEY `idx_match_date` (`match_date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='SKU明细-合同匹配表';
-
-
--- ==========================================
--- 6. 合同-发票匹配表
+-- 5. 合同-发票匹配表
 -- 说明: 记录合同与发票的关联关系(支持一对一和多对一)
 -- ==========================================
 CREATE TABLE `contract_invoice_match` (
   `match_id` int NOT NULL AUTO_INCREMENT COMMENT '匹配ID',
+  `location` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '地区/租户',
   `contract_id` int NOT NULL COMMENT '合同ID',
   `contract_no` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同编号',
   `invoice_id` int NOT NULL COMMENT '发票ID',
   `invoice_no` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '发票号码',
-  
-  -- 关联类型
-  `relation_type` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '关系类型:一对一/多对一',
   
   -- 金额匹配
   `contract_amount` decimal(18,2) NOT NULL DEFAULT '0.00' COMMENT '合同金额',
@@ -322,22 +272,23 @@ CREATE TABLE `contract_invoice_match` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已删除 0-否 1-是',
   
   PRIMARY KEY (`match_id`),
+  KEY `idx_location` (`location`),
   KEY `idx_contract_id` (`contract_id`),
   KEY `idx_contract_no` (`contract_no`),
   KEY `idx_invoice_id` (`invoice_id`),
   KEY `idx_invoice_no` (`invoice_no`),
-  KEY `idx_relation_type` (`relation_type`),
   KEY `idx_match_date` (`match_date`),
   KEY `idx_is_deleted` (`is_deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='合同-发票匹配表';
 
 
 -- ==========================================
--- 7. SKU明细-报关匹配表
+-- 6. SKU明细-报关匹配表
 -- 说明: 记录SKU明细与报关单的匹配关系(FIFO原则)
 -- ==========================================
 CREATE TABLE `sku_customs_declare_match` (
   `match_id` int NOT NULL AUTO_INCREMENT COMMENT '匹配ID',
+  `location` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '地区/租户',
   
   -- SKU明细信息
   `sku_detail_id` int NOT NULL COMMENT 'SKU明细ID',
@@ -346,11 +297,12 @@ CREATE TABLE `sku_customs_declare_match` (
   `contract_no` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同编号',
   `contract_item_no` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同项号',
   
-  -- 报关单信息
+  -- 报关单信息（三级结构：报关单 -> 报关聚合项 -> 报关明细）
   `declare_document_id` int NOT NULL COMMENT '报关单ID',
   `declare_document_no` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '报关单号',
   `declare_document_aggregated_item_id` int NOT NULL COMMENT '报关聚合项ID',
-  `g_no` int NOT NULL COMMENT '报关项号',
+  `g_no` int NOT NULL COMMENT '报关项号（聚合项级别）',
+  `declare_document_item_id` int NOT NULL COMMENT '报关明细项ID',
   
   -- 匹配数量
   `declare_quantity` int NOT NULL DEFAULT '0' COMMENT '报关数量',
@@ -358,11 +310,7 @@ CREATE TABLE `sku_customs_declare_match` (
   `available_quantity_before_match` int NOT NULL DEFAULT '0' COMMENT '匹配前可用数量',
   `available_quantity_after_match` int NOT NULL DEFAULT '0' COMMENT '匹配后可用数量',
   
-  -- 匹配状态
-  `match_status` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '完全匹配' COMMENT '匹配状态:完全匹配/部分匹配',
-  `match_strategy` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'FIFO' COMMENT '匹配策略:FIFO/LIFO',
-  `match_type` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '自动匹配' COMMENT '匹配类型:自动匹配/手动匹配',
-  `match_order` int NOT NULL DEFAULT '0' COMMENT '匹配顺序(用于多明细匹配)',
+  -- 说明: 匹配状态可通过 declare_quantity 和 matched_quantity 比较计算（完全匹配/部分匹配）
   
   -- 发票信息(从SKU明细继承)
   `invoice_no` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联发票号',
@@ -386,94 +334,16 @@ CREATE TABLE `sku_customs_declare_match` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已删除 0-否 1-是',
   
   PRIMARY KEY (`match_id`),
+  KEY `idx_location` (`location`),
   KEY `idx_sku_detail_id` (`sku_detail_id`),
   KEY `idx_sku` (`sku`),
   KEY `idx_contract_id` (`contract_id`),
   KEY `idx_declare_document_id` (`declare_document_id`),
   KEY `idx_declare_document_no` (`declare_document_no`),
+  KEY `idx_declare_document_item_id` (`declare_document_item_id`),
   KEY `idx_declare_aggregated_item_id` (`declare_document_aggregated_item_id`),
-  KEY `idx_match_status` (`match_status`),
   KEY `idx_match_date` (`match_date`),
   KEY `idx_is_deleted` (`is_deleted`),
   KEY `idx_invoice_no` (`invoice_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='SKU明细-报关单匹配表';
-
-
--- ==========================================
--- 8. 报关-SKU-合同-发票映射视图
--- 说明: 用于快速查询完整的映射关系链路
--- ==========================================
-CREATE OR REPLACE VIEW `v_declare_sku_contract_invoice_mapping` AS
-SELECT 
-    -- 报关单信息
-    scdm.declare_document_id,
-    scdm.declare_document_no,
-    scdm.g_no,
-    scdm.declare_quantity,
-    scdm.matched_quantity,
-    scdm.match_status AS declare_match_status,
-    
-    -- SKU明细信息
-    scdm.sku_detail_id,
-    scdm.sku,
-    psd.product_name,
-    psd.quantity AS sku_total_quantity,
-    psd.available_qty AS sku_available_quantity,
-    
-    -- 合同信息
-    scdm.contract_id,
-    scdm.contract_no,
-    scdm.contract_item_no,
-    pc.supplier_name,
-    pc.status AS contract_status,
-    
-    -- 发票信息
-    scdm.invoice_no,
-    ii.invoice_code,
-    ii.amount_with_tax AS invoice_amount,
-    ii.status AS invoice_status,
-    
-    -- 报关商品信息
-    scdm.customs_declare_cn,
-    scdm.hs_code,
-    scdm.spin_type,
-    scdm.fabric_type,
-    
-    -- 时间信息
-    scdm.match_date AS declare_match_date
-FROM 
-    sku_customs_declare_match scdm
-    LEFT JOIN purchase_sku_detail psd ON scdm.sku_detail_id = psd.sku_detail_id
-    LEFT JOIN purchase_contract pc ON scdm.contract_id = pc.contract_id
-    LEFT JOIN input_invoice ii ON scdm.invoice_no = ii.invoice_no
-WHERE 
-    scdm.is_deleted = 0 
-    AND psd.is_deleted = 0;
-
-
--- ==========================================
--- 索引优化建议
--- ==========================================
--- 1. 对于高频查询的组合条件，建议创建组合索引
--- 2. 对于JSON字段查询，MySQL 8.0+ 可以使用生成列+索引
--- 3. 对于大表的分页查询，建议使用覆盖索引优化
-
-
--- ==========================================
--- 分区建议 (可选，针对大数据量场景)
--- ==========================================
--- 对于历史数据量大的表，可以考虑按时间分区
--- 例如: 按年或按月对 sku_customs_declare_match 表分区
--- ALTER TABLE sku_customs_declare_match 
--- PARTITION BY RANGE (YEAR(match_date)) (
---     PARTITION p2024 VALUES LESS THAN (2025),
---     PARTITION p2025 VALUES LESS THAN (2026),
---     PARTITION p_future VALUES LESS THAN MAXVALUE
--- );
-
-
--- ==========================================
--- 初始化示例数据 (可选)
--- ==========================================
--- 插入示例数据用于测试...
 
