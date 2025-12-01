@@ -73,6 +73,11 @@ async function initPageLayout() {
                                     <span class="menu-text">采销合同</span>
                                     <span class="menu-badge">4</span>
                                 </div>
+                                <div class="menu-item" onclick="navigateTo('purchase-contract-item.html')" data-page="purchase-contract-item">
+                                    <span class="menu-dot">•</span>
+                                    <span class="menu-text">采购合同明细</span>
+                                    <span class="menu-badge">12</span>
+                                </div>
                             </div>
                         </div>
 

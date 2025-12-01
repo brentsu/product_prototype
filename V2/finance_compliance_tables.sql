@@ -156,7 +156,8 @@ CREATE TABLE `nsy_scm`.`purchase_contract` (
 -- ==========================================
 -- 3. 采销合同明细表
 -- 说明: 记录合同的明细项，一个合同可以有多个明细项
--- 注意: 此表只到项号级别，不直接关联SKU明细，SKU明细的关联通过 sku_contract_item_match 表实现
+-- 注意: 维度参考纸质合同红框，只到“产品名称/品类”这一层，不到具体SKU；
+--       具体SKU明细通过 sku_contract_item_match 表与本表的合同项进行匹配
 -- ==========================================
 CREATE TABLE `nsy_scm`.`purchase_contract_item` (
   `contract_item_id` int NOT NULL AUTO_INCREMENT COMMENT '合同项ID',
@@ -165,16 +166,19 @@ CREATE TABLE `nsy_scm`.`purchase_contract_item` (
   `contract_no` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同编号',
   `item_no` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同项号',
   
-  -- SKU信息（合同层面的SKU信息，用于合同展示）
-  `sku` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'SKU编码',
-  `product_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '商品名称',
+  -- 产品信息（合同红框中的“产品名称/品类 + 计量单位”）
+  `category_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '产品名称/品类',
+  `unit` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '件' COMMENT '计量单位，如：件/箱/套',
   
-  -- 数量和价格（合同约定的数量和价格）
+  -- 数量和价格（合同红框中的“数量、含税单价、金额”）
   `quantity` int NOT NULL DEFAULT '0' COMMENT '数量',
-  `unit_price` decimal(18,4) NOT NULL DEFAULT '0.0000' COMMENT '单价',
+  `unit_price` decimal(18,4) NOT NULL DEFAULT '0.0000' COMMENT '含税单价',
   `amount_without_tax` decimal(18,2) NOT NULL DEFAULT '0.00' COMMENT '不含税金额',
   `tax_amount` decimal(18,2) NOT NULL DEFAULT '0.00' COMMENT '税额',
   `amount_with_tax` decimal(18,2) NOT NULL DEFAULT '0.00' COMMENT '含税金额',
+  
+  -- 交付信息（合同红框中的“交货日期”）
+  `delivery_date` date DEFAULT NULL COMMENT '交货日期',
   
   -- 说明: SKU明细的关联通过 sku_contract_item_match 表实现，一个合同项可以对应多个SKU明细
   
@@ -188,8 +192,7 @@ CREATE TABLE `nsy_scm`.`purchase_contract_item` (
   PRIMARY KEY (`contract_item_id`),
   KEY `idx_location` (`location`),
   KEY `idx_contract_id` (`contract_id`),
-  KEY `idx_contract_no` (`contract_no`),
-  KEY `idx_sku` (`sku`)
+  KEY `idx_contract_no` (`contract_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采销合同明细表';
 
 
