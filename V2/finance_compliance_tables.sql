@@ -3,13 +3,22 @@
 -- 版本: V2.0
 -- 创建日期: 2025-11-28
 -- 说明: 结合报关流程的完整财务合规数据模型
+-- 
+-- 数据库说明:
+-- - nsy_scm: 财务合规系统主库，包含所有业务表
+-- - nsy_wms: 仓储管理系统库，包含报关相关表和匹配表冗余
 -- ==========================================
+
+-- ==========================================
+-- 使用数据库: nsy_scm
+-- ==========================================
+USE `nsy_scm`;
 
 -- ==========================================
 -- 1. 采销SKU明细表
 -- 说明: 记录采购SKU的详细信息，是整个业务流程的起点
 -- ==========================================
-CREATE TABLE `purchase_sku_detail` (
+CREATE TABLE `nsy_scm`.`purchase_sku_detail` (
   `sku_detail_id` int NOT NULL AUTO_INCREMENT COMMENT 'SKU明细ID',
   `location` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '地区/租户',
   `sku` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'SKU编码',
@@ -73,7 +82,7 @@ CREATE TABLE `purchase_sku_detail` (
 -- 2. 采销合同表
 -- 说明: 记录采购合同的主表信息
 -- ==========================================
-CREATE TABLE `purchase_contract` (
+CREATE TABLE `nsy_scm`.`purchase_contract` (
   `contract_id` int NOT NULL AUTO_INCREMENT COMMENT '合同ID',
   `location` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '地区/租户',
   `contract_no` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同编号',
@@ -148,7 +157,7 @@ CREATE TABLE `purchase_contract` (
 -- 3. 采销合同明细表
 -- 说明: 记录合同的明细项，一个合同可以有多个明细项
 -- ==========================================
-CREATE TABLE `purchase_contract_item` (
+CREATE TABLE `nsy_scm`.`purchase_contract_item` (
   `contract_item_id` int NOT NULL AUTO_INCREMENT COMMENT '合同项ID',
   `location` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '地区/租户',
   `contract_id` int NOT NULL COMMENT '合同ID',
@@ -189,7 +198,7 @@ CREATE TABLE `purchase_contract_item` (
 -- 4. 进项发票表
 -- 说明: 记录供应商开具的增值税发票
 -- ==========================================
-CREATE TABLE `input_invoice` (
+CREATE TABLE `nsy_scm`.`input_invoice` (
   `invoice_id` int NOT NULL AUTO_INCREMENT COMMENT '发票ID',
   `location` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '地区/租户',
   `invoice_code` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '发票代码',
@@ -243,7 +252,7 @@ CREATE TABLE `input_invoice` (
 -- 5. 合同-发票匹配表
 -- 说明: 记录合同与发票的关联关系(支持一对一和多对一)
 -- ==========================================
-CREATE TABLE `contract_invoice_match` (
+CREATE TABLE `nsy_scm`.`contract_invoice_match` (
   `match_id` int NOT NULL AUTO_INCREMENT COMMENT '匹配ID',
   `location` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '地区/租户',
   `contract_id` int NOT NULL COMMENT '合同ID',
@@ -286,7 +295,7 @@ CREATE TABLE `contract_invoice_match` (
 -- 6. SKU明细-报关匹配表
 -- 说明: 记录SKU明细与报关单的匹配关系(FIFO原则)
 -- ==========================================
-CREATE TABLE `sku_customs_declare_match` (
+CREATE TABLE `nsy_scm`.`sku_customs_declare_match` (
   `match_id` int NOT NULL AUTO_INCREMENT COMMENT '匹配ID',
   `location` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '地区/租户',
   
@@ -347,3 +356,74 @@ CREATE TABLE `sku_customs_declare_match` (
   KEY `idx_invoice_no` (`invoice_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='SKU明细-报关单匹配表';
 
+
+-- ==========================================
+-- 使用数据库: nsy_wms
+-- 说明: 在WMS库中冗余报关匹配表，便于WMS系统直接查询匹配关系
+-- ==========================================
+USE `nsy_wms`;
+
+-- ==========================================
+-- WMS库 - SKU明细-报关匹配表（冗余表）
+-- 说明: 从nsy_scm库同步的报关匹配数据，供WMS系统使用
+-- ==========================================
+CREATE TABLE `nsy_wms`.`sku_customs_declare_match` (
+  `match_id` int NOT NULL AUTO_INCREMENT COMMENT '匹配ID',
+  `location` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '地区/租户',
+  
+  -- SKU明细信息
+  `sku_detail_id` int NOT NULL COMMENT 'SKU明细ID',
+  `sku` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'SKU编码',
+  `contract_id` int NOT NULL COMMENT '合同ID',
+  `contract_no` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同编号',
+  `contract_item_no` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同项号',
+  
+  -- 报关单信息（三级结构：报关单 -> 报关聚合项 -> 报关明细）
+  `declare_document_id` int NOT NULL COMMENT '报关单ID',
+  `declare_document_no` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '报关单号',
+  `declare_document_aggregated_item_id` int NOT NULL COMMENT '报关聚合项ID',
+  `g_no` int NOT NULL COMMENT '报关项号（聚合项级别）',
+  `declare_document_item_id` int NOT NULL COMMENT '报关明细项ID',
+  
+  -- 匹配数量
+  `declare_quantity` int NOT NULL DEFAULT '0' COMMENT '报关数量',
+  `matched_quantity` int NOT NULL DEFAULT '0' COMMENT '匹配数量',
+  `available_quantity_before_match` int NOT NULL DEFAULT '0' COMMENT '匹配前可用数量',
+  `available_quantity_after_match` int NOT NULL DEFAULT '0' COMMENT '匹配后可用数量',
+  
+  -- 说明: 匹配状态可通过 declare_quantity 和 matched_quantity 比较计算（完全匹配/部分匹配）
+  
+  -- 发票信息(从SKU明细继承)
+  `invoice_no` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '关联发票号',
+  
+  -- 报关商品信息
+  `customs_declare_cn` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '报关品名(中文)',
+  `customs_declare_en` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '报关品名(英文)',
+  `hs_code` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '海关编码',
+  `spin_type` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '织造方式',
+  `fabric_type` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '成分',
+  
+  -- 备注
+  `remark` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '备注',
+  
+  -- 时间信息
+  `match_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '匹配时间',
+  `create_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '创建者',
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `update_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '更新者',
+  `version` bigint NOT NULL DEFAULT '0' COMMENT '版本号',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已删除 0-否 1-是',
+  
+  PRIMARY KEY (`match_id`),
+  KEY `idx_location` (`location`),
+  KEY `idx_sku_detail_id` (`sku_detail_id`),
+  KEY `idx_sku` (`sku`),
+  KEY `idx_contract_id` (`contract_id`),
+  KEY `idx_declare_document_id` (`declare_document_id`),
+  KEY `idx_declare_document_no` (`declare_document_no`),
+  KEY `idx_declare_document_item_id` (`declare_document_item_id`),
+  KEY `idx_declare_aggregated_item_id` (`declare_document_aggregated_item_id`),
+  KEY `idx_match_date` (`match_date`),
+  KEY `idx_is_deleted` (`is_deleted`),
+  KEY `idx_invoice_no` (`invoice_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='SKU明细-报关单匹配表(WMS库冗余表)';
