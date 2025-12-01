@@ -129,6 +129,15 @@ const mappingData = [
     }
 ];
 
+// SKU明细基础数据（包含退货数等信息）
+const skuDetailBaseData = {
+    'SKU001': { returnQty: 0, contractQty: 100 },
+    'SKU002': { returnQty: 20, contractQty: 100 },
+    'SKU003': { returnQty: 0, contractQty: 100 },
+    'SKU004': { returnQty: 0, contractQty: 100 },
+    'SKU005': { returnQty: 0, contractQty: 100 }
+};
+
 // 当前视图
 let currentView = 'all';
 
@@ -440,10 +449,10 @@ function renderSkuGroups() {
     // 收集所有SKU明细的基本信息
     mappingData.forEach(item => {
         if (!skuUsageMap[item.skuDetailId]) {
-            // 合同数量 = 可用数量 + 已报关数量（因为报关会扣减可用数量）
-            // 但如果有退货，需要特殊处理
-            // SKU002有20件退货，所以合同数量应该是100（不是80+已报关）
-            const contractQty = 100; // 所有示例SKU的合同数量都是100
+            // 从基础数据中获取合同数量和退货数
+            const baseData = skuDetailBaseData[item.skuDetailId] || { returnQty: 0, contractQty: 100 };
+            const contractQty = baseData.contractQty;
+            const returnQty = baseData.returnQty;
 
             skuUsageMap[item.skuDetailId] = {
                 skuDetailId: item.skuDetailId,
@@ -452,6 +461,7 @@ function renderSkuGroups() {
                 contractItemNo: item.contractItemNo,
                 supplier: item.supplier,
                 contractQty: contractQty,
+                returnQty: returnQty,
                 availableQty: item.availableQty,
                 contractAmount: item.contractAmount,
                 invoiceNo: item.invoiceNo,
@@ -491,6 +501,7 @@ function renderSkuGroups() {
             <td>${sku.contractItemNo}</td>
             <td>${sku.supplier}</td>
             <td>${sku.contractQty}</td>
+            <td class="highlight-value">${sku.returnQty}</td>
             <td>${sku.availableQty}</td>
             <td class="amount-highlight"><strong>${sku.totalDeclaredQty}</strong></td>
             <td style="${isFullyUsed ? 'color: #ff4d4f; font-weight: bold;' : ''}">${remainingQty}</td>
