@@ -130,44 +130,6 @@
                 <div class="page-content">
                     <h2 style="margin-bottom: 20px; padding: 0 20px;">报关-SKU明细-合同 三方映射关系</h2>
 
-                    <!-- 映射关系总览 -->
-                    <div class="invoice-section">
-                        <div class="invoice-section-header">
-                            <div class="section-title">映射关系总览</div>
-                        </div>
-
-                        <div class="mapping-stats">
-                            <div class="stat-card">
-                                <div class="stat-number">1</div>
-                                <div class="stat-label">报关单总数</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number">5</div>
-                                <div class="stat-label">报关SKU数</div>
-                            </div>
-                            <div class="stat-card" style="background-color: #f6ffed;">
-                                <div class="stat-number" style="color: #52c41a;">3</div>
-                                <div class="stat-label">完全匹配</div>
-                            </div>
-                            <div class="stat-card" style="background-color: #fff7e6;">
-                                <div class="stat-number" style="color: #fa8c16;">1</div>
-                                <div class="stat-label">部分匹配</div>
-                            </div>
-                            <div class="stat-card" style="background-color: #fff1f0;">
-                                <div class="stat-number" style="color: #ff4d4f;">1</div>
-                                <div class="stat-label">未匹配</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number">3</div>
-                                <div class="stat-label">关联合同数</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number">3</div>
-                                <div class="stat-label">关联发票数</div>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- 筛选区域 -->
                     <div class="filter-section">
                         <div class="filter-row">
@@ -216,6 +178,32 @@
                         </div>
                     </div>
 
+                    <!-- 多维度视图切换 -->
+                    <div class="invoice-section">
+                        <div class="tabs-navigation">
+                            <div class="tab-item active" data-view="all" onclick="switchView('all')">
+                                📊 完整映射表
+                                <span class="system-badge system-badge-scm">SCM</span>
+                            </div>
+                            <div class="tab-item" data-view="declaration" onclick="switchView('declaration')">
+                                📋 按报关单维度
+                                <span class="system-badge system-badge-wms">WMS</span>
+                            </div>
+                            <div class="tab-item" data-view="sku" onclick="switchView('sku')">
+                                📦 按SKU明细维度
+                                <span class="system-badge system-badge-scm">SCM</span>
+                            </div>
+                            <div class="tab-item" data-view="contract" onclick="switchView('contract')">
+                                📄 按合同维度
+                                <span class="system-badge system-badge-scm">SCM</span>
+                            </div>
+                            <div class="tab-item" data-view="invoice" onclick="switchView('invoice')">
+                                🧾 按发票维度
+                                <span class="system-badge system-badge-scm">SCM</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- 完整映射表 -->
                     <div class="invoice-section view-content" id="view-all">
 
@@ -246,6 +234,87 @@
                                     </tr>
                                 </thead>
                                 <tbody id="mappingTableBody">
+                                    <!-- 数据将通过JavaScript动态生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 视图1: 按报关单维度 -->
+                    <div class="invoice-section view-content" id="view-declaration" style="display: none;">
+                        <div id="declarationGroupContainer">
+                            <!-- 分组数据将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 视图2: 按SKU明细维度 -->
+                    <div class="invoice-section view-content" id="view-sku" style="display: none;">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>明细ID</th>
+                                        <th>SKU编号</th>
+                                        <th>合同编号</th>
+                                        <th>合同项号</th>
+                                        <th>供应商</th>
+                                        <th>合同数量</th>
+                                        <th>可用数量</th>
+                                        <th>已报关数量</th>
+                                        <th>剩余数量</th>
+                                        <th>关联报关单</th>
+                                        <th>关联发票</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="skuGroupBody">
+                                    <!-- 数据将通过JavaScript动态生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 视图3: 按合同维度 -->
+                    <div class="invoice-section view-content" id="view-contract" style="display: none;">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>合同编号</th>
+                                        <th>供应商</th>
+                                        <th>合同金额</th>
+                                        <th>关联发票</th>
+                                        <th>关联SKU数</th>
+                                        <th>关联报关单数</th>
+                                        <th>报关总数量</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="contractGroupBody">
+                                    <!-- 数据将通过JavaScript动态生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 视图4: 按发票维度 -->
+                    <div class="invoice-section view-content" id="view-invoice" style="display: none;">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>发票编号</th>
+                                        <th>发票金额</th>
+                                        <th>开票日期</th>
+                                        <th>供应商</th>
+                                        <th>关联合同</th>
+                                        <th>关联SKU数</th>
+                                        <th>关联报关单</th>
+                                        <th>报关总数量</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invoiceGroupBody">
                                     <!-- 数据将通过JavaScript动态生成 -->
                                 </tbody>
                             </table>

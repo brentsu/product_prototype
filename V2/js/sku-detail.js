@@ -16,6 +16,7 @@ const mockData = [
         returnQty: 0,
         availableQty: 100,
         contractNo: 'HT202511210001',
+        contractItemNo: '1',
         detailStatus: '合同签署完成',
         isInvoiced: '已开票',
         relatedStatementId: '100001',
@@ -39,6 +40,7 @@ const mockData = [
         returnQty: 20,
         availableQty: 80,
         contractNo: 'HT202511210001',
+        contractItemNo: '2',
         detailStatus: '合同签署完成',
         isInvoiced: '已开票',
         relatedStatementId: '100001',
@@ -62,6 +64,7 @@ const mockData = [
         returnQty: 0,
         availableQty: 100,
         contractNo: 'HT202511210002',
+        contractItemNo: '1',
         detailStatus: '合同签署完成',
         isInvoiced: '已开票',
         relatedStatementId: '100002',
@@ -85,6 +88,7 @@ const mockData = [
         returnQty: 0,
         availableQty: 100,
         contractNo: 'HT202511210002',
+        contractItemNo: '2',
         detailStatus: '合同签署完成',
         isInvoiced: '已开票',
         relatedStatementId: '100002',
@@ -108,6 +112,7 @@ const mockData = [
         returnQty: 0,
         availableQty: 100,
         contractNo: 'HT202511210003',
+        contractItemNo: '1',
         detailStatus: '合同签署完成',
         isInvoiced: '未开票',
         relatedStatementId: '100003',
@@ -132,6 +137,7 @@ const mockData = [
         returnQty: 0,
         availableQty: 100,
         contractNo: 'HT202511210004',
+        contractItemNo: '1',
         detailStatus: '合同待生成',
         isInvoiced: '',
         relatedStatementId: '100004',
@@ -184,6 +190,7 @@ function renderTable() {
             <td>
                 ${item.contractNo ? `<a href="#" class="action-link" onclick="viewContract('${item.contractNo}')">${item.contractNo}</a>` : '-'}
             </td>
+            <td>${item.contractItemNo || '-'}</td>
             <td>${item.detailStatus}</td>
             <td>${item.isInvoiced || '-'}</td>
             <td>${item.relatedStatementId}</td>

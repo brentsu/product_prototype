@@ -143,12 +143,13 @@ let filterConditions = {
 
 // 页面加载完成后初始化
 document.addEventListener('DOMContentLoaded', function () {
-    // 检查是否有TAB导航（辅助说明页面有TAB，原型页面没有）
+    // 检查是否有TAB导航
     const hasTabs = document.querySelector('.tabs-navigation');
     if (hasTabs) {
+        // 有TAB导航，切换到完整映射表视图
         switchView('all');
     } else {
-        // 原型页面直接渲染完整映射表
+        // 没有TAB导航，直接渲染完整映射表
         renderMappingTable();
     }
 });

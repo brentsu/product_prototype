@@ -49,7 +49,7 @@ CREATE TABLE `nsy_scm`.`purchase_sku_detail` (
   `statement_id` int DEFAULT NULL COMMENT '关联往来对账单ID',
   
   -- 说明: 合同、发票、报关相关信息通过关联表查询获取
-  -- 合同信息: 通过 purchase_contract_item 表关联查询（purchase_contract_item.sku_detail_id）
+  -- 合同信息: 通过 sku_contract_item_match 表关联查询（关联到 purchase_contract_item）
   -- 发票信息: 通过 contract_invoice_match 表关联查询  
   -- 报关信息: 通过 sku_customs_declare_match 表关联查询
   
@@ -156,6 +156,7 @@ CREATE TABLE `nsy_scm`.`purchase_contract` (
 -- ==========================================
 -- 3. 采销合同明细表
 -- 说明: 记录合同的明细项，一个合同可以有多个明细项
+-- 注意: 此表只到项号级别，不直接关联SKU明细，SKU明细的关联通过 sku_contract_item_match 表实现
 -- ==========================================
 CREATE TABLE `nsy_scm`.`purchase_contract_item` (
   `contract_item_id` int NOT NULL AUTO_INCREMENT COMMENT '合同项ID',
@@ -164,19 +165,18 @@ CREATE TABLE `nsy_scm`.`purchase_contract_item` (
   `contract_no` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同编号',
   `item_no` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同项号',
   
-  -- SKU信息
+  -- SKU信息（合同层面的SKU信息，用于合同展示）
   `sku` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'SKU编码',
   `product_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '商品名称',
   
-  -- 数量和价格
+  -- 数量和价格（合同约定的数量和价格）
   `quantity` int NOT NULL DEFAULT '0' COMMENT '数量',
   `unit_price` decimal(18,4) NOT NULL DEFAULT '0.0000' COMMENT '单价',
   `amount_without_tax` decimal(18,2) NOT NULL DEFAULT '0.00' COMMENT '不含税金额',
   `tax_amount` decimal(18,2) NOT NULL DEFAULT '0.00' COMMENT '税额',
   `amount_with_tax` decimal(18,2) NOT NULL DEFAULT '0.00' COMMENT '含税金额',
   
-  -- 关联SKU明细
-  `sku_detail_id` int DEFAULT NULL COMMENT '关联SKU明细ID',
+  -- 说明: SKU明细的关联通过 sku_contract_item_match 表实现，一个合同项可以对应多个SKU明细
   
   -- 时间信息
   `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -189,13 +189,63 @@ CREATE TABLE `nsy_scm`.`purchase_contract_item` (
   KEY `idx_location` (`location`),
   KEY `idx_contract_id` (`contract_id`),
   KEY `idx_contract_no` (`contract_no`),
-  KEY `idx_sku` (`sku`),
-  KEY `idx_sku_detail_id` (`sku_detail_id`)
+  KEY `idx_sku` (`sku`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采销合同明细表';
 
 
 -- ==========================================
--- 4. 进项发票表
+-- 4. SKU明细-合同明细匹配表
+-- 说明: 记录SKU明细与合同明细项的关联关系
+-- 业务场景: 一个合同项可能对应多个SKU明细(分批采购)，一个SKU明细通常对应一个合同项
+-- ==========================================
+CREATE TABLE `nsy_scm`.`sku_contract_item_match` (
+  `match_id` int NOT NULL AUTO_INCREMENT COMMENT '匹配ID',
+  `location` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '地区/租户',
+  
+  -- SKU明细信息
+  `sku_detail_id` int NOT NULL COMMENT 'SKU明细ID',
+  `sku` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'SKU编码',
+  
+  -- 合同信息
+  `contract_id` int NOT NULL COMMENT '合同ID',
+  `contract_no` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同编号',
+  `contract_item_id` int NOT NULL COMMENT '合同项ID',
+  `contract_item_no` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同项号',
+  
+  -- 匹配数量
+  `matched_quantity` int NOT NULL DEFAULT '0' COMMENT '匹配数量(从SKU明细匹配到合同项的数量)',
+  
+  -- 匹配状态
+  `match_status` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '已匹配' COMMENT '匹配状态:已匹配/已取消',
+  `match_type` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '自动匹配' COMMENT '匹配类型:自动匹配/手动匹配',
+  
+  -- 备注
+  `remark` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '备注',
+  
+  -- 时间信息
+  `match_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '匹配时间',
+  `create_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '创建者',
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `update_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '更新者',
+  `version` bigint NOT NULL DEFAULT '0' COMMENT '版本号',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已删除 0-否 1-是',
+  
+  PRIMARY KEY (`match_id`),
+  UNIQUE KEY `uk_sku_detail_contract_item` (`location`, `sku_detail_id`, `contract_item_id`, `is_deleted`),
+  KEY `idx_location` (`location`),
+  KEY `idx_sku_detail_id` (`sku_detail_id`),
+  KEY `idx_sku` (`sku`),
+  KEY `idx_contract_id` (`contract_id`),
+  KEY `idx_contract_no` (`contract_no`),
+  KEY `idx_contract_item_id` (`contract_item_id`),
+  KEY `idx_contract_item_no` (`contract_item_no`),
+  KEY `idx_match_date` (`match_date`),
+  KEY `idx_is_deleted` (`is_deleted`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='SKU明细-合同明细匹配表';
+
+
+-- ==========================================
+-- 5. 进项发票表
 -- 说明: 记录供应商开具的增值税发票
 -- ==========================================
 CREATE TABLE `nsy_scm`.`input_invoice` (
@@ -249,7 +299,7 @@ CREATE TABLE `nsy_scm`.`input_invoice` (
 
 
 -- ==========================================
--- 5. 合同-发票匹配表
+-- 6. 合同-发票匹配表
 -- 说明: 记录合同与发票的关联关系(支持一对一和多对一)
 -- ==========================================
 CREATE TABLE `nsy_scm`.`contract_invoice_match` (
@@ -292,7 +342,7 @@ CREATE TABLE `nsy_scm`.`contract_invoice_match` (
 
 
 -- ==========================================
--- 6. SKU明细-报关匹配表
+-- 7. SKU明细-报关匹配表
 -- 说明: 记录SKU明细与报关单的匹配关系(FIFO原则)
 -- ==========================================
 CREATE TABLE `nsy_scm`.`sku_customs_declare_match` (
