@@ -12,6 +12,7 @@ body {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    overflow-y: auto;
 }
 
 /* ==================== 顶部导航栏 ==================== */
@@ -294,14 +295,21 @@ body {
     background-color: #f5f5f5;
     min-height: calc(100vh - 50px);
     transition: margin-left 0.3s ease;
+    width: calc(100% - 250px);
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .main-content.expanded {
     margin-left: 0;
+    width: 100%;
 }
 
 .content-wrapper {
     padding: 20px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 .container {
@@ -553,13 +561,19 @@ body {
 /* 表格样式 */
 .table-container {
     padding: 20px;
-    overflow-x: auto;
+    overflow-x: auto !important;
+    overflow-y: visible;
+    width: 100%;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
 }
 
 .data-table {
-    width: 100%;
+    width: auto;
+    min-width: 100%;
     border-collapse: collapse;
     background-color: white;
+    table-layout: auto;
 }
 
 .data-table thead {
@@ -1344,7 +1358,8 @@ body {
     border: 2px solid #e8e8e8;
     border-radius: 8px;
     margin-bottom: 20px;
-    overflow: hidden;
+    overflow: visible;
+    width: 100%;
 }
 
 .group-header {
@@ -1383,6 +1398,8 @@ body {
 
 .group-body {
     padding: 20px;
+    overflow-x: auto;
+    width: 100%;
 }
 
 .group-info-row {
@@ -1391,9 +1408,11 @@ body {
 }
 
 .group-table {
-    width: 100%;
+    width: auto;
+    min-width: 100%;
     border-collapse: collapse;
     margin-top: 15px;
+    table-layout: auto;
 }
 
 .group-table th {

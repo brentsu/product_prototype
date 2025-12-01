@@ -181,11 +181,7 @@
                     <!-- 多维度视图切换 -->
                     <div class="invoice-section">
                         <div class="tabs-navigation">
-                            <div class="tab-item active" data-view="all" onclick="switchView('all')">
-                                📊 完整映射表
-                                <span class="system-badge system-badge-scm">SCM</span>
-                            </div>
-                            <div class="tab-item" data-view="declaration" onclick="switchView('declaration')">
+                            <div class="tab-item active" data-view="declaration" onclick="switchView('declaration')">
                                 📋 按报关单维度
                                 <span class="system-badge system-badge-wms">WMS</span>
                             </div>
@@ -204,44 +200,8 @@
                         </div>
                     </div>
 
-                    <!-- 完整映射表 -->
-                    <div class="invoice-section view-content" id="view-all">
-
-                        <div class="table-container">
-                            <table class="data-table mapping-table">
-                                <thead>
-                                    <tr>
-                                        <th rowspan="2">报关单号</th>
-                                        <th rowspan="2">报关项号</th>
-                                        <th rowspan="2">报关品名</th>
-                                        <th rowspan="2">报关SKU</th>
-                                        <th rowspan="2">报关数量</th>
-                                        <th rowspan="2">匹配状态</th>
-                                        <th colspan="3" style="background-color: #fff7e6;">SKU明细信息</th>
-                                        <th colspan="4" style="background-color: #e6f7ff;">合同信息</th>
-                                        <th colspan="2" style="background-color: #f6ffed;">发票信息</th>
-                                    </tr>
-                                    <tr>
-                                        <th style="background-color: #fff7e6;">明细ID</th>
-                                        <th style="background-color: #fff7e6;">可用数量</th>
-                                        <th style="background-color: #fff7e6;">匹配数量</th>
-                                        <th style="background-color: #e6f7ff;">合同编号</th>
-                                        <th style="background-color: #e6f7ff;">合同项号</th>
-                                        <th style="background-color: #e6f7ff;">供应商</th>
-                                        <th style="background-color: #e6f7ff;">合同金额</th>
-                                        <th style="background-color: #f6ffed;">发票编号</th>
-                                        <th style="background-color: #f6ffed;">发票金额</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="mappingTableBody">
-                                    <!-- 数据将通过JavaScript动态生成 -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
                     <!-- 视图1: 按报关单维度 -->
-                    <div class="invoice-section view-content" id="view-declaration" style="display: none;">
+                    <div class="invoice-section view-content" id="view-declaration">
                         <div id="declarationGroupContainer">
                             <!-- 分组数据将通过JavaScript动态生成 -->
                         </div>

@@ -155,11 +155,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // 检查是否有TAB导航
     const hasTabs = document.querySelector('.tabs-navigation');
     if (hasTabs) {
-        // 有TAB导航，切换到完整映射表视图
-        switchView('all');
-    } else {
-        // 没有TAB导航，直接渲染完整映射表
-        renderMappingTable();
+        // 有TAB导航，切换到按报关单维度视图
+        switchView('declaration');
     }
 });
 
@@ -186,9 +183,6 @@ function switchView(view) {
 
     // 根据视图渲染对应数据
     switch (view) {
-        case 'all':
-            renderMappingTable();
-            break;
         case 'declaration':
             renderDeclarationGroups();
             break;
@@ -370,6 +364,7 @@ function renderDeclarationGroups() {
                 <table class="group-table">
                     <thead>
                         <tr>
+                            <th>报关单号</th>
                             <th>项号</th>
                             <th>报关品名</th>
                             <th>SKU</th>
@@ -394,6 +389,7 @@ function renderDeclarationGroups() {
 
                 return `
                                     <tr style="background-color: ${bgColor};">
+                                        <td><a href="#" class="action-link" onclick="viewDeclaration('${declarationNo}')">${declarationNo}</a></td>
                                         <td>${item.gNo}</td>
                                         <td>${item.declareName}</td>
                                         <td><strong>${item.declareSku}</strong></td>
@@ -415,6 +411,7 @@ function renderDeclarationGroups() {
                 // 未匹配的行
                 return `
                                     <tr style="background-color: #fff1f0;">
+                                        <td><a href="#" class="action-link" onclick="viewDeclaration('${declarationNo}')">${declarationNo}</a></td>
                                         <td>${item.gNo}</td>
                                         <td>${item.declareName}</td>
                                         <td><strong>${item.declareSku}</strong></td>
@@ -659,8 +656,12 @@ function queryData() {
     filterConditions.invoiceNo = document.getElementById('filterInvoiceNo')?.value.trim() || '';
     filterConditions.matchDate = document.getElementById('filterMatchDate')?.value.trim() || '';
 
-    // 重新渲染表格
-    renderMappingTable();
+    // 根据当前视图重新渲染
+    if (currentView) {
+        switchView(currentView);
+    } else {
+        renderDeclarationGroups();
+    }
 }
 
 // 重置筛选条件
@@ -686,8 +687,12 @@ function resetFilter() {
     if (filterInvoiceNo) filterInvoiceNo.value = '';
     if (filterMatchDate) filterMatchDate.value = '';
 
-    // 重新渲染表格
-    renderMappingTable();
+    // 根据当前视图重新渲染
+    if (currentView) {
+        switchView(currentView);
+    } else {
+        renderDeclarationGroups();
+    }
 }
 
 // 导出数据
