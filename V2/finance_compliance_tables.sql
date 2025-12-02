@@ -180,12 +180,16 @@ CREATE TABLE `nsy_scm`.`purchase_contract_item` (
   `declare_category_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '报关品类',
   `unit` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '件' COMMENT '计量单位，如：件/箱/套',
   
-  -- 数量和价格（合同红框中的“数量、含税单价、金额”）
+  -- 数量和价格（合同红框中的"数量、含税单价、金额"）
   `quantity` int NOT NULL DEFAULT '0' COMMENT '数量',
   `unit_price` decimal(18,4) NOT NULL DEFAULT '0.0000' COMMENT '含税单价',
   `amount_without_tax` decimal(18,2) NOT NULL DEFAULT '0.00' COMMENT '不含税金额',
   `tax_amount` decimal(18,2) NOT NULL DEFAULT '0.00' COMMENT '税额',
   `amount_with_tax` decimal(18,2) NOT NULL DEFAULT '0.00' COMMENT '含税金额',
+  
+  -- 交付信息
+  `delivery_date` date DEFAULT NULL COMMENT '交货日期',
+  
   -- 时间信息
   `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `create_by` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '创建者',
