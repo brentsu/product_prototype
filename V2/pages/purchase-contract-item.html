@@ -111,6 +111,21 @@
                     </div>
                 </div>
 
+                <!-- 系统管理 -->
+                <div class="menu-group">
+                    <div class="menu-group-title" onclick="toggleMenuGroup(this)">
+                        <span class="menu-icon">⚙️</span>
+                        <span class="menu-text">系统管理</span>
+                        <span class="menu-arrow">▼</span>
+                    </div>
+                    <div class="menu-group-content">
+                        <div class="menu-item" onclick="navigateTo('sql-schema.html')" data-page="sql-schema">
+                            <span class="menu-dot">•</span>
+                            <span class="menu-text">数据库表结构</span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 返回首页 -->
                 <div class="menu-group">
                     <div class="menu-item" onclick="navigateTo('../index.html')" data-page="home"

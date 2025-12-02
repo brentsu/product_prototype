@@ -4,8 +4,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>采销SKU明细 - 财务合规管理系统</title>
+    <title>数据库表结构 - 财务合规管理系统</title>
     <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .sql-container {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .sql-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sql-title {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .sql-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-copy {
+            background: #4a90e2;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+
+        .btn-copy:hover {
+            background: #357abd;
+        }
+
+        .sql-content {
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre;
+            margin: 0;
+            padding: 0;
+            overflow-x: auto;
+        }
+
+        .sql-content::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .sql-content::-webkit-scrollbar-track {
+            background: #2d2d2d;
+            border-radius: 4px;
+        }
+
+        .sql-content::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+
+        .sql-content::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
+
+        .sql-loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .sql-error {
+            color: #ff6b6b;
+            padding: 20px;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        .copy-success {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: #52c41a;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            animation: fadeInOut 2s;
+        }
+
+        @keyframes fadeInOut {
+
+            0%,
+            100% {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            10%,
+            90% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -14,7 +130,7 @@
         <div class="header-left">
             <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
             <div class="system-logo">财务合规管理系统 V2</div>
-            <span style="color: rgba(255,255,255,0.6); margin-left: 15px;">/ 采销SKU明细</span>
+            <span style="color: rgba(255,255,255,0.6); margin-left: 15px;">/ 数据库表结构</span>
         </div>
         <div class="header-right">
             <button class="search-btn">🔍 Ctrl+K 搜索</button>
@@ -45,7 +161,7 @@
                         <span class="menu-arrow">▼</span>
                     </div>
                     <div class="menu-group-content">
-                        <div class="menu-item active" onclick="navigateTo('sku-detail.html')" data-page="sku-detail">
+                        <div class="menu-item" onclick="navigateTo('sku-detail.html')" data-page="sku-detail">
                             <span class="menu-dot">•</span>
                             <span class="menu-text">采销SKU明细</span>
                             <span class="menu-badge">600</span>
@@ -79,11 +195,11 @@
                             <span class="menu-text">进项发票列表</span>
                             <span class="menu-badge">4</span>
                         </div>
-                        <div class="menu-item" onclick="navigateTo('contract-invoice-relation.html')"
+                        <div class="menu-item menu-item-helper" onclick="navigateTo('contract-invoice-relation.html')"
                             data-page="contract-invoice-relation">
-                            <span class="menu-dot">•</span>
+                            <span class="menu-dot">ℹ</span>
                             <span class="menu-text">合同-发票关联</span>
-                            <span class="menu-badge">3</span>
+                            <span class="menu-helper-label">说明</span>
                         </div>
                     </div>
                 </div>
@@ -108,6 +224,13 @@
                             <span class="menu-text">三方映射关系</span>
                             <span class="menu-badge">5</span>
                         </div>
+                        <div class="menu-item menu-item-helper"
+                            onclick="navigateTo('declaration-sku-contract-mapping-helper.html')"
+                            data-page="declaration-sku-contract-mapping-helper">
+                            <span class="menu-dot">ℹ</span>
+                            <span class="menu-text">三方映射关系说明</span>
+                            <span class="menu-helper-label">说明</span>
+                        </div>
                     </div>
                 </div>
 
@@ -119,7 +242,7 @@
                         <span class="menu-arrow">▼</span>
                     </div>
                     <div class="menu-group-content">
-                        <div class="menu-item" onclick="navigateTo('sql-schema.html')" data-page="sql-schema">
+                        <div class="menu-item active" onclick="navigateTo('sql-schema.html')" data-page="sql-schema">
                             <span class="menu-dot">•</span>
                             <span class="menu-text">数据库表结构</span>
                         </div>
@@ -140,106 +263,16 @@
         <!-- 主内容区域 -->
         <div class="main-content">
             <div class="content-wrapper">
-
-                <!-- 统计数据 -->
-                <div class="statistics">
-                    <span class="stat-item">总数量：<span class="stat-value">600</span></span>
-                    <span class="stat-item">总金额：<span class="stat-value">42290</span></span>
-                </div>
-
-                <!-- 筛选区域 -->
-                <div class="filter-section">
-                    <div class="filter-row">
-                        <div class="filter-item">
-                            <label>SPU</label>
-                            <input type="text" placeholder="请输入商品编号" class="filter-input">
-                        </div>
-                        <div class="filter-item">
-                            <label>明细状态</label>
-                            <select class="filter-select">
-                                <option value="">请选择</option>
-                                <option value="待生成">合同待生成</option>
-                                <option value="签署中">合同签署中</option>
-                                <option value="已完成">合同签署完成</option>
-                            </select>
-                        </div>
-                        <div class="filter-item">
-                            <label>上架日期</label>
-                            <input type="text" placeholder="开始日期 至 结束时间日期" class="filter-input date-input">
-                        </div>
-                        <div class="filter-item">
-                            <label>供应商</label>
-                            <select class="filter-select">
-                                <option value="">请选择</option>
-                            </select>
-                        </div>
-                        <div class="filter-actions">
-                            <button class="btn btn-primary" onclick="queryData()">查询</button>
-                            <button class="btn btn-default" onclick="resetFilter()">重置</button>
-                            <button class="btn btn-link" onclick="clearFilter()">取消</button>
+                <!-- SQL脚本展示区域 -->
+                <div class="sql-container">
+                    <div class="sql-header">
+                        <div class="sql-title">财务合规管理系统 - 数据库表设计 (finance_compliance_tables.sql)</div>
+                        <div class="sql-actions">
+                            <button class="btn-copy" onclick="copySqlToClipboard()">📋 复制全部</button>
                         </div>
                     </div>
-                </div>
-
-                <!-- 操作按钮区域 -->
-                <div class="action-section">
-                    <div class="action-buttons">
-                        <button class="btn btn-action active" onclick="autoGenerateContract()">
-                            自动生成合同
-                        </button>
-                        <button class="btn btn-action" onclick="manualGenerateContract()">
-                            手动生成合同
-                        </button>
-                        <button class="btn btn-action" onclick="exportData()">
-                            导出
-                        </button>
-                    </div>
-                    <button class="btn btn-icon" onclick="showSettings()">⚙</button>
-                </div>
-
-                <!-- 数据表格 -->
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th><input type="checkbox" id="checkAll" onchange="toggleSelectAll(this)"></th>
-                                <th>图片</th>
-                                <th>商品编码</th>
-                                <th>商品品类</th>
-                                <th>商品类关分类</th>
-                                <th>上架日期</th>
-                                <th>采购单号</th>
-                                <th>接收单号</th>
-                                <th>规格编码</th>
-                                <th>合同单价(元)</th>
-                                <th>合同数量</th>
-                                <th>总金额</th>
-                                <th>退货数</th>
-                                <th>报关可用数量</th>
-                                <th>合同编号</th>
-                                <th>合同项号</th>
-                                <th>明细状态</th>
-                                <th>是否开票</th>
-                                <th>关联往来对账单ID</th>
-                                <th>供应商编码</th>
-                                <th>采购主体</th>
-                                <th>明细生成时间</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dataTableBody">
-                            <!-- 数据行将通过JavaScript动态生成 -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- 分页 -->
-                <div class="pagination">
-                    <span class="page-info">共 6 条记录</span>
-                    <div class="page-controls">
-                        <button class="page-btn" onclick="prevPage()">上一页</button>
-                        <span class="page-current">1</span>
-                        <button class="page-btn" onclick="nextPage()">下一页</button>
+                    <div id="sqlContent">
+                        <div class="sql-loading">正在加载SQL脚本...</div>
                     </div>
                 </div>
             </div>
@@ -247,7 +280,7 @@
     </div>
 
     <script src="../js/main.js"></script>
-    <script src="../js/sku-detail.js"></script>
+    <script src="../js/sql-schema.js"></script>
 </body>
 
 </html>
