@@ -38,7 +38,7 @@ CREATE TABLE `nsy_scm`.`purchase_sku_detail` (
   `quantity` int NOT NULL DEFAULT '0' COMMENT '采购数量',
   `return_qty` int NOT NULL DEFAULT '0' COMMENT '退货数量',
   `declared_qty` int NOT NULL DEFAULT '0' COMMENT '已报关数量',
-  `available_qty` int NOT NULL DEFAULT '0' COMMENT '报关可用数量(quantity - return_qty - 已报关数量，通过sku_customs_declare_match表统计)',
+  `available_qty` int NOT NULL DEFAULT '0' COMMENT '报关可用数量(quantity - return_qty - declared_qty)',
   
   -- 价格相关
   `unit_price` decimal(18,4) NOT NULL DEFAULT '0.0000' COMMENT '单价',
@@ -51,9 +51,6 @@ CREATE TABLE `nsy_scm`.`purchase_sku_detail` (
   -- 采购单和接收单信息
   `purchase_order_no` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '采购单号',
   `receive_order_no` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '接收单号',
-    
-  -- 交付信息
-  `delivery_date`  timestamp NULL DEFAULT NULL COMMENT '交货日期',
   
   -- 业务状态
   `status` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '待处理' COMMENT '明细状态',
@@ -390,9 +387,7 @@ CREATE TABLE `nsy_scm`.`sku_customs_declare_match` (
   KEY `idx_declare_document_no` (`declare_document_no`),
   KEY `idx_declare_document_item_id` (`declare_document_item_id`),
   KEY `idx_declare_aggregated_item_id` (`declare_document_aggregated_item_id`),
-  KEY `idx_match_date` (`match_date`),
-  KEY `idx_is_deleted` (`is_deleted`),
-  KEY `idx_invoice_no` (`invoice_no`)
+  KEY `idx_match_date` (`match_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='SKU明细-报关单匹配表';
 
 
@@ -413,6 +408,8 @@ CREATE TABLE `nsy_wms`.`sku_customs_declare_match` (
   -- SKU明细信息
   `sku_detail_id` int NOT NULL COMMENT 'SKU明细ID',
   `sku` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'SKU编码',
+  
+  -- 冗余合同信息
   `contract_id` int NOT NULL COMMENT '合同ID',
   `contract_no` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同编号',
   `contract_item_no` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同项号',
@@ -426,13 +423,11 @@ CREATE TABLE `nsy_wms`.`sku_customs_declare_match` (
   
   -- 匹配数量
   `matched_quantity` int NOT NULL DEFAULT '0' COMMENT '匹配数量',
-  -- 冗余合同信息、发票信息
-  `contract_id` int NOT NULL COMMENT '合同ID',
-  `contract_no` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同编号',
-  `contract_item_no` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '合同项号',
-  `invoice_id` int NOT NULL COMMENT '发票ID',
-  `invoice_no` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '发票号码',
-    `attachment_url` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '发票附件URL',
+  
+  -- 冗余发票信息
+  `invoice_id` int DEFAULT NULL COMMENT '发票ID',
+  `invoice_no` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '发票号码',
+  `attachment_url` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '发票附件URL',
   -- 报关商品信息
   `customs_declare_cn` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '报关品名(中文)',
   `customs_declare_en` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '报关品名(英文)',
