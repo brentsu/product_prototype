@@ -4,13 +4,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.nsy.scm.match.dto.CustomsDeclarationRequest;
+import com.nsy.scm.match.dto.ReturnOrderRequest;
 import com.nsy.scm.match.service.impl.CustomsDeclarationMatcher;
+import com.nsy.scm.match.service.impl.ReturnOrderMatcher;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * SKU明细匹配服务门面
- * 报关单匹配服务入口
+ * 统一入口，支持多种匹配类型（报关单、退货订单等）
  * 
  * @author system
  */
@@ -20,6 +22,9 @@ public class SkuDetailMatchService {
 
     @Autowired
     private CustomsDeclarationMatcher customsDeclarationMatcher;
+
+    @Autowired
+    private ReturnOrderMatcher returnOrderMatcher;
 
     /**
      * 执行报关单匹配（使用报关单JSON格式）
@@ -89,6 +94,64 @@ public class SkuDetailMatchService {
                 if (declareSku.getQty() == null || declareSku.getQty() <= 0) {
                     throw new IllegalArgumentException("报关数量必须大于0");
                 }
+            }
+        }
+    }
+
+    /**
+     * 执行退货订单匹配（使用退货订单JSON格式）
+     * 
+     * @param returnOrderRequest 退货订单匹配请求
+     * @return 匹配结果（结构类似ReturnOrderRequest）
+     */
+    public com.nsy.scm.match.dto.ReturnOrderMatchResponse matchReturnOrder(
+            ReturnOrderRequest returnOrderRequest) {
+        log.info("开始执行退货订单匹配, 退货单号: {}, 租户: {}",
+                returnOrderRequest.getPurchase_return_order_no(),
+                returnOrderRequest.getLocation());
+
+        // 参数校验
+        validateReturnOrderRequest(returnOrderRequest);
+
+        // 直接调用退货订单匹配服务
+        com.nsy.scm.match.dto.ReturnOrderMatchResponse result = returnOrderMatcher
+                .matchReturnOrder(returnOrderRequest);
+
+        log.info("退货订单匹配完成, 退货单号: {}", returnOrderRequest.getPurchase_return_order_no());
+
+        return result;
+    }
+
+    /**
+     * 退货订单请求参数校验
+     * 
+     * @param request 退货订单请求
+     */
+    private void validateReturnOrderRequest(ReturnOrderRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("退货订单请求不能为空");
+        }
+
+        if (request.getPurchase_return_order_no() == null || request.getPurchase_return_order_no().trim().isEmpty()) {
+            throw new IllegalArgumentException("退货单号不能为空");
+        }
+
+        if (request.getLocation() == null || request.getLocation().trim().isEmpty()) {
+            throw new IllegalArgumentException("租户不能为空");
+        }
+
+        if (request.getSkus() == null || request.getSkus().isEmpty()) {
+            throw new IllegalArgumentException("SKU列表不能为空");
+        }
+
+        // 校验每个SKU
+        for (ReturnOrderRequest.ReturnSku returnSku : request.getSkus()) {
+            if (returnSku.getSku() == null || returnSku.getSku().trim().isEmpty()) {
+                throw new IllegalArgumentException("SKU编码不能为空");
+            }
+
+            if (returnSku.getReturn_quantity() == null || returnSku.getReturn_quantity() <= 0) {
+                throw new IllegalArgumentException("退货数量必须大于0");
             }
         }
     }

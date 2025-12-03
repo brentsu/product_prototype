@@ -1,7 +1,6 @@
 package com.nsy.scm.match.service.impl;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,9 +9,7 @@ import com.nsy.scm.match.dto.CustomsDeclarationMatchResponse;
 import com.nsy.scm.match.dto.CustomsDeclarationRequest;
 import com.nsy.scm.match.dto.MatchRequest;
 import com.nsy.scm.match.dto.MatchResult;
-import com.nsy.scm.match.enums.MatchStatus;
 import com.nsy.scm.match.enums.MatchType;
-import com.nsy.wms.common.lock.annotation.JLock;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,11 +21,16 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
-public class CustomsDeclarationMatcher {
+public class CustomsDeclarationMatcher extends AbstractSkuDetailMatcher {
 
     // 注入Mapper或Service
     // private PurchaseSkuDetailMapper skuDetailMapper;
     // private SkuCustomsDeclareMatchMapper matchMapper;
+
+    // 当前匹配上下文（用于 saveMatchRecord 方法）
+    private CustomsDeclarationRequest currentCustomsRequest;
+    private CustomsDeclarationRequest.DeclareDocumentAggregatedItem currentAggregatedItem;
+    private CustomsDeclarationRequest.DeclareSku currentDeclareSku;
 
     /**
      * 执行报关单匹配（使用报关单专用请求对象）
@@ -89,8 +91,13 @@ public class CustomsDeclarationMatcher {
                         matchRequest.setSku(sku);
                         matchRequest.setQuantity(requiredQty);
 
+                        // 保存匹配上下文到成员变量（用于 saveMatchRecord 方法）
+                        this.currentCustomsRequest = customsRequest;
+                        this.currentAggregatedItem = aggregatedItem;
+                        this.currentDeclareSku = declareSku;
+
                         // 调用核心匹配方法 doMatch
-                        MatchResult matchResult = doMatch(matchRequest, customsRequest, aggregatedItem, declareSku);
+                        MatchResult matchResult = doMatch(matchRequest);
 
                         // 构建SKU返回结果
                         CustomsDeclarationMatchResponse.DeclareSku responseSku = new CustomsDeclarationMatchResponse.DeclareSku();
@@ -112,176 +119,33 @@ public class CustomsDeclarationMatcher {
         return response;
     }
 
-    /**
-     * 核心匹配方法：doMatch
-     * 
-     * 逻辑：
-     * 1. 查出仍有余量的SKU明细列表 skuDetailList
-     * 2. 遍历skuDetailList，处理每条SkuDetail的处理逻辑，方法名为matchSkuDetail
-     * 使用@JLock注解加锁，key包含skuDetailId
-     * 如果skuDetail的可用数量能覆盖待匹配报关数，则遍历中断
-     * 如果可用数量不能覆盖待匹配报关数，则优先匹配一部分，再进行下一次循环的匹配
-     * 3. 每个遍历处理逻辑中，都要再次从DB获取该skuDetail最新数量，避免超卖现象
-     * 
-     * @param matchRequest   匹配请求（SKU级别）
-     * @param customsRequest 报关单请求（用于保存匹配记录）
-     * @param aggregatedItem 报关聚合项（用于保存匹配记录）
-     * @param declareSku     报关SKU明细（用于保存匹配记录）
-     * @return 匹配结果
-     */
-    private MatchResult doMatch(
-            MatchRequest matchRequest,
-            CustomsDeclarationRequest customsRequest,
-            CustomsDeclarationRequest.DeclareDocumentAggregatedItem aggregatedItem,
-            CustomsDeclarationRequest.DeclareSku declareSku) {
-
-        String sku = matchRequest.getSku();
-        Integer requiredQty = matchRequest.getQuantity();
-        String location = matchRequest.getLocation();
-
-        log.debug("开始执行doMatch, SKU: {}, 需求数量: {}", sku, requiredQty);
-
-        // ========== 2.1：查出仍有余量的SKU明细列表 skuDetailList ==========
-        // 查找可匹配的SKU明细（FIFO策略：按创建时间升序）
-        // List<PurchaseSkuDetail> skuDetailList =
-        // skuDetailMapper.findAvailableSkuDetail(
-        // location,
-        // sku,
-        // "签署完成", // 合同状态
-        // "ASC" // FIFO排序
-        // );
-
-        // 模拟：实际应该从数据库查询
-        List<SkuDetailInfo> skuDetailList = new ArrayList<>();
-        // 示例数据
-        // skuDetailList.add(new SkuDetailInfo(1L, 100, "CT001", "001"));
-        // skuDetailList.add(new SkuDetailInfo(2L, 50, "CT001", "001"));
-
-        int remainingQty = requiredQty;
-        int totalMatchedQty = 0;
-
-        // ========== 2.2：遍历skuDetailList，处理每条SkuDetail ==========
-        for (SkuDetailInfo skuDetailInfo : skuDetailList) {
-            if (remainingQty <= 0) {
-                break;
-            }
-
-            Long skuDetailId = skuDetailInfo.getSkuDetailId();
-            Integer availableQty = skuDetailInfo.getAvailableQty();
-
-            log.debug("  处理SKU明细: skuDetailId={}, availableQty={}, remainingQty={}",
-                    skuDetailId, availableQty, remainingQty);
-
-            // 调用matchSkuDetail方法（使用@JLock加锁）
-            int matchedQty = matchSkuDetail(
-                    location,
-                    skuDetailId,
-                    sku,
-                    remainingQty,
-                    customsRequest,
-                    aggregatedItem,
-                    declareSku);
-
-            if (matchedQty > 0) {
-                totalMatchedQty += matchedQty;
-                remainingQty -= matchedQty;
-
-                log.debug("  SKU明细 {} 匹配成功, 匹配数量: {}, 剩余需求: {}",
-                        skuDetailId, matchedQty, remainingQty);
-
-                // ========== 如果skuDetail的可用数量能覆盖待匹配报关数，则遍历中断 ==========
-                if (remainingQty <= 0) {
-                    log.debug("  需求已完全满足，中断遍历");
-                    break;
-                }
-            }
-        }
-
-        // 构建匹配结果
-        MatchResult result = new MatchResult();
-        result.setSku(sku);
-        result.setQty(requiredQty);
-        result.setMatch_qty(totalMatchedQty);
-
-        // 判断匹配状态
-        if (totalMatchedQty == 0) {
-            result.setMatch_status(MatchStatus.MATCH_FAILED);
-        } else if (remainingQty > 0) {
-            result.setMatch_status(MatchStatus.PARTIALLY_MATCHED);
-        } else {
-            result.setMatch_status(MatchStatus.FULLY_MATCHED);
-        }
-
-        log.info("doMatch完成, SKU: {}, 需求: {}, 已匹配: {}, 未匹配: {}, 状态: {}",
-                sku, requiredQty, totalMatchedQty, remainingQty, result.getMatch_status().getDesc());
-
-        return result;
-    }
-
-    /**
-     * 匹配单个SKU明细
-     * 使用@JLock注解加锁，key包含skuDetailId
-     * 在锁内重新从DB获取该skuDetail最新数量，避免超卖现象
-     * 
-     * 逻辑：
-     * - 如果skuDetail的可用数量能覆盖待匹配报关数，则全部匹配
-     * - 如果可用数量不能覆盖待匹配报关数，则优先匹配一部分
-     * 
-     * @param location       租户
-     * @param skuDetailId    SKU明细ID
-     * @param sku            SKU编码
-     * @param requiredQty    待匹配报关数
-     * @param customsRequest 报关单请求（用于保存匹配记录）
-     * @param aggregatedItem 报关聚合项（用于保存匹配记录）
-     * @param declareSku     报关SKU明细（用于保存匹配记录）
-     * @return 实际匹配数量
-     */
-    @JLock(lockModel = com.nsy.wms.common.lock.enums.LockModel.REENTRANT, lockKey = {
-            "'sku_detail_match:' + #location + ':' + #skuDetailId" }, expireSeconds = 30L, waitTime = 10L, failMsg = "SKU明细正在被其他匹配操作占用，请稍后重试")
-    private int matchSkuDetail(
-            String location,
-            Long skuDetailId,
-            String sku,
-            Integer requiredQty,
-            CustomsDeclarationRequest customsRequest,
-            CustomsDeclarationRequest.DeclareDocumentAggregatedItem aggregatedItem,
-            CustomsDeclarationRequest.DeclareSku declareSku) {
-
-        log.debug("    matchSkuDetail开始, skuDetailId={}, sku={}, requiredQty={}",
-                skuDetailId, sku, requiredQty);
-
-        // ========== 2.3：在锁内再次从DB获取该skuDetail最新数量，避免超卖现象 ==========
+    @Override
+    protected Integer updateSkuDetail(Long skuDetailId, int matchedQty, Integer availableQty) {
+        // 报关场景：减少可用数量，增加已报关数量
         // PurchaseSkuDetail skuDetail =
         // skuDetailMapper.selectByIdForUpdate(skuDetailId);
-
-        // 验证SKU是否匹配
-        // if (!sku.equals(skuDetail.getProduct_sku())) {
-        // log.warn("SKU不匹配, 期望: {}, 实际: {}", sku, skuDetail.getProduct_sku());
-        // return 0;
-        // }
-
-        // 获取最新可用数量
-        // Integer availableQty = skuDetail.getAvailable_qty();
-        // if (availableQty == null || availableQty <= 0) {
-        // log.warn("SKU明细 {} 可用数量不足", skuDetailId);
-        // return 0;
-        // }
-
-        // 模拟：实际应该从数据库查询
-        Integer availableQty = 100; // 示例：从DB查询的最新数量
-
-        // 计算匹配数量
-        int matchedQty = Math.min(requiredQty, availableQty);
-
-        if (matchedQty <= 0) {
-            log.debug("    SKU明细 {} 无法匹配，可用数量: {}", skuDetailId, availableQty);
-            return 0;
-        }
-
-        // 更新SKU明细的已报关数量
         // skuDetail.setDeclared_qty(skuDetail.getDeclared_qty() + matchedQty);
         // skuDetail.setAvailable_qty(skuDetail.getAvailable_qty() - matchedQty);
         // skuDetailMapper.updateWithVersion(skuDetail);
+
+        // 返回更新后的可用数量（报关场景：可用数量减少）
+        Integer updatedAvailableQty = availableQty - matchedQty;
+        log.debug("    更新SKU明细 {}: 报关数量 +{}, 可用数量 {} -> {}",
+                skuDetailId, matchedQty, availableQty, updatedAvailableQty);
+        return updatedAvailableQty;
+    }
+
+    @Override
+    protected void saveMatchRecord(
+            String location,
+            Long skuDetailId,
+            String sku,
+            int matchedQty) {
+
+        // 从成员变量获取匹配上下文
+        CustomsDeclarationRequest customsRequest = this.currentCustomsRequest;
+        CustomsDeclarationRequest.DeclareDocumentAggregatedItem aggregatedItem = this.currentAggregatedItem;
+        CustomsDeclarationRequest.DeclareSku declareSku = this.currentDeclareSku;
 
         // 保存匹配记录到 sku_customs_declare_match 表
         // SkuCustomsDeclareMatch matchRecord = new SkuCustomsDeclareMatch();
@@ -302,21 +166,7 @@ public class CustomsDeclarationMatcher {
         // matchRecord.setCreate_by(customsRequest.getOperator());
         // matchMapper.insert(matchRecord);
 
-        log.info("    SKU明细 {} 报关匹配成功, 匹配数量: {}, 剩余可用: {}, 报关项号: {}",
-                skuDetailId, matchedQty, availableQty - matchedQty, aggregatedItem.getG_no());
-
-        return matchedQty;
-    }
-
-    /**
-     * SKU明细信息（内部类，用于模拟数据库查询结果）
-     */
-    @lombok.Data
-    @lombok.AllArgsConstructor
-    private static class SkuDetailInfo {
-        private Long skuDetailId;
-        private Integer availableQty;
-        private String contractNo;
-        private String contractItemNo;
+        log.info("    保存报关匹配记录: skuDetailId={}, 报关单号={}, 报关项号={}, 匹配数量={}",
+                skuDetailId, customsRequest.getDeclare_document_no(), aggregatedItem.getG_no(), matchedQty);
     }
 }
