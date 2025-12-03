@@ -32,6 +32,8 @@ public class SkuDetailMatchService {
      * @param customsRequest 报关单匹配请求
      * @return 匹配结果（结构类似CustomsDeclarationRequest）
      */
+
+    @JLock(keyConstant = "CUSTOMS_MATCH_LOCK", lockKey = "#customsRequest.declare_document_no")
     public com.nsy.scm.match.dto.CustomsDeclarationMatchResponse matchCustomsDeclaration(
             CustomsDeclarationRequest customsRequest) {
         log.info("开始执行报关单匹配, 报关单号: {}, 租户: {}",

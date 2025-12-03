@@ -144,8 +144,9 @@ public abstract class AbstractSkuDetailMatcher {
      * @param requiredQty 待匹配数量
      * @return 实际匹配数量
      */
+
     @JLock(lockModel = com.nsy.wms.common.lock.enums.LockModel.REENTRANT, lockKey = {
-            "'sku_detail_match:' + #location + ':' + #skuDetailId" }, expireSeconds = 30L, waitTime = 10L, failMsg = "SKU明细正在被其他匹配操作占用，请稍后重试")
+            "'sku_detail_match:' + ':' + #skuDetailId" }, expireSeconds = 30L, waitTime = 10L, failMsg = "SKU明细正在被其他匹配操作占用，请稍后重试")
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     protected int matchSkuDetail(
             String location,
