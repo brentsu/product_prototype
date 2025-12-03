@@ -24,6 +24,11 @@ public class CustomsDeclarationMatchResponse implements Serializable {
     private String declare_document_no;
 
     /**
+     * 归属公司（例如所属业务公司/采购主体）
+     */
+    private String affiliate_company;
+
+    /**
      * 租户/地区
      */
     private String location;
@@ -106,4 +111,3 @@ public class CustomsDeclarationMatchResponse implements Serializable {
         private MatchStatus match_status;
     }
 }
-

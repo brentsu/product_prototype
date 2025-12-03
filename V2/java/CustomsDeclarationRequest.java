@@ -27,14 +27,19 @@ public class CustomsDeclarationRequest implements Serializable {
     private Long declare_document_id;
 
     /**
-     * 报关聚合项列表
-     */
-    private List<DeclareDocumentAggregatedItem> declare_document_aggregated_item;
-
-    /**
      * 租户/地区
      */
     private String location;
+
+    /**
+     * 归属公司（例如所属业务公司/采购主体）
+     */
+    private String affiliate_company;
+
+    /**
+     * 报关聚合项列表
+     */
+    private List<DeclareDocumentAggregatedItem> declare_document_aggregated_item;
 
     /**
      * 操作人

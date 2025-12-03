@@ -1,6 +1,12 @@
-// 报关单数据
+// 报关单数据（示例JSON结构，与后端 CustomsDeclarationRequest 对应）
 const declarationData = {
+    // 报关单号
     "declare_document_no": "FBA194287Y1B",
+    // 租户/地区
+    "location": "HZ",
+    // 归属公司（所属业务公司/采购主体）
+    "affiliate_company": "新时颖电子商务有限公司",
+    // 报关聚合项列表
     "declare_document_aggregated_item": [
         {
             "g_no": 1,

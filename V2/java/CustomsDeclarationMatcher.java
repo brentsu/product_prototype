@@ -51,6 +51,7 @@ public class CustomsDeclarationMatcher extends AbstractSkuDetailMatcher {
         // 构建返回结果（结构类似CustomsDeclarationRequest）
         CustomsDeclarationMatchResponse response = new CustomsDeclarationMatchResponse();
         response.setDeclare_document_no(customsRequest.getDeclare_document_no());
+        response.setAffiliate_company(customsRequest.getAffiliate_company());
         response.setLocation(customsRequest.getLocation());
         response.setDeclare_document_aggregated_item(new ArrayList<>());
 
