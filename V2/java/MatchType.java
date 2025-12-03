@@ -10,17 +10,7 @@ public enum MatchType {
     /**
      * 报关单匹配
      */
-    CUSTOMS_DECLARATION("CUSTOMS_DECLARATION", "报关单匹配"),
-
-    /**
-     * 退货匹配
-     */
-    RETURN_ORDER("RETURN_ORDER", "退货匹配"),
-
-    /**
-     * 销售订单匹配
-     */
-    SALES_ORDER("SALES_ORDER", "销售订单匹配");
+    CUSTOMS_DECLARATION("CUSTOMS_DECLARATION", "报关单匹配");
 
     private final String code;
     private final String desc;

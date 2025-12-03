@@ -6,17 +6,14 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nsy.scm.match.dto.CustomsDeclarationMatchResponse;
 import com.nsy.scm.match.dto.CustomsDeclarationRequest;
 import com.nsy.scm.match.dto.MatchRequest;
 import com.nsy.scm.match.dto.MatchResult;
-import com.nsy.scm.match.dto.SkuMatchContext;
-import com.nsy.scm.match.dto.SkuMatchResult;
 import com.nsy.scm.match.enums.MatchStatus;
 import com.nsy.scm.match.enums.MatchType;
-import com.nsy.scm.match.service.SkuDetailMatcher;
 import com.nsy.wms.common.lock.annotation.JLock;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -27,106 +24,21 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
-public class CustomsDeclarationMatcher implements SkuDetailMatcher {
+public class CustomsDeclarationMatcher {
 
     // 注入Mapper或Service
     // private PurchaseSkuDetailMapper skuDetailMapper;
     // private SkuCustomsDeclareMatchMapper matchMapper;
 
-    @Override
-    public MatchType getMatchType() {
-        return MatchType.CUSTOMS_DECLARATION;
-    }
-
-    /**
-     * 执行报关单匹配
-     * 根据报关单JSON格式进行匹配
-     * 
-     * @param request 匹配请求（通用请求，需要转换为报关单请求）
-     * @return 匹配结果
-     */
-    @Override
-    @JLock(lockModel = com.nsy.wms.common.lock.enums.LockModel.REENTRANT, lockKey = {
-            "#request.sku",
-            "#request.location" }, expireSeconds = 30L, waitTime = 10L, failMsg = "报关单匹配正在处理中，请稍后重试")
-    @Transactional(rollbackFor = Exception.class)
-    public MatchResult match(MatchRequest request) {
-        // 从MatchRequest中提取报关单信息
-        // 实际使用时，可以从request.getExtraData()中获取CustomsDeclarationRequest
-        // 或者直接使用CustomsDeclarationRequest作为参数
-
-        log.info("开始执行报关单匹配, 报关单号: {}, SKU: {}, 租户: {}",
-                request.getBusinessDocumentNo(), request.getSku(), request.getLocation());
-
-        MatchResult result = new MatchResult();
-        result.setBusinessDocumentNo(request.getBusinessDocumentNo());
-        result.setSuccess(true);
-        result.setMatchDetails(new ArrayList<>());
-
-        // SKU字段在最上层，直接使用
-        String sku = request.getSku();
-        Integer requiredQty = request.getQuantity();
-
-        // 构建SKU匹配上下文（简化版，用于通用匹配）
-        SkuMatchContext matchContext = SkuMatchContext.builder()
-                .location(request.getLocation())
-                .sku(sku)
-                .requiredQty(requiredQty)
-                .declareDocumentNo(request.getBusinessDocumentNo())
-                .declareDocumentId(request.getBusinessDocumentId())
-                .operator(request.getOperator())
-                .build();
-
-        // 调用核心匹配逻辑：批量匹配单个SKU
-        SkuMatchResult skuMatchResult = matchSkuBatch(matchContext);
-
-        // 将SKU匹配结果转换为MatchResult.MatchDetail
-        for (SkuMatchResult.SkuDetailMatchRecord record : skuMatchResult.getMatchRecords()) {
-            MatchResult.MatchDetail matchDetail = new MatchResult.MatchDetail();
-            matchDetail.setSku(sku);
-            matchDetail.setSkuDetailId(record.getSkuDetailId());
-            matchDetail.setRequiredQty(requiredQty);
-            matchDetail.setMatchedQty(record.getMatchedQty());
-            matchDetail.setMatchOrder(record.getMatchOrder());
-            matchDetail.setAvailableQtyBefore(record.getAvailableQtyBefore());
-            matchDetail.setAvailableQtyAfter(record.getAvailableQtyAfter());
-            matchDetail.setContractNo(record.getContractNo());
-            matchDetail.setContractItemNo(record.getContractItemNo());
-            matchDetail.setDetailStatus(skuMatchResult.getMatchStatus());
-
-            result.getMatchDetails().add(matchDetail);
-        }
-
-        // 设置匹配结果
-        result.setTotalRequiredQty(requiredQty);
-        result.setTotalMatchedQty(skuMatchResult.getTotalMatchedQty());
-        result.setUnmatchedQty(skuMatchResult.getUnmatchedQty());
-        result.setMatchStatus(skuMatchResult.getMatchStatus());
-        result.setSuccess(skuMatchResult.getMatchStatus() != MatchStatus.MATCH_FAILED);
-        if (skuMatchResult.getErrorMessage() != null) {
-            result.setErrorMessage(skuMatchResult.getErrorMessage());
-        }
-
-        log.info("报关单匹配完成, 报关单号: {}, SKU: {}, 总需求: {}, 总匹配: {}, 未匹配: {}",
-                request.getBusinessDocumentNo(), sku, requiredQty,
-                skuMatchResult.getTotalMatchedQty(), skuMatchResult.getUnmatchedQty());
-
-        return result;
-    }
-
     /**
      * 执行报关单匹配（使用报关单专用请求对象）
      * 三级结构：报关单 -> 报关聚合项 -> SKU明细
-     * 核心匹配逻辑在SKU级别执行
      * 
      * @param customsRequest 报关单匹配请求
-     * @return 匹配结果
+     * @return 匹配结果（结构类似CustomsDeclarationRequest）
      */
-    @JLock(lockModel = com.nsy.wms.common.lock.enums.LockModel.MULTIPLE, lockKey = {
-            "#customsRequest.declare_document_aggregated_item[].skus[].sku",
-            "#customsRequest.location" }, expireSeconds = 30L, waitTime = 10L, failMsg = "报关单匹配正在处理中，请稍后重试")
     @Transactional(rollbackFor = Exception.class)
-    public MatchResult matchCustomsDeclaration(CustomsDeclarationRequest customsRequest) {
+    public CustomsDeclarationMatchResponse matchCustomsDeclaration(CustomsDeclarationRequest customsRequest) {
         log.info("开始执行报关单匹配, 报关单号: {}, 租户: {}, 聚合项数量: {}",
                 customsRequest.getDeclare_document_no(),
                 customsRequest.getLocation(),
@@ -134,13 +46,11 @@ public class CustomsDeclarationMatcher implements SkuDetailMatcher {
                         ? customsRequest.getDeclare_document_aggregated_item().size()
                         : 0);
 
-        MatchResult result = new MatchResult();
-        result.setBusinessDocumentNo(customsRequest.getDeclare_document_no());
-        result.setSuccess(true);
-        result.setMatchDetails(new ArrayList<>());
-
-        int totalRequiredQty = 0;
-        int totalMatchedQty = 0;
+        // 构建返回结果（结构类似CustomsDeclarationRequest）
+        CustomsDeclarationMatchResponse response = new CustomsDeclarationMatchResponse();
+        response.setDeclare_document_no(customsRequest.getDeclare_document_no());
+        response.setLocation(customsRequest.getLocation());
+        response.setDeclare_document_aggregated_item(new ArrayList<>());
 
         // ========== 第一级：报关单级别 ==========
         log.info("========== 开始处理报关单: {} ==========", customsRequest.getDeclare_document_no());
@@ -154,388 +64,259 @@ public class CustomsDeclarationMatcher implements SkuDetailMatcher {
                 log.info("  ========== 处理报关聚合项, g_no: {}, 报关品名: {} ==========",
                         gNo, aggregatedItem.getCustoms_declare_cn());
 
-                // ========== 第三级：遍历SKU列表，批量调用核心匹配逻辑 ==========
+                // 构建聚合项返回结果
+                CustomsDeclarationMatchResponse.DeclareDocumentAggregatedItem responseAggregatedItem = new CustomsDeclarationMatchResponse.DeclareDocumentAggregatedItem();
+                responseAggregatedItem.setG_no(aggregatedItem.getG_no());
+                responseAggregatedItem.setSpin_type(aggregatedItem.getSpin_type());
+                responseAggregatedItem.setCustoms_declare_cn(aggregatedItem.getCustoms_declare_cn());
+                responseAggregatedItem.setCustoms_declare_en(aggregatedItem.getCustoms_declare_en());
+                responseAggregatedItem.setFabric_type(aggregatedItem.getFabric_type());
+                responseAggregatedItem.setHs_code(aggregatedItem.getHs_code());
+                responseAggregatedItem.setSkus(new ArrayList<>());
+
+                // ========== 第三级：遍历SKU列表，调用核心匹配逻辑 ==========
                 if (aggregatedItem.getSkus() != null) {
                     for (CustomsDeclarationRequest.DeclareSku declareSku : aggregatedItem.getSkus()) {
                         String sku = declareSku.getSku();
                         Integer requiredQty = declareSku.getQty();
 
-                        totalRequiredQty += requiredQty;
-
                         log.info("    ========== 处理SKU匹配, SKU: {}, 需求数量: {} ==========", sku, requiredQty);
 
-                        // 构建SKU匹配上下文
-                        SkuMatchContext matchContext = SkuMatchContext.builder()
-                                .location(customsRequest.getLocation())
-                                .sku(sku)
-                                .requiredQty(requiredQty)
-                                .declareDocumentNo(customsRequest.getDeclare_document_no())
-                                .declareDocumentId(customsRequest.getDeclare_document_id())
-                                .declareDocumentAggregatedItemId(
-                                        aggregatedItem.getDeclare_document_aggregated_item_id())
-                                .gNo(aggregatedItem.getG_no())
-                                .declareDocumentItemId(declareSku.getDeclare_document_item_id())
-                                .customsDeclareCn(aggregatedItem.getCustoms_declare_cn())
-                                .customsDeclareEn(aggregatedItem.getCustoms_declare_en())
-                                .spinType(aggregatedItem.getSpin_type())
-                                .fabricType(aggregatedItem.getFabric_type())
-                                .hsCode(aggregatedItem.getHs_code())
-                                .operator(customsRequest.getOperator())
-                                .build();
+                        // 构造MatchRequest
+                        MatchRequest matchRequest = new MatchRequest();
+                        matchRequest.setMatchType(MatchType.CUSTOMS_DECLARATION);
+                        matchRequest.setLocation(customsRequest.getLocation());
+                        matchRequest.setSku(sku);
+                        matchRequest.setQuantity(requiredQty);
 
-                        // ========== 核心匹配逻辑：批量匹配单个SKU ==========
-                        SkuMatchResult skuMatchResult = matchSkuBatch(matchContext);
+                        // 调用核心匹配方法 doMatch
+                        MatchResult matchResult = doMatch(matchRequest, customsRequest, aggregatedItem, declareSku);
 
-                        // 将SKU匹配结果转换为MatchResult.MatchDetail
-                        for (SkuMatchResult.SkuDetailMatchRecord record : skuMatchResult.getMatchRecords()) {
-                            MatchResult.MatchDetail matchDetail = new MatchResult.MatchDetail();
-                            matchDetail.setSku(sku);
-                            matchDetail.setSkuDetailId(record.getSkuDetailId());
-                            matchDetail.setRequiredQty(requiredQty);
-                            matchDetail.setMatchedQty(record.getMatchedQty());
-                            matchDetail.setMatchOrder(record.getMatchOrder());
-                            matchDetail.setAvailableQtyBefore(record.getAvailableQtyBefore());
-                            matchDetail.setAvailableQtyAfter(record.getAvailableQtyAfter());
-                            matchDetail.setContractNo(record.getContractNo());
-                            matchDetail.setContractItemNo(record.getContractItemNo());
-                            matchDetail.setDetailStatus(skuMatchResult.getMatchStatus());
+                        // 构建SKU返回结果
+                        CustomsDeclarationMatchResponse.DeclareSku responseSku = new CustomsDeclarationMatchResponse.DeclareSku();
+                        responseSku.setSku(matchResult.getSku());
+                        responseSku.setQty(matchResult.getQty());
+                        responseSku.setMatch_qty(matchResult.getMatch_qty());
+                        responseSku.setMatch_status(matchResult.getMatch_status());
 
-                            result.getMatchDetails().add(matchDetail);
-                            totalMatchedQty += record.getMatchedQty();
-                        }
-
-                        // 判断该SKU的匹配状态
-                        if (skuMatchResult.getMatchStatus() == MatchStatus.MATCH_FAILED) {
-                            result.setMatchStatus(MatchStatus.MATCH_FAILED);
-                            result.setSuccess(false);
-                            if (result.getErrorMessage() == null) {
-                                result.setErrorMessage(skuMatchResult.getErrorMessage());
-                            }
-                        } else if (skuMatchResult.getMatchStatus() == MatchStatus.PARTIALLY_MATCHED) {
-                            result.setMatchStatus(MatchStatus.PARTIALLY_MATCHED);
-                            log.warn("    SKU {} 部分匹配，需求: {}, 已匹配: {}, 未匹配: {}",
-                                    sku, requiredQty, skuMatchResult.getTotalMatchedQty(),
-                                    skuMatchResult.getUnmatchedQty());
-                        } else if (skuMatchResult.getMatchStatus() == MatchStatus.FULLY_MATCHED) {
-                            if (result.getMatchStatus() == null) {
-                                result.setMatchStatus(MatchStatus.FULLY_MATCHED);
-                            }
-                            log.info("    SKU {} 完全匹配，匹配数量: {}", sku, skuMatchResult.getTotalMatchedQty());
-                        }
+                        responseAggregatedItem.getSkus().add(responseSku);
                     }
+                }
+
+                response.getDeclare_document_aggregated_item().add(responseAggregatedItem);
+            }
+        }
+
+        log.info("报关单匹配完成, 报关单号: {}", customsRequest.getDeclare_document_no());
+
+        return response;
+    }
+
+    /**
+     * 核心匹配方法：doMatch
+     * 
+     * 逻辑：
+     * 1. 查出仍有余量的SKU明细列表 skuDetailList
+     * 2. 遍历skuDetailList，处理每条SkuDetail的处理逻辑，方法名为matchSkuDetail
+     * 使用@JLock注解加锁，key包含skuDetailId
+     * 如果skuDetail的可用数量能覆盖待匹配报关数，则遍历中断
+     * 如果可用数量不能覆盖待匹配报关数，则优先匹配一部分，再进行下一次循环的匹配
+     * 3. 每个遍历处理逻辑中，都要再次从DB获取该skuDetail最新数量，避免超卖现象
+     * 
+     * @param matchRequest   匹配请求（SKU级别）
+     * @param customsRequest 报关单请求（用于保存匹配记录）
+     * @param aggregatedItem 报关聚合项（用于保存匹配记录）
+     * @param declareSku     报关SKU明细（用于保存匹配记录）
+     * @return 匹配结果
+     */
+    private MatchResult doMatch(
+            MatchRequest matchRequest,
+            CustomsDeclarationRequest customsRequest,
+            CustomsDeclarationRequest.DeclareDocumentAggregatedItem aggregatedItem,
+            CustomsDeclarationRequest.DeclareSku declareSku) {
+
+        String sku = matchRequest.getSku();
+        Integer requiredQty = matchRequest.getQuantity();
+        String location = matchRequest.getLocation();
+
+        log.debug("开始执行doMatch, SKU: {}, 需求数量: {}", sku, requiredQty);
+
+        // ========== 2.1：查出仍有余量的SKU明细列表 skuDetailList ==========
+        // 查找可匹配的SKU明细（FIFO策略：按创建时间升序）
+        // List<PurchaseSkuDetail> skuDetailList =
+        // skuDetailMapper.findAvailableSkuDetail(
+        // location,
+        // sku,
+        // "签署完成", // 合同状态
+        // "ASC" // FIFO排序
+        // );
+
+        // 模拟：实际应该从数据库查询
+        List<SkuDetailInfo> skuDetailList = new ArrayList<>();
+        // 示例数据
+        // skuDetailList.add(new SkuDetailInfo(1L, 100, "CT001", "001"));
+        // skuDetailList.add(new SkuDetailInfo(2L, 50, "CT001", "001"));
+
+        int remainingQty = requiredQty;
+        int totalMatchedQty = 0;
+
+        // ========== 2.2：遍历skuDetailList，处理每条SkuDetail ==========
+        for (SkuDetailInfo skuDetailInfo : skuDetailList) {
+            if (remainingQty <= 0) {
+                break;
+            }
+
+            Long skuDetailId = skuDetailInfo.getSkuDetailId();
+            Integer availableQty = skuDetailInfo.getAvailableQty();
+
+            log.debug("  处理SKU明细: skuDetailId={}, availableQty={}, remainingQty={}",
+                    skuDetailId, availableQty, remainingQty);
+
+            // 调用matchSkuDetail方法（使用@JLock加锁）
+            int matchedQty = matchSkuDetail(
+                    location,
+                    skuDetailId,
+                    sku,
+                    remainingQty,
+                    customsRequest,
+                    aggregatedItem,
+                    declareSku);
+
+            if (matchedQty > 0) {
+                totalMatchedQty += matchedQty;
+                remainingQty -= matchedQty;
+
+                log.debug("  SKU明细 {} 匹配成功, 匹配数量: {}, 剩余需求: {}",
+                        skuDetailId, matchedQty, remainingQty);
+
+                // ========== 如果skuDetail的可用数量能覆盖待匹配报关数，则遍历中断 ==========
+                if (remainingQty <= 0) {
+                    log.debug("  需求已完全满足，中断遍历");
+                    break;
                 }
             }
         }
 
-        result.setTotalRequiredQty(totalRequiredQty);
-        result.setTotalMatchedQty(totalMatchedQty);
-        result.setUnmatchedQty(totalRequiredQty - totalMatchedQty);
+        // 构建匹配结果
+        MatchResult result = new MatchResult();
+        result.setSku(sku);
+        result.setQty(requiredQty);
+        result.setMatch_qty(totalMatchedQty);
 
-        log.info("报关单匹配完成, 报关单号: {}, 总需求: {}, 总匹配: {}, 未匹配: {}",
-                customsRequest.getDeclare_document_no(), totalRequiredQty, totalMatchedQty,
-                totalRequiredQty - totalMatchedQty);
+        // 判断匹配状态
+        if (totalMatchedQty == 0) {
+            result.setMatch_status(MatchStatus.MATCH_FAILED);
+        } else if (remainingQty > 0) {
+            result.setMatch_status(MatchStatus.PARTIALLY_MATCHED);
+        } else {
+            result.setMatch_status(MatchStatus.FULLY_MATCHED);
+        }
+
+        log.info("doMatch完成, SKU: {}, 需求: {}, 已匹配: {}, 未匹配: {}, 状态: {}",
+                sku, requiredQty, totalMatchedQty, remainingQty, result.getMatch_status().getDesc());
 
         return result;
     }
 
     /**
-     * 在分布式锁保护下匹配单个SKU明细
+     * 匹配单个SKU明细
+     * 使用@JLock注解加锁，key包含skuDetailId
+     * 在锁内重新从DB获取该skuDetail最新数量，避免超卖现象
      * 
-     * @param location     租户
-     * @param skuDetailId  SKU明细ID
-     * @param sku          SKU编码
-     * @param requiredQty  需求数量
-     * @param availableQty 可用数量
-     * @param request      匹配请求
-     * @return 实际匹配数量
-     */
-    @JLock(lockModel = com.nsy.wms.common.lock.enums.LockModel.REENTRANT, lockKey = {
-            "'sku_detail_match:' + #location + ':' + #skuDetailId" }, expireSeconds = 30L, waitTime = 10L, failMsg = "SKU明细正在被其他匹配操作占用，请稍后重试")
-    private int matchSkuDetailWithLock(
-            String location,
-            Long skuDetailId,
-            String sku,
-            Integer requiredQty,
-            Integer availableQty,
-            MatchRequest request) {
-        // 在锁内再次查询SKU明细，确保数据最新
-        // PurchaseSkuDetail skuDetail =
-        // skuDetailMapper.selectByIdForUpdate(skuDetailId);
-
-        // 验证SKU是否匹配
-        // if (!sku.equals(skuDetail.getSku())) {
-        // log.warn("SKU不匹配, 期望: {}, 实际: {}", sku, skuDetail.getSku());
-        // return 0;
-        // }
-
-        // 验证可用数量
-        // if (skuDetail.getAvailableQty() <= 0) {
-        // log.warn("SKU明细 {} 可用数量不足", skuDetailId);
-        // return 0;
-        // }
-
-        // 计算匹配数量
-        int matchedQty = Math.min(requiredQty, availableQty);
-
-        // 更新SKU明细的已报关数量
-        // skuDetail.setDeclaredQty(skuDetail.getDeclaredQty() + matchedQty);
-        // skuDetail.setAvailableQty(skuDetail.getAvailableQty() - matchedQty);
-        // skuDetailMapper.updateWithVersion(skuDetail);
-
-        log.info("SKU明细 {} 匹配成功, 匹配数量: {}, 剩余可用: {}",
-                skuDetailId, matchedQty, availableQty - matchedQty);
-
-        return matchedQty;
-    }
-
-    /**
-     * 在分布式锁保护下匹配单个SKU明细（报关单专用）
+     * 逻辑：
+     * - 如果skuDetail的可用数量能覆盖待匹配报关数，则全部匹配
+     * - 如果可用数量不能覆盖待匹配报关数，则优先匹配一部分
      * 
      * @param location       租户
      * @param skuDetailId    SKU明细ID
      * @param sku            SKU编码
-     * @param requiredQty    需求数量
-     * @param availableQty   可用数量
-     * @param customsRequest 报关单请求
-     * @param aggregatedItem 报关聚合项
-     * @param declareSku     报关SKU明细
+     * @param requiredQty    待匹配报关数
+     * @param customsRequest 报关单请求（用于保存匹配记录）
+     * @param aggregatedItem 报关聚合项（用于保存匹配记录）
+     * @param declareSku     报关SKU明细（用于保存匹配记录）
      * @return 实际匹配数量
      */
     @JLock(lockModel = com.nsy.wms.common.lock.enums.LockModel.REENTRANT, lockKey = {
             "'sku_detail_match:' + #location + ':' + #skuDetailId" }, expireSeconds = 30L, waitTime = 10L, failMsg = "SKU明细正在被其他匹配操作占用，请稍后重试")
-    private int matchSkuDetailWithLockForCustoms(
+    private int matchSkuDetail(
             String location,
             Long skuDetailId,
             String sku,
             Integer requiredQty,
-            Integer availableQty,
             CustomsDeclarationRequest customsRequest,
             CustomsDeclarationRequest.DeclareDocumentAggregatedItem aggregatedItem,
             CustomsDeclarationRequest.DeclareSku declareSku) {
-        // 在锁内再次查询SKU明细，确保数据最新
+
+        log.debug("    matchSkuDetail开始, skuDetailId={}, sku={}, requiredQty={}",
+                skuDetailId, sku, requiredQty);
+
+        // ========== 2.3：在锁内再次从DB获取该skuDetail最新数量，避免超卖现象 ==========
         // PurchaseSkuDetail skuDetail =
         // skuDetailMapper.selectByIdForUpdate(skuDetailId);
 
         // 验证SKU是否匹配
-        // if (!sku.equals(skuDetail.getSku())) {
-        // log.warn("SKU不匹配, 期望: {}, 实际: {}", sku, skuDetail.getSku());
+        // if (!sku.equals(skuDetail.getProduct_sku())) {
+        // log.warn("SKU不匹配, 期望: {}, 实际: {}", sku, skuDetail.getProduct_sku());
         // return 0;
         // }
 
-        // 验证可用数量
-        // if (skuDetail.getAvailableQty() <= 0) {
+        // 获取最新可用数量
+        // Integer availableQty = skuDetail.getAvailable_qty();
+        // if (availableQty == null || availableQty <= 0) {
         // log.warn("SKU明细 {} 可用数量不足", skuDetailId);
         // return 0;
         // }
 
+        // 模拟：实际应该从数据库查询
+        Integer availableQty = 100; // 示例：从DB查询的最新数量
+
         // 计算匹配数量
         int matchedQty = Math.min(requiredQty, availableQty);
 
+        if (matchedQty <= 0) {
+            log.debug("    SKU明细 {} 无法匹配，可用数量: {}", skuDetailId, availableQty);
+            return 0;
+        }
+
         // 更新SKU明细的已报关数量
-        // skuDetail.setDeclaredQty(skuDetail.getDeclaredQty() + matchedQty);
-        // skuDetail.setAvailableQty(skuDetail.getAvailableQty() - matchedQty);
+        // skuDetail.setDeclared_qty(skuDetail.getDeclared_qty() + matchedQty);
+        // skuDetail.setAvailable_qty(skuDetail.getAvailable_qty() - matchedQty);
         // skuDetailMapper.updateWithVersion(skuDetail);
 
         // 保存匹配记录到 sku_customs_declare_match 表
         // SkuCustomsDeclareMatch matchRecord = new SkuCustomsDeclareMatch();
         // matchRecord.setLocation(location);
-        // matchRecord.setSkuDetailId(skuDetailId);
-        // matchRecord.setSku(sku);
-        // matchRecord.setContractId(skuDetail.getContractId());
-        // matchRecord.setContractNo(skuDetail.getContractNo());
-        // matchRecord.setContractItemNo(skuDetail.getContractItemNo());
-        // matchRecord.setDeclareDocumentId(customsRequest.getDeclare_document_id());
-        // matchRecord.setDeclareDocumentNo(customsRequest.getDeclare_document_no());
-        // matchRecord.setDeclareDocumentAggregatedItemId(aggregatedItem.getDeclare_document_aggregated_item_id());
+        // matchRecord.setSku_detail_id(skuDetailId);
+        // matchRecord.setProduct_sku(sku);
+        // matchRecord.setDeclare_document_id(customsRequest.getDeclare_document_id());
+        // matchRecord.setDeclare_document_no(customsRequest.getDeclare_document_no());
+        // matchRecord.setDeclare_document_aggregated_item_id(aggregatedItem.getDeclare_document_aggregated_item_id());
         // matchRecord.setG_no(aggregatedItem.getG_no());
-        // matchRecord.setDeclareDocumentItemId(declareSku.getDeclare_document_item_id());
-        // matchRecord.setMatchedQuantity(matchedQty);
-        // matchRecord.setCustomsDeclareCn(aggregatedItem.getCustoms_declare_cn());
-        // matchRecord.setCustomsDeclareEn(aggregatedItem.getCustoms_declare_en());
-        // matchRecord.setHsCode(aggregatedItem.getHs_code());
-        // matchRecord.setSpinType(aggregatedItem.getSpin_type());
-        // matchRecord.setFabricType(aggregatedItem.getFabric_type());
-        // matchRecord.setCreateBy(customsRequest.getOperator());
+        // matchRecord.setDeclare_document_item_id(declareSku.getDeclare_document_item_id());
+        // matchRecord.setMatched_quantity(matchedQty);
+        // matchRecord.setCustoms_declare_cn(aggregatedItem.getCustoms_declare_cn());
+        // matchRecord.setCustoms_declare_en(aggregatedItem.getCustoms_declare_en());
+        // matchRecord.setHs_code(aggregatedItem.getHs_code());
+        // matchRecord.setSpin_type(aggregatedItem.getSpin_type());
+        // matchRecord.setFabric_type(aggregatedItem.getFabric_type());
+        // matchRecord.setCreate_by(customsRequest.getOperator());
         // matchMapper.insert(matchRecord);
 
-        log.info("SKU明细 {} 报关匹配成功, 匹配数量: {}, 剩余可用: {}, 报关项号: {}",
+        log.info("    SKU明细 {} 报关匹配成功, 匹配数量: {}, 剩余可用: {}, 报关项号: {}",
                 skuDetailId, matchedQty, availableQty - matchedQty, aggregatedItem.getG_no());
 
         return matchedQty;
     }
 
     /**
-     * 核心匹配逻辑：批量匹配单个SKU
-     * 这是真正的匹配逻辑，在SKU级别执行
-     * 支持从多个SKU明细中匹配（FIFO策略）
-     * 
-     * @param matchContext SKU匹配上下文
-     * @return SKU匹配结果
+     * SKU明细信息（内部类，用于模拟数据库查询结果）
      */
-    private SkuMatchResult matchSkuBatch(SkuMatchContext matchContext) {
-        log.debug("开始批量匹配SKU: {}, 需求数量: {}", matchContext.getSku(), matchContext.getRequiredQty());
-
-        SkuMatchResult result = new SkuMatchResult();
-        result.setSku(matchContext.getSku());
-        result.setRequiredQty(matchContext.getRequiredQty());
-        result.setMatchRecords(new ArrayList<>());
-
-        // 查找可匹配的SKU明细（FIFO策略：按创建时间升序）
-        // List<PurchaseSkuDetail> availableDetails =
-        // skuDetailMapper.findAvailableSkuDetail(
-        // matchContext.getLocation(),
-        // matchContext.getSku(),
-        // "签署完成", // 合同状态
-        // "ASC" // FIFO排序
-        // );
-
-        // 模拟：实际应该从数据库查询
-        List<Object> availableDetails = new ArrayList<>();
-        // 示例数据
-        // availableDetails.add(createMockSkuDetail(1L, 100, "CT001", "001"));
-        // availableDetails.add(createMockSkuDetail(2L, 50, "CT001", "001"));
-
-        int remainingQty = matchContext.getRequiredQty();
-        int matchOrder = 1;
-
-        // 按FIFO顺序批量匹配
-        for (Object detail : availableDetails) {
-            if (remainingQty <= 0) {
-                break;
-            }
-
-            // 获取SKU明细信息
-            // Long skuDetailId = detail.getSkuDetailId();
-            // Integer availableQty = detail.getAvailableQty();
-            // String contractNo = detail.getContractNo();
-            // String contractItemNo = detail.getContractItemNo();
-
-            // 示例数据
-            Long skuDetailId = matchOrder == 1 ? 1L : 2L;
-            Integer availableQty = matchOrder == 1 ? 100 : 50;
-            String contractNo = "CT20250101001";
-            String contractItemNo = "001";
-
-            // 调用核心匹配方法（带分布式锁）
-            SkuDetailMatchResult detailMatchResult = matchSingleSkuDetail(
-                    matchContext,
-                    skuDetailId,
-                    availableQty,
-                    contractNo,
-                    contractItemNo,
-                    remainingQty);
-
-            if (detailMatchResult.getMatchedQty() > 0) {
-                // 创建匹配记录
-                SkuMatchResult.SkuDetailMatchRecord record = new SkuMatchResult.SkuDetailMatchRecord();
-                record.setSkuDetailId(skuDetailId);
-                record.setMatchedQty(detailMatchResult.getMatchedQty());
-                record.setMatchOrder(matchOrder++);
-                record.setAvailableQtyBefore(detailMatchResult.getAvailableQtyBefore());
-                record.setAvailableQtyAfter(detailMatchResult.getAvailableQtyAfter());
-                record.setContractNo(contractNo);
-                record.setContractItemNo(contractItemNo);
-
-                result.getMatchRecords().add(record);
-                remainingQty -= detailMatchResult.getMatchedQty();
-
-                log.debug("  SKU明细 {} 匹配成功, 匹配数量: {}, 剩余需求: {}",
-                        skuDetailId, detailMatchResult.getMatchedQty(), remainingQty);
-            }
-        }
-
-        // 计算匹配结果
-        result.setTotalMatchedQty(matchContext.getRequiredQty() - remainingQty);
-        result.setUnmatchedQty(remainingQty);
-
-        // 判断匹配状态
-        if (result.getTotalMatchedQty() == 0) {
-            result.setMatchStatus(MatchStatus.MATCH_FAILED);
-            result.setErrorMessage("SKU " + matchContext.getSku() + " 无可匹配库存");
-        } else if (remainingQty > 0) {
-            result.setMatchStatus(MatchStatus.PARTIALLY_MATCHED);
-        } else {
-            result.setMatchStatus(MatchStatus.FULLY_MATCHED);
-        }
-
-        log.info("SKU {} 批量匹配完成, 需求: {}, 已匹配: {}, 未匹配: {}, 状态: {}",
-                matchContext.getSku(), matchContext.getRequiredQty(),
-                result.getTotalMatchedQty(), result.getUnmatchedQty(),
-                result.getMatchStatus().getDesc());
-
-        return result;
-    }
-
-    /**
-     * 核心匹配方法：匹配单个SKU明细
-     * 使用分布式锁保护，确保并发安全
-     * 
-     * @param matchContext   匹配上下文
-     * @param skuDetailId    SKU明细ID
-     * @param availableQty   可用数量
-     * @param contractNo     合同编号
-     * @param contractItemNo 合同项号
-     * @param requiredQty    需求数量
-     * @return SKU明细匹配结果
-     */
-    @JLock(lockModel = com.nsy.wms.common.lock.enums.LockModel.REENTRANT, lockKey = {
-            "'sku_detail_match:' + #matchContext.location + ':' + #skuDetailId" }, expireSeconds = 30L, waitTime = 10L, failMsg = "SKU明细正在被其他匹配操作占用，请稍后重试")
-    private SkuDetailMatchResult matchSingleSkuDetail(
-            SkuMatchContext matchContext,
-            Long skuDetailId,
-            Integer availableQty,
-            String contractNo,
-            String contractItemNo,
-            Integer requiredQty) {
-
-        // 在锁内再次查询SKU明细，确保数据最新
-        // PurchaseSkuDetail skuDetail =
-        // skuDetailMapper.selectByIdForUpdate(skuDetailId);
-
-        // 验证SKU是否匹配
-        // if (!matchContext.getSku().equals(skuDetail.getSku())) {
-        // log.warn("SKU不匹配, 期望: {}, 实际: {}", matchContext.getSku(),
-        // skuDetail.getSku());
-        // return SkuDetailMatchResult.builder().matchedQty(0).build();
-        // }
-
-        // 验证可用数量
-        // if (skuDetail.getAvailableQty() <= 0) {
-        // log.warn("SKU明细 {} 可用数量不足", skuDetailId);
-        // return SkuDetailMatchResult.builder().matchedQty(0).build();
-        // }
-
-        // 计算匹配数量
-        int matchedQty = Math.min(requiredQty, availableQty);
-        int availableQtyBefore = availableQty;
-        int availableQtyAfter = availableQty - matchedQty;
-
-        // 更新SKU明细的已报关数量
-        // skuDetail.setDeclaredQty(skuDetail.getDeclaredQty() + matchedQty);
-        // skuDetail.setAvailableQty(availableQtyAfter);
-        // skuDetailMapper.updateWithVersion(skuDetail);
-
-        // 保存匹配记录到 sku_customs_declare_match 表
-        // saveCustomsMatchRecord(matchContext, skuDetailId, matchedQty, contractNo,
-        // contractItemNo);
-
-        log.debug("    SKU明细 {} 匹配成功, 匹配数量: {}, 剩余可用: {}", skuDetailId, matchedQty, availableQtyAfter);
-
-        return SkuDetailMatchResult.builder()
-                .matchedQty(matchedQty)
-                .availableQtyBefore(availableQtyBefore)
-                .availableQtyAfter(availableQtyAfter)
-                .build();
-    }
-
-    /**
-     * SKU明细匹配结果（内部类）
-     */
-    @Data
-    @lombok.Builder
-    private static class SkuDetailMatchResult {
-        private Integer matchedQty;
-        private Integer availableQtyBefore;
-        private Integer availableQtyAfter;
+    @lombok.Data
+    @lombok.AllArgsConstructor
+    private static class SkuDetailInfo {
+        private Long skuDetailId;
+        private Integer availableQty;
+        private String contractNo;
+        private String contractItemNo;
     }
 }
