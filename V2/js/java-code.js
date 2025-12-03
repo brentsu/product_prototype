@@ -16,8 +16,7 @@ const javaFiles = [
     { name: 'CustomsDeclarationRequest.java', path: '../java/CustomsDeclarationRequest.java' },
     { name: 'CustomsDeclarationMatchResponse.java', path: '../java/CustomsDeclarationMatchResponse.java' },
     { name: 'ReturnOrderRequest.java', path: '../java/ReturnOrderRequest.java' },
-    { name: 'ReturnOrderMatchResponse.java', path: '../java/ReturnOrderMatchResponse.java' },
-    { name: 'CustomsDeclarationMatchContext.java', path: '../java/CustomsDeclarationMatchContext.java' }
+    { name: 'ReturnOrderMatchResponse.java', path: '../java/ReturnOrderMatchResponse.java' }
 ];
 
 let currentFile = null;

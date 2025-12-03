@@ -1,7 +1,6 @@
 package com.nsy.scm.match.service.impl;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,7 +10,6 @@ import com.nsy.scm.match.dto.MatchResult;
 import com.nsy.scm.match.dto.ReturnOrderMatchResponse;
 import com.nsy.scm.match.dto.ReturnOrderRequest;
 import com.nsy.scm.match.enums.MatchType;
-import com.nsy.scm.match.service.impl.AbstractSkuDetailMatcher.MatchContext;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -93,14 +91,16 @@ public class ReturnOrderMatcher extends AbstractSkuDetailMatcher {
     @Override
     protected Integer updateSkuDetail(Long skuDetailId, int matchedQty, Integer availableQty) {
         // 退货场景：增加可用数量，增加退货数量
-        // PurchaseSkuDetail skuDetail = skuDetailMapper.selectByIdForUpdate(skuDetailId);
+        // PurchaseSkuDetail skuDetail =
+        // skuDetailMapper.selectByIdForUpdate(skuDetailId);
         // skuDetail.setReturn_qty(skuDetail.getReturn_qty() + matchedQty);
-        // skuDetail.setAvailable_qty(skuDetail.getAvailable_qty() + matchedQty); // 退货后可用数量增加
+        // skuDetail.setAvailable_qty(skuDetail.getAvailable_qty() + matchedQty); //
+        // 退货后可用数量增加
         // skuDetailMapper.updateWithVersion(skuDetail);
-        
+
         // 返回更新后的可用数量（退货场景：可用数量增加）
         Integer updatedAvailableQty = availableQty + matchedQty;
-        log.debug("    更新SKU明细 {}: 退货数量 +{}, 可用数量 {} -> {}", 
+        log.debug("    更新SKU明细 {}: 退货数量 +{}, 可用数量 {} -> {}",
                 skuDetailId, matchedQty, availableQty, updatedAvailableQty);
         return updatedAvailableQty;
     }
