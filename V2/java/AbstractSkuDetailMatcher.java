@@ -3,6 +3,9 @@ package com.nsy.scm.match.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.nsy.scm.match.dto.MatchRequest;
 import com.nsy.scm.match.dto.MatchResult;
 import com.nsy.scm.match.enums.MatchStatus;
@@ -65,11 +68,20 @@ public abstract class AbstractSkuDetailMatcher {
                     skuDetailId, availableQty, remainingQty);
 
             // 调用matchSkuDetail方法（使用@JLock加锁）
-            int matchedQty = matchSkuDetail(
-                    location,
-                    skuDetailId,
-                    sku,
-                    remainingQty);
+            // 注意：matchSkuDetail使用REQUIRES_NEW事务，即使失败也不影响其他SKU明细的处理
+            int matchedQty = 0;
+            try {
+                matchedQty = matchSkuDetail(
+                        location,
+                        skuDetailId,
+                        sku,
+                        remainingQty);
+            } catch (Exception e) {
+                // 捕获乐观锁异常或其他异常，记录日志但继续处理下一个SKU明细
+                log.warn("  SKU明细 {} 匹配失败, 继续处理下一个SKU明细, 异常: {}",
+                        skuDetailId, e.getMessage(), e);
+                continue;
+            }
 
             if (matchedQty > 0) {
                 totalMatchedQty += matchedQty;
@@ -108,9 +120,23 @@ public abstract class AbstractSkuDetailMatcher {
     }
 
     /**
-     * 匹配单个SKU明细（带分布式锁）
-     * 使用@JLock注解加锁，key包含skuDetailId
-     * 在锁内重新从DB获取该skuDetail最新数量，避免超卖现象
+     * 匹配单个SKU明细（带分布式锁和事务）
+     * 
+     * 事务说明：
+     * - 使用 REQUIRES_NEW 传播级别：无论外层是否有事务，都新建独立事务并立即提交
+     * - 避免大事务导致的乐观锁异常：
+     * 1. 每个SKU明细的更新立即提交，version立即生效
+     * 2. 其他线程读取时能获取到最新的version，避免乐观锁冲突
+     * 3. 即使某个SKU明细更新失败，也不影响其他SKU明细的处理
+     * - 在 RC 隔离级别下，保证以下操作的原子性：
+     * 1. 读取最新可用数量（getAvailableQtyFromDb）
+     * 2. 更新SKU明细（updateSkuDetail）
+     * 3. 保存匹配记录（saveMatchRecord）
+     * 
+     * 分布式锁说明：
+     * - 使用@JLock注解加锁，key包含skuDetailId
+     * - 在锁内重新从DB获取该skuDetail最新数量，避免超卖现象
+     * - 分布式锁 + 独立事务 + RC隔离级别，确保并发安全
      * 
      * @param location    租户
      * @param skuDetailId SKU明细ID
@@ -120,6 +146,7 @@ public abstract class AbstractSkuDetailMatcher {
      */
     @JLock(lockModel = com.nsy.wms.common.lock.enums.LockModel.REENTRANT, lockKey = {
             "'sku_detail_match:' + #location + ':' + #skuDetailId" }, expireSeconds = 30L, waitTime = 10L, failMsg = "SKU明细正在被其他匹配操作占用，请稍后重试")
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     protected int matchSkuDetail(
             String location,
             Long skuDetailId,
