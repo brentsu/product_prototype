@@ -106,6 +106,7 @@ public class SkuDetailMatchService {
      * @param returnOrderRequest 退货订单匹配请求
      * @return 匹配结果（结构类似ReturnOrderRequest）
      */
+    @JLock(keyConstant = "RETURN_MATCH_LOCK", lockKey = "#returnOrderRequest.purchase_return_order_no")
     public com.nsy.scm.match.dto.ReturnOrderMatchResponse matchReturnOrder(
             ReturnOrderRequest returnOrderRequest) {
         log.info("开始执行退货订单匹配, 退货单号: {}, 租户: {}",
